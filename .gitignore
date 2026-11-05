@@ -1,0 +1,17 @@
+node_modules/
+.expo/
+.test-artifacts/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.log
+.DS_Store
+.vs/
+database/backups/
+.local/

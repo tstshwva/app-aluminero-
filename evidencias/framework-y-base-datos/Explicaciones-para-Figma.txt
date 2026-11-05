@@ -1,0 +1,13 @@
+EVIDENCIAS DE ALUFORMIX — 29 de octubre de 2026
+Capturas reales, sin cursor ni reconstrucción con IA.
+
+01 — FRAMEWORK .NET MAUI
+El archivo Aluformix.Mobile.csproj abierto en Visual Studio Code configura el proyecto móvil. UseMaui=true activa .NET MAUI; TargetFrameworks declara Android e iOS sobre .NET 10 y SingleProject=true reúne la configuración y los recursos de plataformas. C# contiene la lógica y XAML describe las pantallas. Esta evidencia demuestra la configuración, no una compilación ni ejecución móvil. Separar las apps de empresa y comprador todavía está pendiente.
+
+02 — BASE DE DATOS: TABLAS
+La consulta de lectura lista las 15 tablas de aluformix. users y roles organizan cuentas y permisos; customers guarda clientes; categories y products organizan materiales; orders y order_items guardan encargos y sus partidas; quotes y payments registran cotizaciones y pagos; inventory_movements registra movimientos; order_history conserva estados; notifications almacena avisos; auth_sessions y password_reset_tokens respaldan el acceso y la recuperación; schema_versions identifica migraciones. Las tablas ya existen, pero las operaciones y pantallas de las apps todavía necesitan completarse.
+
+03 — BASE DE DATOS: ACCESO
+La consulta muestra nombres y tipos de columnas sin consultar secretos de personas. users.email identifica la cuenta; password_hash guarda el verificador protegido de la contraseña y locked_until permite el bloqueo temporal. En auth_sessions, user_id relaciona la sesión con el usuario; token_hash almacena el hash del token; expires_at indica vencimiento y revoked_at registra revocación. password_reset_tokens conserva hashes de códigos, su vencimiento y su uso para impedir reutilizarlos. Esta imagen demuestra la estructura; las pruebas del registro 09 comprueban guardado y revocación.
+
+Registro de captura: solo se ejecutaron consultas SELECT de metadatos, sin modificar registros ni insertar ejemplos. Un reemplazo parcial del texto SQL produjo un error de sintaxis durante la preparación; se corrigió y se verificaron los resultados finales. No se alteraron imágenes para ocultar el cursor: se apartó antes de capturarlas.

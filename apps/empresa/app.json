@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Aluformix Empresa",
+    "slug": "aluformix-empresa",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.aluformix.empresa",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": false
+        }
+      }
+    },
+    "android": {
+      "package": "com.aluformix.empresa",
+      "allowBackup": false
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": false
+          }
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite que Aluformix escanee el código del material.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ],
+      "expo-notifications"
+    ]
+  }
+}

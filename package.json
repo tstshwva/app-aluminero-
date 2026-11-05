@@ -1,0 +1,32 @@
+{
+  "name": "aluformix",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "npm@12.2.1",
+  "engines": {
+    "node": ">=24.13.0"
+  },
+  "scripts": {
+    "api": "node --env-file-if-exists=.env server/src/start.js",
+    "test": "node --test tests/javascript/*.test.js",
+    "cliente": "npm run start --workspace=@aluformix/cliente",
+    "empresa": "npm run start --workspace=@aluformix/empresa",
+    "config:check": "node scripts/revisar-configuracion.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "prettier": "^3.9.10",
+    "react-test-renderer": "^19.3.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "server"
+  ],
+  "overrides": {
+    "glob": "14.0.3",
+    "minimatch": "11.0.3"
+  }
+}

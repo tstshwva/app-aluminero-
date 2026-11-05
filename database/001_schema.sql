@@ -1,0 +1,94 @@
+-- Aluformix: esquema inicial. Ejecutar en una base NUEVA MySQL 8.4+.
+CREATE DATABASE IF NOT EXISTS aluformix CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE aluformix;
+CREATE TABLE schema_versions (version INT PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE roles (id TINYINT UNSIGNED PRIMARY KEY, name VARCHAR(30) NOT NULL UNIQUE);
+INSERT INTO roles VALUES (1,'Administrador'),(2,'Operador'),(3,'Cliente');
+CREATE TABLE users (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ role_id TINYINT UNSIGNED NOT NULL,
+ name VARCHAR(120) NOT NULL, email VARCHAR(254) NOT NULL UNIQUE,
+ password_hash VARCHAR(512) NOT NULL,
+ active BOOLEAN NOT NULL DEFAULT TRUE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+CREATE TABLE customers (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NULL UNIQUE,
+ name VARCHAR(120) NOT NULL, phone VARCHAR(25) NOT NULL,
+ email VARCHAR(254) NULL, business_name VARCHAR(160) NULL,
+ tax_id VARCHAR(13) NULL, address VARCHAR(500) NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE categories (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, name VARCHAR(80) NOT NULL UNIQUE);
+CREATE TABLE products (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ category_id INT UNSIGNED NOT NULL,
+ code VARCHAR(40) NOT NULL UNIQUE, name VARCHAR(150) NOT NULL,
+ description TEXT NULL, unit VARCHAR(30) NOT NULL,
+ finish VARCHAR(60) NOT NULL DEFAULT 'Natural',
+ length_mm INT UNSIGNED NULL,
+ price DECIMAL(12,2) NOT NULL, stock DECIMAL(12,3) NOT NULL DEFAULT 0,
+ reserved DECIMAL(12,3) NOT NULL DEFAULT 0, minimum_stock DECIMAL(12,3) NOT NULL DEFAULT 0,
+ active BOOLEAN NOT NULL DEFAULT TRUE,
+ FOREIGN KEY (category_id) REFERENCES categories(id),
+ CHECK (price >= 0), CHECK (stock >= 0), CHECK (reserved >= 0 AND reserved <= stock)
+);
+CREATE TABLE orders (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, customer_id BIGINT UNSIGNED NOT NULL,
+ status ENUM('Solicitado','Cotizado','Confirmado','Preparando','Listo','Entregado','Cancelado') NOT NULL DEFAULT 'Solicitado',
+ fulfillment ENUM('Recoger','Entrega') NOT NULL DEFAULT 'Recoger',
+ delivery_address VARCHAR(500) NULL, notes TEXT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ FOREIGN KEY (customer_id) REFERENCES customers(id), INDEX ix_orders_status (status,created_at),
+ CHECK (fulfillment <> 'Entrega' OR delivery_address IS NOT NULL)
+);
+CREATE TABLE order_items (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, order_id BIGINT UNSIGNED NOT NULL,
+ product_id BIGINT UNSIGNED NOT NULL, quantity DECIMAL(12,3) NOT NULL,
+ unit_price DECIMAL(12,2) NOT NULL, finish VARCHAR(60) NOT NULL,
+ cut_length_mm INT UNSIGNED NULL,
+ FOREIGN KEY (order_id) REFERENCES orders(id), FOREIGN KEY (product_id) REFERENCES products(id),
+ CHECK (quantity > 0), CHECK (unit_price >= 0)
+);
+CREATE TABLE quotes (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, order_id BIGINT UNSIGNED NOT NULL UNIQUE,
+ subtotal DECIMAL(14,2) NOT NULL, tax_rate DECIMAL(5,4) NOT NULL DEFAULT 0.1600,
+ tax DECIMAL(14,2) NOT NULL, shipping DECIMAL(12,2) NOT NULL DEFAULT 0,
+ total DECIMAL(14,2) NOT NULL,
+ status ENUM('Borrador','Enviada','Aceptada','Rechazada') NOT NULL DEFAULT 'Borrador',
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (order_id) REFERENCES orders(id),
+ CHECK (subtotal >= 0 AND tax >= 0 AND shipping >= 0 AND total >= 0), CHECK(tax_rate BETWEEN 0 AND 1)
+);
+CREATE TABLE payments (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, quote_id BIGINT UNSIGNED NOT NULL,
+ amount DECIMAL(12,2) NOT NULL, reference VARCHAR(120) NULL,
+ recorded_by BIGINT UNSIGNED NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (quote_id) REFERENCES quotes(id), FOREIGN KEY (recorded_by) REFERENCES users(id), CHECK(amount > 0)
+);
+CREATE TABLE inventory_movements (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, product_id BIGINT UNSIGNED NOT NULL,
+ order_id BIGINT UNSIGNED NULL, user_id BIGINT UNSIGNED NOT NULL,
+ type ENUM('Entrada','Ajuste','Reserva','Liberacion','Entrega') NOT NULL,
+ quantity DECIMAL(12,3) NOT NULL, reason VARCHAR(255) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY(product_id) REFERENCES products(id), FOREIGN KEY(order_id) REFERENCES orders(id),
+ FOREIGN KEY(user_id) REFERENCES users(id), CHECK(quantity <> 0), INDEX ix_movements_product(product_id,created_at)
+);
+CREATE TABLE order_history (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, order_id BIGINT UNSIGNED NOT NULL,
+ user_id BIGINT UNSIGNED NOT NULL, status VARCHAR(30) NOT NULL, note VARCHAR(500) NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY(order_id) REFERENCES orders(id), FOREIGN KEY(user_id) REFERENCES users(id)
+);
+CREATE TABLE notifications (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id BIGINT UNSIGNED NOT NULL,
+ order_id BIGINT UNSIGNED NULL, message VARCHAR(500) NOT NULL,
+ read_at TIMESTAMP NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY(user_id) REFERENCES users(id), FOREIGN KEY(order_id) REFERENCES orders(id)
+);
+INSERT INTO schema_versions(version) VALUES(1);

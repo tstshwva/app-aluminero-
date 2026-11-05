@@ -1,0 +1,240 @@
+Window: "AccessPage.xaml - Aluformix (Workspace) - Visual Studio Code", App: Code.exe.
+	0 ventana AccessPage.xaml - Aluformix (Workspace) - Visual Studio Code Secondary Actions: Raise
+		1 panel (disabled)
+		2 región AccessPage.xaml - Aluformix (Workspace) - Visual Studio Code
+			3 región
+				4 región
+					5 región
+						6 botón Minimize
+						2116 botón Maximize
+						8 botón Close
+					9 región
+						10 región
+							11 región
+								12 región
+									1132 documento AccessPage.xaml - Aluformix (Workspace) - Visual Studio Code Value: vscode-file://vscode-app/c:/Users/Reyca/AppData/Local/Programs/Microsoft%20VS%20Code/2d0b7506a3/resources/app/out/vs/code/electron-browser/workbench/workbench.html ID: RootWebArea
+										1133 grupo
+											1134 aplicación
+												1135 grupo
+												1136 grupo
+												1137 grupo
+												1138 barra de menús
+													1139 elemento de menú File
+													1140 elemento de menú Edit
+													1141 elemento de menú Selection
+													1142 elemento de menú View
+													2121 elemento de menú Go
+													2122 elemento de menú Run
+													1143 elemento de menú More
+												2336 barra de herramientas
+													2369 botón Go Back (Alt+LeftArrow)
+													2370 botón (disabled) Go Forward (Alt+RightArrow)
+													2371 barra de herramientas Agent Status
+														2372 botón Open Quick Access
+														2373 grupo
+															2374 botón Toggle Chat
+																2375 botón Toggle Chat
+															2376 grupo
+																2377 grupo
+																	2378 botón More Actions
+												1152 barra de herramientas
+													1927 botón Open in Agents Window (Ctrl+Shift+Alt+A)
+												1775 barra de herramientas
+													1776 botón Update
+												1154 barra de herramientas Title actions
+													1998 botón Customize Layout...
+													1999 toggle button Toggle Primary Side Bar (Ctrl+B)
+														2180 texto 
+													2001 toggle button Toggle Panel (Ctrl+J)
+														2181 texto 
+													2003 toggle button Toggle Secondary Side Bar (Ctrl+Alt+B)
+														2182 texto 
+												1159 grupo
+												1160 grupo
+												1161 grupo
+												1162 tabulación Active View Switcher
+													1163 elemento de la pestaña (selectable) Explorer (Ctrl+Shift+E)
+														1164 grupo Explorer (Ctrl+Shift+E)
+													1165 elemento de la pestaña (selectable) Search (Ctrl+Shift+F)
+														1166 grupo Search (Ctrl+Shift+F)
+													1167 elemento de la pestaña (selectable) Source Control (Ctrl+Shift+G)
+														1168 grupo Source Control (Ctrl+Shift+G)
+													1169 elemento de la pestaña (selectable) Run and Debug (Ctrl+Shift+D)
+														1170 grupo Run and Debug (Ctrl+Shift+D)
+													1171 elemento de la pestaña (selectable) Extensions (Ctrl+Shift+X)
+														1172 grupo Extensions (Ctrl+Shift+X)
+												1173 barra de herramientas Manage
+													1174 botón Accounts
+														1175 grupo Accounts
+													1176 botón Manage - New Code update available.
+														1177 grupo Manage - New Code update available.
+															2183 texto 
+														1717 grupo Manage - New Code update available.
+															1900 texto 1
+												1178 título Explorer
+												1179 barra de herramientas Explorer actions
+													1935 grupo
+														1936 grupo
+															1937 botón Views and More Actions...
+												1180 barra de herramientas
+												1181 grupo
+												1182 grupo
+												1183 botón Explorer Section: Aluformix (Workspace)
+													1184 título Explorer Section: Aluformix (Workspace)
+												1185 árbol Files Explorer
+													2192 elemento del árbol (selectable) Aluformix ID: list_id_3_0
+														2193 grupo C:\Users\Reyca\Documents\Aluformix
+													1186 elemento del árbol (selectable) database ID: list_id_3_1
+														1187 grupo C:\Users\Reyca\Documents\Aluformix\database
+													1291 elemento del árbol (selectable) docs ID: list_id_3_2
+														1292 grupo C:\Users\Reyca\Documents\Aluformix\docs
+													1293 elemento del árbol (selectable) evidencias ID: list_id_3_3
+														1294 grupo C:\Users\Reyca\Documents\Aluformix\evidencias
+													1295 elemento del árbol (selectable) src ID: list_id_3_4
+														1296 grupo C:\Users\Reyca\Documents\Aluformix\src
+													2011 elemento del árbol (selectable) Aluformix.Api ID: list_id_3_5
+														2012 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api
+													2020 elemento del árbol (selectable) Aluformix.Api.csproj ID: list_id_3_6
+														2021 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Aluformix.Api.csproj
+													2022 elemento del árbol (selectable) appsettings.json ID: list_id_3_7
+														2023 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\appsettings.json
+													2024 elemento del árbol (selectable) Auth.cs ID: list_id_3_8
+														2025 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Auth.cs
+													2026 elemento del árbol (selectable) AuthEndpoints.cs ID: list_id_3_9
+														2027 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\AuthEndpoints.cs
+													2028 elemento del árbol (selectable) PasswordRecovery.cs ID: list_id_3_10
+														2029 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\PasswordRecovery.cs
+													2030 elemento del árbol (selectable) Program.cs ID: list_id_3_11
+														2031 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Program.cs
+													2013 elemento del árbol (selectable) Aluformix.Connection ID: list_id_3_12
+														2014 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Connection
+													2015 elemento del árbol (selectable) Aluformix.Mobile ID: list_id_3_13
+														2016 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile
+													2379 elemento del árbol (selectable) Platforms ID: list_id_3_14
+														2380 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Platforms
+													2381 elemento del árbol (selectable) Properties ID: list_id_3_15
+														2382 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Properties
+													2383 elemento del árbol (selectable) Resources ID: list_id_3_16
+														2384 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Resources
+													1297 elemento del árbol (selectable) Views ID: list_id_3_17
+														1298 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views
+													1305 elemento del árbol (selectable) AccessPage.xaml ID: list_id_3_18
+														1306 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views\AccessPage.xaml
+													2127 elemento del árbol (selectable) AccessPage.xaml.cs ID: list_id_3_19
+														2128 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views\AccessPage.xaml.cs
+													1299 elemento del árbol (selectable) .gitignore ID: list_id_3_20
+														1300 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\.gitignore
+													1301 elemento del árbol (selectable) Aluformix.Mobile.csproj ID: list_id_3_21
+														1302 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Aluformix.Mobile.csproj
+													1303 elemento del árbol (selectable) App.xaml ID: list_id_3_22
+														1304 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\App.xaml
+												1188 botón Outline Section
+													1189 título Outline
+												1190 botón Timeline Section
+													1191 título Timeline
+												1192 grupo
+												1193 principal ID: workbench.parts.editor
+													1719 grupo
+														1720 tabulación
+															1721 elemento de la pestaña (selectable) AuthEndpoints.cs
+																1722 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\AuthEndpoints.cs
+																1723 barra de herramientas Tab actions
+																	1724 botón Close (Ctrl+F4)
+															2347 elemento de la pestaña (selectable) AccessPage.xaml
+																2348 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views\AccessPage.xaml
+																2349 barra de herramientas Tab actions
+																	2395 botón Close (Ctrl+F4)
+														1725 barra de herramientas Editor actions
+															2385 botón Split Editor Right (Ctrl+|) [Alt] Split Editor Down
+															2386 grupo
+																2387 grupo
+																	2388 botón More Actions...
+																		2389 texto 
+														2037 lista
+															2038 elemento de lista src
+																2356 grupo C:\Users\Reyca\Documents\Aluformix\src
+																	2357 texto src
+																2358 texto 
+															2042 elemento de lista Aluformix.Mobile
+																2359 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile
+																	2360 texto Aluformix.Mobile
+																2361 texto 
+															2046 elemento de lista Views
+																2362 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views
+																	2363 texto Views
+																2364 texto 
+															2365 elemento de lista AccessPage.xaml
+																2366 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile\Views\AccessPage.xaml
+																	2367 texto 
+																	2368 texto AccessPage.xaml
+													2050 grupo AccessPage.xaml
+														2390 code
+															2391 editor (settable, string) AccessPage.xaml Value: <?xml version="1.0" encoding="utf-8" ?> <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Aluformix.Mobile.Views.AccessPage" BackgroundColor="#F4F8FF" NavigationPage.HasNavigationBar="False"> <ScrollView> <VerticalStackLayout Padding="28,48" Spacing="18" MaximumWidthRequest="480" HorizontalOptions="Fill"> <Label Text="ALUFORMIX" FontSize="24" FontAttributes="Bold" TextColor="#07325A" /> <Label x:Name="Heading" Text="Inicia sesión" FontSize="30" FontAttributes="Bold" TextColor="#102C46" /> <Label x:Name="Description" Text="Accede con tu cuenta para continuar." TextColor="#526B82" /> <VerticalStackLayout x:Name="Form" Spacing="14"> <Entry x:Name="NameInput" Placeholder="Nombre completo" IsVisible="False" MaxLength="120" AutomationId="NameInput" /> <Entry x:Name="PhoneInput" Placeholder="Teléfono" Keyboard="Telephone" IsVisible="False" MaxLength="25" AutomationId="PhoneInput" /> <Entry x:Name="EmailInput" Placeholder="Correo electrónico" Keyboard="Email" MaxLength="254" AutomationId="EmailInput" /> <Entry x:Name="CodeInput" Placeholder="Código recibido por correo" IsVisible="False" MaxLength="64" AutomationId="RecoveryCodeInput" /> <Entry x:Name="PasswordInput" Placeholder="Contraseña" IsPassword="True" MaxLength="128" AutomationId="PasswordInput" /> <Entry x:Name="ConfirmationInput" Placeholder="Confirma la contraseña" IsPassword="True" MaxLength="128" IsVisible="False" /> <HorizontalStackLayout x:Name="PasswordVisibility" Spacing="6"> <CheckBox x:Name="ShowPassword" CheckedChanged="OnPasswordVisibilityChanged" /> <Label Text="Mostrar contraseña" VerticalOptions="Center" TextColor="#334F68" /> </HorizontalStackLayout> <Button x:Name="SubmitButton" Text="Iniciar sesión" Clicked="OnSubmit" BackgroundColor="#007BFF" TextColor="White" CornerRadius="12" AutomationId="SubmitButton" /> <Button x:Name="RegisterButton" Text="Crear cuenta de comprador" Clicked="OnRegister" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="RecoveryButton" Text="Olvidé mi contraseña" Clicked="OnRecovery" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="HaveCodeButton" Text="Ya tengo un código" Clicked="OnHaveCode" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="BackButton" Text="Volver a iniciar sesión" Clicked="OnBack" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" /> </VerticalStackLayout> <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" Color="#007BFF" /> <Label x:Name="Message" TextColor="#334F68" AutomationId="AccessMessage" /> </VerticalStackLayout> </ScrollView> </ContentPage>
+																2392 texto <?xml version="1.0" encoding="utf-8" ?> <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Aluformix.Mobile.Views.AccessPage" BackgroundColor="#F4F8FF" NavigationPage.HasNavigationBar="False"> <ScrollView> <VerticalStackLayout Padding="28,48" Spacing="18" MaximumWidthRequest="480" HorizontalOptions="Fill"> <Label Text="ALUFORMIX" FontSize="24" FontAttributes="Bold" TextColor="#07325A" /> <Label x:Name="Heading" Text="Inicia sesión" FontSize="30" FontAttributes="Bold" TextColor="#102C46" /> <Label x:Name="Description" Text="Accede con tu cuenta para continuar." TextColor="#526B82" /> <VerticalStackLayout x:Name="Form" Spacing="14"> <Entry x:Name="NameInput" Placeholder="Nombre completo" IsVisible="False" MaxLength="120" AutomationId="NameInput" /> <Entry x:Name="PhoneInput" Placeholder="Teléfono" Keyboard="Telephone" IsVisible="False" MaxLength="25" AutomationId="PhoneInput" /> <Entry x:Name="EmailInput" Placeholder="Correo electrónico" Keyboard="Email" MaxLength="254" AutomationId="EmailInput" /> <Entry x:Name="CodeInput" Placeholder="Código recibido por correo" IsVisible="False" MaxLength="64" AutomationId="RecoveryCodeInput" /> <Entry x:Name="PasswordInput" Placeholder="Contraseña" IsPassword="True" MaxLength="128" AutomationId="PasswordInput" /> <Entry x:Name="ConfirmationInput" Placeholder="Confirma la contraseña" IsPassword="True" MaxLength="128" IsVisible="False" /> <HorizontalStackLayout x:Name="PasswordVisibility" Spacing="6"> <CheckBox x:Name="ShowPassword" CheckedChanged="OnPasswordVisibilityChanged" /> <Label Text="Mostrar contraseña" VerticalOptions="Center" TextColor="#334F68" /> </HorizontalStackLayout> <Button x:Name="SubmitButton" Text="Iniciar sesión" Clicked="OnSubmit" BackgroundColor="#007BFF" TextColor="White" CornerRadius="12" AutomationId="SubmitButton" /> <Button x:Name="RegisterButton" Text="Crear cuenta de comprador" Clicked="OnRegister" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="RecoveryButton" Text="Olvidé mi contraseña" Clicked="OnRecovery" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="HaveCodeButton" Text="Ya tengo un código" Clicked="OnHaveCode" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" /> <Button x:Name="BackButton" Text="Volver a iniciar sesión" Clicked="OnBack" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" /> </VerticalStackLayout> <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" Color="#007BFF" /> <Label x:Name="Message" TextColor="#334F68" AutomationId="AccessMessage" /> </VerticalStackLayout> </ScrollView> </ContentPage>
+												1257 estado ID: workbench.parts.statusbar
+													1258 grupo remote ID: status.host
+														1259 botón remote
+													1857 grupo Restricted Mode: Some features are disabled because this workspace is not trusted. ID: status.workspaceTrust
+														1858 botón Restricted Mode: Some features are disabled because this workspace is not trusted.
+													1707 grupo No Problems ID: status.problems
+														1708 botón No Problems
+													1260 grupo Notifications ID: status.notifications
+														1261 botón Notifications
+													1262 grupo Copilot disabled ID: chat.statusBarEntry
+														1263 botón Copilot disabled
+													2064 grupo XML ID: status.editor.mode
+														2065 botón XML
+													2393 grupo Editor Language Status: $(copilot) No inline suggestion available, Inline suggestions ID: status.languageStatus
+														2394 botón Editor Language Status: $(copilot) No inline suggestion available, Inline suggestions
+													2068 grupo LF ID: status.editor.eol
+														2069 botón LF
+													2070 grupo UTF-8 ID: status.editor.encoding
+														2071 botón UTF-8
+													2072 grupo Spaces: 4 ID: status.editor.indentation
+														2073 botón Spaces: 4
+													2074 grupo Ln 1, Col 1 ID: status.editor.selection
+														2075 botón Ln 1, Col 1
+													1264 grupo Screen Reader Optimized ID: status.editor.screenReaderMode
+														1265 botón Screen Reader Optimized
+												1268 alerta
+													2095 texto Info: Do you want to install the recommended 'C# Dev Kit' extension from Microsoft for the C# language?
+												1270 alerta
+												1271 grupo
+													2115 texto Clear
+												1272 grupo
+								13 región
+
+Document text: ```
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ x:Class="Aluformix.Mobile.Views.AccessPage" BackgroundColor="#F4F8FF"
+ NavigationPage.HasNavigationBar="False">
+ <ScrollView>
+  <VerticalStackLayout Padding="28,48" Spacing="18" MaximumWidthRequest="480" HorizontalOptions="Fill">
+   <Label Text="ALUFORMIX" FontSize="24" FontAttributes="Bold" TextColor="#07325A" />
+   <Label x:Name="Heading" Text="Inicia sesión" FontSize="30" FontAttributes="Bold" TextColor="#102C46" />
+   <Label x:Name="Description" Text="Accede con tu cuenta para continuar." TextColor="#526B82" />
+   <VerticalStackLayout x:Name="Form" Spacing="14">
+    <Entry x:Name="NameInput" Placeholder="Nombre completo" IsVisible="False" MaxLength="120" AutomationId="NameInput" />
+    <Entry x:Name="PhoneInput" Placeholder="Teléfono" Keyboard="Telephone" IsVisible="False" MaxLength="25" AutomationId="PhoneInput" />
+    <Entry x:Name="EmailInput" Placeholder="Correo electrónico" Keyboard="Email" MaxLength="254" AutomationId="EmailInput" />
+    <Entry x:Name="CodeInput" Placeholder="Código recibido por correo" IsVisible="False" MaxLength="64" AutomationId="RecoveryCodeInput" />
+    <Entry x:Name="PasswordInput" Placeholder="Contraseña" IsPassword="True" MaxLength="128" AutomationId="PasswordInput" />
+    <Entry x:Name="ConfirmationInput" Placeholder="Confirma la contraseña" IsPassword="True" MaxLength="128" IsVisible="False" />
+    <HorizontalStackLayout x:Name="PasswordVisibility" Spacing="6">
+     <CheckBox x:Name="ShowPassword" CheckedChanged="OnPasswordVisibilityChanged" />
+     <Label Text="Mostrar contraseña" VerticalOptions="Center" TextColor="#334F68" />
+    </HorizontalStackLayout>
+    <Button x:Name="SubmitButton" Text="Iniciar sesión" Clicked="OnSubmit" BackgroundColor="#007BFF" TextColor="White" CornerRadius="12" AutomationId="SubmitButton" />
+    <Button x:Name="RegisterButton" Text="Crear cuenta de comprador" Clicked="OnRegister" BackgroundColor="Transparent" TextColor="#0066CC" />
+    <Button x:Name="RecoveryButton" Text="Olvidé mi contraseña" Clicked="OnRecovery" BackgroundColor="Transparent" TextColor="#0066CC" />
+    <Button x:Name="HaveCodeButton" Text="Ya tengo un código" Clicked="OnHaveCode" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" />
+    <Button x:Name="BackButton" Text="Volver a iniciar sesión" Clicked="OnBack" IsVisible="False" BackgroundColor="Transparent" TextColor="#0066CC" />
+   </VerticalStackLayout>
+   <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" Color="#007BFF" />
+   <Label x:Name="Message" TextColor="#334F68" AutomationId="AccessMessage" />
+  </VerticalStackLayout>
+ </ScrollView>
+</ContentPage>
+```

@@ -1,0 +1,7 @@
+EVIDENCIA 2 CODIGO XAML DE LA INTERFAZ DE ACCESO
+
+La captura muestra AccessPage.xaml dentro del proyecto Aluformix.Mobile y su relación con AccessPage.xaml.cs en el explorador. XAML define la presentación de los formularios: título, instrucciones, campos para correo y contraseña, y campos adicionales para registro y recuperación.
+
+IsPassword=True oculta los caracteres escritos en la contraseña; no sustituye la protección y validación de la API. IsVisible permite mostrar los campos que correspondan al formulario activo. El archivo C# asociado controla las acciones y la comunicación con el servidor.
+
+Esta evidencia acredita que la interfaz está codificada. La compilación móvil y su comprobación en un teléfono siguen pendientes de las herramientas de plataforma; no es una captura de la app funcionando en un emulador.

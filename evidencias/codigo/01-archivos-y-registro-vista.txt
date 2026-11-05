@@ -1,0 +1,268 @@
+Window: "AuthEndpoints.cs - Aluformix (Workspace) - Visual Studio Code", App: Code.exe.
+	0 ventana AuthEndpoints.cs - Aluformix (Workspace) - Visual Studio Code Secondary Actions: Raise
+		1 panel (disabled)
+		2 región AuthEndpoints.cs - Aluformix (Workspace) - Visual Studio Code
+			3 región
+				4 región
+					5 región
+						6 botón Minimize
+						2116 botón Maximize
+						8 botón Close
+					9 región
+						10 región
+							11 región
+								12 región
+									1132 documento AuthEndpoints.cs - Aluformix (Workspace) - Visual Studio Code Value: vscode-file://vscode-app/c:/Users/Reyca/AppData/Local/Programs/Microsoft%20VS%20Code/2d0b7506a3/resources/app/out/vs/code/electron-browser/workbench/workbench.html ID: RootWebArea
+										1133 grupo
+											1134 aplicación
+												1135 grupo
+												1136 grupo
+												1137 grupo
+												1138 barra de menús
+													1139 elemento de menú File
+													1140 elemento de menú Edit
+													1141 elemento de menú Selection
+													1142 elemento de menú View
+													2121 elemento de menú Go
+													2122 elemento de menú Run
+													1143 elemento de menú More
+												2276 barra de herramientas
+													2277 botón (disabled) Go Back (Alt+LeftArrow)
+													2278 botón (disabled) Go Forward (Alt+RightArrow)
+													2279 barra de herramientas Agent Status
+														2293 botón Open Quick Access
+														2294 grupo
+															2295 botón Toggle Chat
+																2296 botón Toggle Chat
+															2297 grupo
+																2298 grupo
+																	2299 botón More Actions
+												1152 barra de herramientas
+													1927 botón Open in Agents Window (Ctrl+Shift+Alt+A)
+												1775 barra de herramientas
+													1776 botón Update
+												1154 barra de herramientas Title actions
+													1998 botón Customize Layout...
+													1999 toggle button Toggle Primary Side Bar (Ctrl+B)
+														2180 texto 
+													2001 toggle button Toggle Panel (Ctrl+J)
+														2181 texto 
+													2003 toggle button Toggle Secondary Side Bar (Ctrl+Alt+B)
+														2182 texto 
+												1159 grupo
+												1160 grupo
+												1161 grupo
+												1162 tabulación Active View Switcher
+													1163 elemento de la pestaña (selectable) Explorer (Ctrl+Shift+E)
+														1164 grupo Explorer (Ctrl+Shift+E)
+													1165 elemento de la pestaña (selectable) Search (Ctrl+Shift+F)
+														1166 grupo Search (Ctrl+Shift+F)
+													1167 elemento de la pestaña (selectable) Source Control (Ctrl+Shift+G)
+														1168 grupo Source Control (Ctrl+Shift+G)
+													1169 elemento de la pestaña (selectable) Run and Debug (Ctrl+Shift+D)
+														1170 grupo Run and Debug (Ctrl+Shift+D)
+													1171 elemento de la pestaña (selectable) Extensions (Ctrl+Shift+X)
+														1172 grupo Extensions (Ctrl+Shift+X)
+												1173 barra de herramientas Manage
+													1174 botón Accounts
+														1175 grupo Accounts
+													1176 botón Manage - New Code update available.
+														1177 grupo Manage - New Code update available.
+															2183 texto 
+														1717 grupo Manage - New Code update available.
+															1900 texto 1
+												1178 título Explorer
+												1179 barra de herramientas Explorer actions
+													1935 grupo
+														1936 grupo
+															1937 botón Views and More Actions...
+												1180 barra de herramientas
+												1181 grupo
+												1182 grupo
+												1183 botón Explorer Section: Aluformix (Workspace)
+													1184 título Explorer Section: Aluformix (Workspace)
+												1185 árbol Files Explorer
+													2192 elemento del árbol (selectable) Aluformix ID: list_id_3_0
+														2193 grupo C:\Users\Reyca\Documents\Aluformix
+													1186 elemento del árbol (selectable) database ID: list_id_3_1
+														1187 grupo C:\Users\Reyca\Documents\Aluformix\database
+													1291 elemento del árbol (selectable) docs ID: list_id_3_2
+														1292 grupo C:\Users\Reyca\Documents\Aluformix\docs
+													1293 elemento del árbol (selectable) evidencias ID: list_id_3_3
+														1294 grupo C:\Users\Reyca\Documents\Aluformix\evidencias
+													1295 elemento del árbol (selectable) src ID: list_id_3_4
+														1296 grupo C:\Users\Reyca\Documents\Aluformix\src
+													2011 elemento del árbol (selectable) Aluformix.Api ID: list_id_3_5
+														2012 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api
+													2020 elemento del árbol (selectable) Aluformix.Api.csproj ID: list_id_3_6
+														2021 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Aluformix.Api.csproj
+													2022 elemento del árbol (selectable) appsettings.json ID: list_id_3_7
+														2023 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\appsettings.json
+													2024 elemento del árbol (selectable) Auth.cs ID: list_id_3_8
+														2025 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Auth.cs
+													2026 elemento del árbol (selectable) AuthEndpoints.cs ID: list_id_3_9
+														2027 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\AuthEndpoints.cs
+													2028 elemento del árbol (selectable) PasswordRecovery.cs ID: list_id_3_10
+														2029 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\PasswordRecovery.cs
+													2030 elemento del árbol (selectable) Program.cs ID: list_id_3_11
+														2031 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\Program.cs
+													2013 elemento del árbol (selectable) Aluformix.Connection ID: list_id_3_12
+														2014 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Connection
+													2015 elemento del árbol (selectable) Aluformix.Mobile ID: list_id_3_13
+														2016 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Mobile
+													1297 elemento del árbol (selectable) tests ID: list_id_3_14
+														1298 grupo C:\Users\Reyca\Documents\Aluformix\tests
+													1299 elemento del árbol (selectable) .gitignore ID: list_id_3_15
+														1300 grupo C:\Users\Reyca\Documents\Aluformix\.gitignore
+													1301 elemento del árbol (selectable) Aluformix.code-workspace ID: list_id_3_16
+														1302 grupo C:\Users\Reyca\Documents\Aluformix\Aluformix.code-workspace
+													1303 elemento del árbol (selectable) Aluformix.slnx ID: list_id_3_17
+														1304 grupo C:\Users\Reyca\Documents\Aluformix\Aluformix.slnx
+													1305 elemento del árbol (selectable) NuGet.Config ID: list_id_3_18
+														1306 grupo C:\Users\Reyca\Documents\Aluformix\NuGet.Config
+													2127 elemento del árbol (selectable) README.md ID: list_id_3_19
+														2128 grupo C:\Users\Reyca\Documents\Aluformix\README.md
+												1188 botón Outline Section
+													1189 título Outline
+												1190 botón Timeline Section
+													1191 título Timeline
+												1192 grupo
+												1193 principal ID: workbench.parts.editor
+													1719 grupo
+														1720 tabulación
+															1721 elemento de la pestaña (selectable) AuthEndpoints.cs, preview
+																1722 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\AuthEndpoints.cs
+																1723 barra de herramientas Tab actions
+																	1724 botón Close (Ctrl+F4)
+														1725 barra de herramientas Editor actions
+															2300 botón Split Editor Right (Ctrl+|) [Alt] Split Editor Down
+															2301 grupo
+																2302 grupo
+																	2303 botón More Actions...
+																		2304 texto 
+														2037 lista
+															2038 elemento de lista src
+																2039 grupo C:\Users\Reyca\Documents\Aluformix\src
+																	2040 texto src
+																2189 texto 
+															2042 elemento de lista Aluformix.Api
+																2043 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api
+																	2044 texto Aluformix.Api
+																2190 texto 
+															2046 elemento de lista AuthEndpoints.cs
+																2047 grupo C:\Users\Reyca\Documents\Aluformix\src\Aluformix.Api\AuthEndpoints.cs
+																	2191 texto 
+																	2049 texto AuthEndpoints.cs
+													2050 grupo AuthEndpoints.cs, preview
+														2062 code
+															2063 editor (settable, string) AuthEndpoints.cs, preview Value: using System.Security.Claims; using System.Security.Cryptography; using System.Text; using MySql.Data.MySqlClient; namespace Aluformix.Api; public static class AuthEndpoints { public static void MapAuth(this WebApplication app) { var auth=app.MapGroup("/api/auth").RequireRateLimiting("auth"); auth.MapPost("/register",async(RegisterRequest request,AuthStore store,CancellationToken ct)=> { var email=AuthStore.Email(request.Email);var name=request.Name?.Trim();var phone=request.Phone?.Trim(); if(email is null || name is not {Length: > 0 and <=120} || !AuthStore.PasswordValid(request.Password) || !AuthStore.PhoneValid(phone)) return Results.BadRequest(new {error="Indica nombre, correo, teléfono válidos y contraseña de 12 a 128 caracteres."}); try {var user=await store.CreateAsync(name,email,request.Password!,3,phone,ct);return Results.Created("/api/auth/me",user);} catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible registrar la cuenta con esos datos."});} }); auth.MapPost("/login",async(LoginRequest request,AuthStore store,HttpContext context,CancellationToken ct)=> { context.Response.Headers.CacheControl="no-store"; var session=await store.LoginAsync(request,ct); return session is null?Results.Json(new {error="No fue posible iniciar sesión. Revisa tus datos o inténtalo más tarde."},statusCode:401):Results.Ok(session); }); auth.MapGet("/me",(HttpContext context)=> { context.Response.Headers.CacheControl="no-store"; return Results.Ok(new Account(ulong.Parse(context.User.FindFirstValue(ClaimTypes.NameIdentifier)!), context.User.Identity!.Name!,context.User.FindFirstValue(ClaimTypes.Email)!,context.User.FindFirstValue(ClaimTypes.Role)!)); }).RequireAuthorization(); auth.MapPost("/logout",async(HttpContext context,AuthStore store,CancellationToken ct)=> { await using var db=store.Connection();await db.OpenAsync(ct); await using var cmd=new MySqlCommand("UPDATE auth_sessions SET revoked_at=UTC_TIMESTAMP(6) WHERE token_hash=@hash",db); cmd.Parameters.AddWithValue("@hash",context.User.FindFirstValue("session_hash"));await cmd.ExecuteNonQueryAsync(ct); return Results.NoContent(); }).RequireAuthorization(); auth.MapPost("/staff",async(StaffRequest request,AuthStore store,CancellationToken ct)=> { var email=AuthStore.Email(request.Email);var name=request.Name?.Trim(); if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password) || request.Role is not ("Administrador" or "Operador")) return Results.BadRequest(new {error="Datos de cuenta inválidos."}); try {var user=await store.CreateAsync(name,email,request.Password!,request.Role=="Administrador"?1:2,null,ct);return Results.Ok(user);} catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible crear la cuenta."});} }).RequireAuthorization("Admin"); // Solo habilitado por configuración externa explícita, y únicamente si no existe administrador. auth.MapPost("/setup-admin",async(LoginRequest request,HttpContext context,AuthStore store,IConfiguration config,CancellationToken ct)=> { var secret=config["Setup:AdminKey"]; var supplied=context.Request.Headers["X-Setup-Key"].ToString(); if(secret is not {Length: >=32} || !CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(secret)),SHA256.HashData(Encoding.UTF8.GetBytes(supplied)))) return Results.NotFound(); var email=AuthStore.Email(request.Email); var name=config["Setup:AdminName"]?.Trim(); if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password)) return Results.BadRequest(); await using var db=store.Connection();await db.OpenAsync(ct); await using var acquire=new MySqlCommand("SELECT GET_LOCK('aluformix_first_admin',5)",db); if(Convert.ToInt32(await acquire.ExecuteScalarAsync(ct))!=1) return Results.StatusCode(409); try { await using var count=new MySqlCommand("SELECT COUNT(*) FROM users WHERE role_id=1",db); if(Convert.ToInt64(await count.ExecuteScalarAsync(ct))!=0) return Results.Conflict(); return Results.Ok(await store.CreateAsync(name,email,request.Password!,1,null,ct)); } finally {await using var release=new MySqlCommand("SELECT RELEASE_LOCK('aluformix_first_admin')",db);await release.ExecuteScalarAsync(CancellationToken.None);} }); auth.MapPost("/forgot-password",PasswordRecovery.RequestAsync); auth.MapPost("/reset-password",PasswordRecovery.ConfirmAsync); } }
+																2292 texto using System.Security.Claims; using System.Security.Cryptography; using System.Text; using MySql.Data.MySqlClient; namespace Aluformix.Api; public static class AuthEndpoints { public static void MapAuth(this WebApplication app) { var auth=app.MapGroup("/api/auth").RequireRateLimiting("auth"); auth.MapPost("/register",async(RegisterRequest request,AuthStore store,CancellationToken ct)=> { var email=AuthStore.Email(request.Email);var name=request.Name?.Trim();var phone=request.Phone?.Trim(); if(email is null || name is not {Length: > 0 and <=120} || !AuthStore.PasswordValid(request.Password) || !AuthStore.PhoneValid(phone)) return Results.BadRequest(new {error="Indica nombre, correo, teléfono válidos y contraseña de 12 a 128 caracteres."}); try {var user=await store.CreateAsync(name,email,request.Password!,3,phone,ct);return Results.Created("/api/auth/me",user);} catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible registrar la cuenta con esos datos."});} }); auth.MapPost("/login",async(LoginRequest request,AuthStore store,HttpContext context,CancellationToken ct)=> { context.Response.Headers.CacheControl="no-store"; var session=await store.LoginAsync(request,ct); return session is null?Results.Json(new {error="No fue posible iniciar sesión. Revisa tus datos o inténtalo más tarde."},statusCode:401):Results.Ok(session); }); auth.MapGet("/me",(HttpContext context)=> { context.Response.Headers.CacheControl="no-store"; return Results.Ok(new Account(ulong.Parse(context.User.FindFirstValue(ClaimTypes.NameIdentifier)!), context.User.Identity!.Name!,context.User.FindFirstValue(ClaimTypes.Email)!,context.User.FindFirstValue(ClaimTypes.Role)!)); }).RequireAuthorization(); auth.MapPost("/logout",async(HttpContext context,AuthStore store,CancellationToken ct)=> { await using var db=store.Connection();await db.OpenAsync(ct); await using var cmd=new MySqlCommand("UPDATE auth_sessions SET revoked_at=UTC_TIMESTAMP(6) WHERE token_hash=@hash",db); cmd.Parameters.AddWithValue("@hash",context.User.FindFirstValue("session_hash"));await cmd.ExecuteNonQueryAsync(ct); return Results.NoContent(); }).RequireAuthorization(); auth.MapPost("/staff",async(StaffRequest request,AuthStore store,CancellationToken ct)=> { var email=AuthStore.Email(request.Email);var name=request.Name?.Trim(); if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password) || request.Role is not ("Administrador" or "Operador")) return Results.BadRequest(new {error="Datos de cuenta inválidos."}); try {var user=await store.CreateAsync(name,email,request.Password!,request.Role=="Administrador"?1:2,null,ct);return Results.Ok(user);} catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible crear la cuenta."});} }).RequireAuthorization("Admin"); // Solo habilitado por configuración externa explícita, y únicamente si no existe administrador. auth.MapPost("/setup-admin",async(LoginRequest request,HttpContext context,AuthStore store,IConfiguration config,CancellationToken ct)=> { var secret=config["Setup:AdminKey"]; var supplied=context.Request.Headers["X-Setup-Key"].ToString(); if(secret is not {Length: >=32} || !CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(secret)),SHA256.HashData(Encoding.UTF8.GetBytes(supplied)))) return Results.NotFound(); var email=AuthStore.Email(request.Email); var name=config["Setup:AdminName"]?.Trim(); if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password)) return Results.BadRequest(); await using var db=store.Connection();await db.OpenAsync(ct); await using var acquire=new MySqlCommand("SELECT GET_LOCK('aluformix_first_admin',5)",db); if(Convert.ToInt32(await acquire.ExecuteScalarAsync(ct))!=1) return Results.StatusCode(409); try { await using var count=new MySqlCommand("SELECT COUNT(*) FROM users WHERE role_id=1",db); if(Convert.ToInt64(await count.ExecuteScalarAsync(ct))!=0) return Results.Conflict(); return Results.Ok(await store.CreateAsync(name,email,request.Password!,1,null,ct)); } finally {await using var release=new MySqlCommand("SELECT RELEASE_LOCK('aluformix_first_admin')",db);await release.ExecuteScalarAsync(CancellationToken.None);} }); auth.MapPost("/forgot-password",PasswordRecovery.RequestAsync); auth.MapPost("/reset-password",PasswordRecovery.ConfirmAsync); } }
+												1257 estado ID: workbench.parts.statusbar
+													1258 grupo remote ID: status.host
+														1259 botón remote
+													1857 grupo Restricted Mode: Some features are disabled because this workspace is not trusted. ID: status.workspaceTrust
+														1858 botón Restricted Mode: Some features are disabled because this workspace is not trusted.
+													1707 grupo No Problems ID: status.problems
+														1708 botón No Problems
+													1260 grupo Notifications ID: status.notifications
+														1261 botón Notifications
+													1262 grupo Copilot disabled ID: chat.statusBarEntry
+														1263 botón Copilot disabled
+													2064 grupo C# ID: status.editor.mode
+														2065 botón C#
+													2166 grupo Editor Language Status: $(copilot) No inline suggestion available, Inline suggestions ID: status.languageStatus
+														2167 botón Editor Language Status: $(copilot) No inline suggestion available, Inline suggestions
+													2068 grupo LF ID: status.editor.eol
+														2069 botón LF
+													2070 grupo UTF-8 ID: status.editor.encoding
+														2071 botón UTF-8
+													2072 grupo Spaces: 4 ID: status.editor.indentation
+														2073 botón Spaces: 4
+													2074 grupo Ln 2, Col 1 ID: status.editor.selection
+														2075 botón Ln 2, Col 1
+													1264 grupo Screen Reader Optimized ID: status.editor.screenReaderMode
+														1265 botón Screen Reader Optimized
+												1268 alerta
+													2095 texto Info: Do you want to install the recommended 'C# Dev Kit' extension from Microsoft for the C# language?
+												1270 alerta
+												1271 grupo
+													2115 texto Clear
+												1272 grupo
+								13 región
+
+Document text: ```
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using MySql.Data.MySqlClient;
+
+namespace Aluformix.Api;
+
+public static class AuthEndpoints
+{
+    public static void MapAuth(this WebApplication app)
+    {
+        var auth=app.MapGroup("/api/auth").RequireRateLimiting("auth");
+        auth.MapPost("/register",async(RegisterRequest request,AuthStore store,CancellationToken ct)=>
+        {
+            var email=AuthStore.Email(request.Email);var name=request.Name?.Trim();var phone=request.Phone?.Trim();
+            if(email is null || name is not {Length: > 0 and <=120} || !AuthStore.PasswordValid(request.Password) || !AuthStore.PhoneValid(phone))
+                return Results.BadRequest(new {error="Indica nombre, correo, teléfono válidos y contraseña de 12 a 128 caracteres."});
+            try {var user=await store.CreateAsync(name,email,request.Password!,3,phone,ct);return Results.Created("/api/auth/me",user);}
+            catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible registrar la cuenta con esos datos."});}
+        });
+        auth.MapPost("/login",async(LoginRequest request,AuthStore store,HttpContext context,CancellationToken ct)=>
+        {
+            context.Response.Headers.CacheControl="no-store";
+            var session=await store.LoginAsync(request,ct);
+            return session is null?Results.Json(new {error="No fue posible iniciar sesión. Revisa tus datos o inténtalo más tarde."},statusCode:401):Results.Ok(session);
+        });
+        auth.MapGet("/me",(HttpContext context)=>
+        {
+            context.Response.Headers.CacheControl="no-store";
+            return Results.Ok(new Account(ulong.Parse(context.User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+                context.User.Identity!.Name!,context.User.FindFirstValue(ClaimTypes.Email)!,context.User.FindFirstValue(ClaimTypes.Role)!));
+        }).RequireAuthorization();
+        auth.MapPost("/logout",async(HttpContext context,AuthStore store,CancellationToken ct)=>
+        {
+            await using var db=store.Connection();await db.OpenAsync(ct);
+            await using var cmd=new MySqlCommand("UPDATE auth_sessions SET revoked_at=UTC_TIMESTAMP(6) WHERE token_hash=@hash",db);
+            cmd.Parameters.AddWithValue("@hash",context.User.FindFirstValue("session_hash"));await cmd.ExecuteNonQueryAsync(ct);
+            return Results.NoContent();
+        }).RequireAuthorization();
+        auth.MapPost("/staff",async(StaffRequest request,AuthStore store,CancellationToken ct)=>
+        {
+            var email=AuthStore.Email(request.Email);var name=request.Name?.Trim();
+            if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password)
+                || request.Role is not ("Administrador" or "Operador")) return Results.BadRequest(new {error="Datos de cuenta inválidos."});
+            try {var user=await store.CreateAsync(name,email,request.Password!,request.Role=="Administrador"?1:2,null,ct);return Results.Ok(user);}
+            catch(MySqlException ex) when(ex.Number==1062) {return Results.Conflict(new {error="No fue posible crear la cuenta."});}
+        }).RequireAuthorization("Admin");
+
+        // Solo habilitado por configuración externa explícita, y únicamente si no existe administrador.
+        auth.MapPost("/setup-admin",async(LoginRequest request,HttpContext context,AuthStore store,IConfiguration config,CancellationToken ct)=>
+        {
+            var secret=config["Setup:AdminKey"];
+            var supplied=context.Request.Headers["X-Setup-Key"].ToString();
+            if(secret is not {Length: >=32} || !CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(secret)),SHA256.HashData(Encoding.UTF8.GetBytes(supplied))))
+                return Results.NotFound();
+            var email=AuthStore.Email(request.Email);
+            var name=config["Setup:AdminName"]?.Trim();
+            if(email is null || name is not {Length: >0 and <=120} || !AuthStore.PasswordValid(request.Password)) return Results.BadRequest();
+            await using var db=store.Connection();await db.OpenAsync(ct);
+            await using var acquire=new MySqlCommand("SELECT GET_LOCK('aluformix_first_admin',5)",db);
+            if(Convert.ToInt32(await acquire.ExecuteScalarAsync(ct))!=1) return Results.StatusCode(409);
+            try
+            {
+                await using var count=new MySqlCommand("SELECT COUNT(*) FROM users WHERE role_id=1",db);
+                if(Convert.ToInt64(await count.ExecuteScalarAsync(ct))!=0) return Results.Conflict();
+                return Results.Ok(await store.CreateAsync(name,email,request.Password!,1,null,ct));
+            }
+            finally {await using var release=new MySqlCommand("SELECT RELEASE_LOCK('aluformix_first_admin')",db);await release.ExecuteScalarAsync(CancellationToken.None);}
+        });
+
+        auth.MapPost("/forgot-password",PasswordRecovery.RequestAsync);
+        auth.MapPost("/reset-password",PasswordRecovery.ConfirmAsync);
+    }
+}
+```

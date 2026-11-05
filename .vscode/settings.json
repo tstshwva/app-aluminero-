@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    ".test-artifacts": true,
+    ".local": true,
+    "**/.env": true,
+    "database/backups": true,
+    "database/manual_remove_demo.sql": true,
+    "evidencias": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    ".test-artifacts": true,
+    ".local": true,
+    "**/.env": true,
+    "database/backups": true,
+    "database/manual_remove_demo.sql": true,
+    "evidencias": true
+  }
+}

@@ -1,0 +1,5 @@
+EVIDENCIA 1 ARCHIVOS Y REGISTRO DE COMPRADORES
+
+La captura muestra el proyecto Aluformix abierto en Visual Studio Code desde su carpeta independiente en Documentos. El explorador contiene los proyectos de la API, conexión y aplicación móvil, además de los scripts de base de datos, pruebas y documentación.
+
+En AuthEndpoints.cs, líneas 13 a 20, se define la recepción de solicitudes de registro. El código valida nombre, correo, teléfono y contraseña. Si los datos son válidos, llama al servicio que crea el usuario con el rol Cliente y su ficha de comprador; ese servicio almacena un hash de la contraseña. Si los datos son inválidos o se detecta un registro duplicado, rechaza la solicitud. No permite elegir el rol Administrador desde el registro público.

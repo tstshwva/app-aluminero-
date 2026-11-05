@@ -1,0 +1,18 @@
+{
+  "001_schema.sql": {
+    "sha256_actual": "57d4b85c476804a562b0689b69504241bb4a384fb4ba1da667f99c62d5d3b166",
+    "igual_al_respaldo_anterior": true
+  },
+  "003_integrity.sql": {
+    "sha256_actual": "c4728a9411c5deb1a06a46f89731bdfc0e9cfc0432b91f1a777508a681e1e482",
+    "igual_al_respaldo_anterior": true
+  },
+  "004_authentication.sql": {
+    "sha256_actual": "079bc0ab05d88e4a3a71c1680a7d10bb4eef6b187d0cea743435bec3f810b521",
+    "igual_al_respaldo_anterior": true
+  },
+  "manual_remove_demo.sql": {
+    "sha256_actual": "e4ec6c01dc3f7511a9546f89c12f9188dc0a1badaa7fc5dc23dc589978d92050",
+    "igual_al_respaldo_anterior": true
+  }
+}
