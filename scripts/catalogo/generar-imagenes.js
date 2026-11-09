@@ -1,10 +1,12 @@
 // Genera una imagen individual por producto del catálogo importado.
-// Son ilustraciones vectoriales (SVG convertido a WebP), no fotografías.
+// Son renders 3D generados por código (SVG convertido a WebP), no fotografías.
 // Ejecutar desde la raíz: node scripts/catalogo/generar-imagenes.js
 //
-// Cada sección usa las medidas de la fuente cuando existen. Lo que la fuente no
-// define (espesor de pared, alturas faltantes o la forma de perfiles especiales)
-// se dibuja como representación ilustrativa y así se indica en la app.
+// Cada sección usa las medidas de la fuente cuando existen (diámetros, lados,
+// anchos y alturas). Lo que la fuente no define (espesor de pared y la forma
+// interior de perfiles especiales) se dibuja como representación ilustrativa y
+// la app lo indica. Sustituye estas imágenes por fotografías o dibujos técnicos
+// registrando una URL HTTPS en el producto desde la app Empresa.
 import { mkdir, readdir, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +18,9 @@ const root = path.resolve(
   "../..",
 );
 const assets = path.join(root, "packages/mobile/assets/catalogo");
-const SIZE = 1024;
+// Formato horizontal 4:3.
+const W = 1200,
+  H = 900;
 
 // ---------- Secciones (milímetros, eje Y hacia arriba) ----------
 const rect = (x0, y0, x1, y1) => [
@@ -32,11 +36,82 @@ const area = (pts) =>
   }, 0) / 2;
 const ccw = (pts) => (area(pts) > 0 ? pts : [...pts].reverse());
 const cw = (pts) => (area(pts) < 0 ? pts : [...pts].reverse());
-const circle = (r, n = 120) =>
+const circle = (r, n = 144) =>
   Array.from({ length: n }, (_, i) => {
     const a = (i / n) * Math.PI * 2;
     return [Math.cos(a) * r, Math.sin(a) * r];
   });
+// Rectángulo con esquinas redondeadas.
+function roundRect(x0, y0, x1, y1, r, n = 8) {
+  const pts = [];
+  const corners = [
+    [x1 - r, y0 + r, -90],
+    [x1 - r, y1 - r, 0],
+    [x0 + r, y1 - r, 90],
+    [x0 + r, y0 + r, 180],
+  ];
+  for (const [cx, cy, start] of corners)
+    for (let i = 0; i <= n; i++) {
+      const a = ((start + (90 * i) / n) * Math.PI) / 180;
+      pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+  return pts;
+}
+// Perfil de pared delgada a partir de su línea media (aletas, canales, ganchos).
+function strip(points, t) {
+  const left = [],
+    right = [];
+  const off = (a, b, s) => {
+    const dx = b[0] - a[0],
+      dy = b[1] - a[1],
+      l = Math.hypot(dx, dy);
+    return [(-dy / l) * s, (dx / l) * s];
+  };
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    if (i === 0 || i === points.length - 1) {
+      const [a, b] = i === 0 ? [p, points[1]] : [points[i - 1], p];
+      const [ox, oy] = off(a, b, t / 2);
+      left.push([p[0] + ox, p[1] + oy]);
+      right.push([p[0] - ox, p[1] - oy]);
+      continue;
+    }
+    // Unión en inglete entre los dos tramos.
+    const a = points[i - 1],
+      b = points[i + 1];
+    const n1 = off(a, p, 1),
+      n2 = off(p, b, 1);
+    const mx = n1[0] + n2[0],
+      my = n1[1] + n2[1];
+    const k = t / 2 / Math.max(0.35, mx * n1[0] + my * n1[1]);
+    left.push([p[0] + mx * k, p[1] + my * k]);
+    right.push([p[0] - mx * k, p[1] - my * k]);
+  }
+  return [...left, ...right.reverse()];
+}
+// Placa base con aletas perpendiculares (rieles y guías).
+function comb(width, base, fins, flip = false, totalH = 0) {
+  const pts = [
+    [0, 0],
+    [width, 0],
+  ];
+  const sorted = [...fins].sort((a, b) => b.x - a.x);
+  let cursorX = width;
+  pts.push([width, base]);
+  for (const f of sorted) {
+    const x1 = Math.min(width, f.x + f.t / 2),
+      x0 = Math.max(0, f.x - f.t / 2);
+    if (x1 < cursorX) pts.push([x1, base]);
+    pts.push([x1, f.h], [x0, f.h]);
+    if (x0 > 0) pts.push([x0, base]);
+    cursorX = x0;
+  }
+  if (cursorX > 0) pts.push([0, base]);
+  const clean = pts.filter(
+    (p, i) => i === 0 || p[0] !== pts[i - 1][0] || p[1] !== pts[i - 1][1],
+  );
+  return flip ? clean.map(([x, y]) => [x, totalH - y]) : clean;
+}
 
 const shapes = {
   tuboRedondo: ({ d, t }) => ({
@@ -47,6 +122,81 @@ const shapes = {
     outer: rect(0, 0, w, h),
     holes: [rect(t, t, w - t, h - t)],
   }),
+  tuboOrnamental: ({ w, h, t, r }) => ({
+    outer: roundRect(0, 0, w, h, r),
+    holes: [roundRect(t, t, w - t, h - t, Math.max(0.5, r - t))],
+  }),
+  tuboDosCeldas: ({ w, h, t }) => ({
+    outer: rect(0, 0, w, h),
+    holes: [
+      rect(t, t, w / 2 - t / 2, h - t),
+      rect(w / 2 + t / 2, t, w - t, h - t),
+    ],
+  }),
+  tuboRanura: ({ w, h, t, ranura, fondo }) => {
+    const s1 = w / 2 - ranura / 2,
+      s2 = w / 2 + ranura / 2;
+    return {
+      outer: [
+        [0, 0],
+        [w, 0],
+        [w, h],
+        [s2, h],
+        [s2, h - fondo],
+        [s1, h - fondo],
+        [s1, h],
+        [0, h],
+      ],
+      holes: [
+        [
+          [t, t],
+          [w - t, t],
+          [w - t, h - t],
+          [s2 + t, h - t],
+          [s2 + t, h - fondo - t],
+          [s1 - t, h - fondo - t],
+          [s1 - t, h - t],
+          [t, h - t],
+        ],
+      ],
+    };
+  },
+  duela: ({ w, h, t, lengua }) => {
+    const a = h * 0.32,
+      b = h * 0.68;
+    return {
+      outer: [
+        [0, 0],
+        [w, 0],
+        [w, a],
+        [w + lengua, a],
+        [w + lengua, b],
+        [w, b],
+        [w, h],
+        [0, h],
+        [0, b],
+        [lengua, b],
+        [lengua, a],
+        [0, a],
+      ],
+      holes: [rect(lengua + t, t, w - t, h - t)],
+    };
+  },
+  escalon: ({ w, h, t }) => {
+    const s = h * 0.56,
+      x = w * 0.58;
+    return {
+      outer: [
+        [0, 0],
+        [w, 0],
+        [w, s],
+        [x, s],
+        [x, h],
+        [0, h],
+      ],
+      holes: [rect(t, t, w - t, s - t), rect(t, s + t * 0.5, x - t, h - t)],
+    };
+  },
   angulo: ({ a, b, t }) => ({
     outer: [
       [0, 0],
@@ -71,40 +221,18 @@ const shapes = {
     ],
     holes: [],
   }),
-  canal: ({ w, h, t }) => ({
+  hache: ({ w, h, t }) => ({
     outer: [
-      [0, 0],
-      [w, 0],
-      [w, h],
-      [w - t, h],
-      [w - t, t],
-      [t, t],
-      [t, h],
-      [0, h],
-    ],
-    holes: [],
-  }),
-  canalInvertido: ({ w, h, t }) => ({
-    outer: [
-      [0, h],
       [0, 0],
       [t, 0],
-      [t, h - t],
-      [w - t, h - t],
+      [t, h / 2 - t / 2],
+      [w - t, h / 2 - t / 2],
       [w - t, 0],
       [w, 0],
       [w, h],
-    ],
-    holes: [],
-  }),
-  marco: ({ w, h, ceja, t }) => ({
-    outer: [
-      [0, 0],
-      [w, 0],
-      [w, ceja],
-      [w - t, ceja],
-      [w - t, t],
-      [t, t],
+      [w - t, h],
+      [w - t, h / 2 + t / 2],
+      [t, h / 2 + t / 2],
       [t, h],
       [0, h],
     ],
@@ -123,86 +251,175 @@ const shapes = {
     ],
     holes: [],
   }),
-  escalon: ({ w, h, t }) => {
-    const s = h * 0.56,
-      x = w * 0.58;
-    return {
-      outer: [
-        [0, 0],
-        [w, 0],
-        [w, s],
-        [x, s],
-        [x, h],
-        [0, h],
-      ],
-      holes: [rect(t, t, w - t, s - t), rect(t, s + t * 0.5, x - t, h - t)],
-    };
-  },
-  hache: ({ w, h, t }) => ({
-    outer: [
-      [0, 0],
-      [t, 0],
-      [t, h / 2 - t / 2],
-      [w - t, h / 2 - t / 2],
-      [w - t, 0],
-      [w, 0],
-      [w, h],
-      [w - t, h],
-      [w - t, h / 2 + t / 2],
-      [t, h / 2 + t / 2],
-      [t, h],
-      [0, h],
-    ],
+  linea: ({ puntos, t }) => ({ outer: strip(puntos, t), holes: [] }),
+  peine: ({ w, base, aletas, invertido = false, alto = 0 }) => ({
+    outer: comb(w, base, aletas, invertido, alto),
     holes: [],
   }),
-  lama: ({ w, t, grados }) => {
-    const a = (grados * Math.PI) / 180,
-      c = Math.cos(a),
-      s = Math.sin(a);
-    return {
-      outer: [
-        [0, 0],
-        [w * c, w * s],
-        [w * c - t * s, w * s + t * c],
-        [-t * s, t * c],
-      ],
-      holes: [],
-    };
-  },
 };
 
-// Medidas de la fuente; los valores marcados con «ilustrativo» no aparecen en ella.
+// Las notas aparecen en la ficha del producto.
 const MEDIDA =
   "Sección exterior según las medidas de la fuente; espesor de pared ilustrativo.";
 const SILUETA =
-  "Silueta ilustrativa: la fuente no define la geometría completa del perfil comercial.";
+  "Representación ilustrativa: la fuente no define la geometría completa del perfil comercial.";
+const ORNAMENTAL =
+  "Medidas exteriores de la fuente; las esquinas redondeadas de la línea ornamental son ilustrativas.";
 const spec = {
-  53883: { forma: "tuboRedondo", d: 76.2, t: 1.6, nota: MEDIDA },
-  53896: { forma: "tuboRedondo", d: 60, t: 1.5, nota: MEDIDA },
-  22196: { forma: "tuboRedondo", d: 50.8, t: 1.3, nota: MEDIDA },
-  22197: { forma: "tuboRedondo", d: 25.4, t: 1.0, nota: MEDIDA },
-  8327: { forma: "tuboRect", w: 85.5, h: 38.1, t: 1.5, nota: SILUETA },
-  9776: { forma: "marco", w: 30, h: 98.8, ceja: 22, t: 1.5, nota: SILUETA },
-  4843: { forma: "angulo", a: 16, b: 99, t: 1.5, nota: SILUETA },
-  2273: { forma: "marco", w: 39, h: 39.5, ceja: 20, t: 1.5, nota: SILUETA },
-  2274: { forma: "canal", w: 44.89, h: 30, t: 1.5, nota: SILUETA },
-  1087: { forma: "lama", w: 84.74, t: 2.2, grados: -14, nota: SILUETA },
-  6617: { forma: "tuboRect", w: 111, h: 12, t: 1.2, nota: SILUETA },
+  // Tubos y barandales: Ø de la fuente.
+  53883: { forma: "tuboRedondo", d: 76.2, t: 1.8, nota: MEDIDA },
+  53896: { forma: "tuboRedondo", d: 60, t: 1.6, nota: MEDIDA },
+  22196: { forma: "tuboRedondo", d: 50.8, t: 1.5, nota: MEDIDA },
+  22197: { forma: "tuboRedondo", d: 25.4, t: 1.2, nota: MEDIDA },
+  // Zoclos.
+  8327: {
+    forma: "tuboRanura",
+    w: 85.5,
+    h: 38.1,
+    t: 1.6,
+    ranura: 14,
+    fondo: 18,
+    nota: SILUETA,
+  },
+  9776: {
+    forma: "linea",
+    puntos: [
+      [16, 0],
+      [0, 0],
+      [0, 98.8],
+      [14, 98.8],
+      [14, 88],
+    ],
+    t: 1.6,
+    nota: SILUETA,
+  },
+  4843: {
+    forma: "linea",
+    puntos: [
+      [12, 0],
+      [0, 0],
+      [0, 99],
+      [6, 99],
+      [6, 84],
+      [11, 79],
+      [11, 8],
+    ],
+    t: 1.5,
+    nota: SILUETA,
+  },
+  // Serie 35.
+  2273: {
+    forma: "linea",
+    puntos: [
+      [6, 39.5],
+      [0, 39.5],
+      [0, 10],
+      [10, 0],
+      [39, 0],
+      [39, 6],
+    ],
+    t: 1.6,
+    nota: SILUETA,
+  },
+  2274: {
+    forma: "linea",
+    puntos: [
+      [0, 30],
+      [0, 14],
+      [22, 14],
+      [22, 0],
+      [44.89, 0],
+      [44.89, 6],
+    ],
+    t: 1.6,
+    nota: SILUETA,
+  },
+  1087: {
+    forma: "linea",
+    puntos: [
+      [3, 7],
+      [0, 3.5],
+      [4, 0],
+      [80, 21],
+      [84.74, 25],
+      [81.5, 28.5],
+    ],
+    t: 1.7,
+    nota: SILUETA,
+  },
+  6617: { forma: "duela", w: 111, h: 12, t: 1.2, lengua: 4, nota: SILUETA },
+  // Recubrimientos.
   63299: {
     forma: "zeta",
     superior: 24.6,
     h: 32,
     inferior: 17.54,
-    t: 1.5,
+    t: 1.6,
+    nota: "Perfil Z con las medidas de la fuente (24.60, 32 y 17.54 mm); espesor ilustrativo.",
+  },
+  // Cancel de baño.
+  11174: {
+    forma: "peine",
+    w: 50.8,
+    base: 1.8,
+    aletas: [
+      { x: 0.9, h: 41.2, t: 1.8 },
+      { x: 18, h: 26, t: 1.5 },
+      { x: 32.8, h: 26, t: 1.5 },
+      { x: 49.9, h: 41.2, t: 1.8 },
+    ],
+    nota: "Riel con canales de deslizamiento; ancho y alto de la fuente (50.8 × 41.2 mm), canales interiores ilustrativos.",
+  },
+  11035: {
+    forma: "linea",
+    puntos: [
+      [26, 14.35],
+      [31.7, 14.35],
+      [31.7, 0],
+      [0, 0],
+      [0, 14.35],
+    ],
+    t: 1.4,
     nota: SILUETA,
   },
-  11174: { forma: "canalInvertido", w: 50.8, h: 41.2, t: 1.5, nota: SILUETA },
-  11035: { forma: "canal", w: 31.7, h: 14.35, t: 1.3, nota: SILUETA },
-  10198: { forma: "canal", w: 41, h: 12, t: 1.4, nota: SILUETA },
-  1046: { forma: "marco", w: 44.4, h: 25, ceja: 12, t: 1.5, nota: SILUETA },
+  10198: {
+    forma: "peine",
+    w: 41,
+    base: 1.6,
+    aletas: [
+      { x: 0.8, h: 8, t: 1.6 },
+      { x: 14, h: 13, t: 1.4 },
+      { x: 27, h: 13, t: 1.4 },
+      { x: 40.2, h: 8, t: 1.6 },
+    ],
+    nota: "Guía con carriles; ancho de la fuente (41 mm), altura y carriles ilustrativos.",
+  },
+  1046: {
+    forma: "linea",
+    puntos: [
+      [0, 25],
+      [0, 0],
+      [44.4, 0],
+      [44.4, 10],
+      [40, 10],
+    ],
+    t: 1.6,
+    nota: SILUETA,
+  },
+  // Puerta batiente 1750.
   92046: { forma: "escalon", w: 53.44, h: 44.5, t: 1.6, nota: SILUETA },
-  9187: { forma: "tuboRect", w: 79.5, h: 43, t: 1.6, nota: SILUETA },
-  9207: { forma: "canalInvertido", w: 47.5, h: 30, t: 1.5, nota: SILUETA },
+  9187: { forma: "tuboDosCeldas", w: 79.5, h: 43, t: 1.6, nota: SILUETA },
+  9207: {
+    forma: "peine",
+    w: 47.5,
+    base: 1.8,
+    aletas: [
+      { x: 0.9, h: 30, t: 1.8 },
+      { x: 23.75, h: 12, t: 1.6 },
+      { x: 46.6, h: 30, t: 1.8 },
+    ],
+    nota: "Cabezal con tope central; ancho de la fuente (47.5 mm), altura y tope ilustrativos.",
+  },
   9183: { forma: "hache", w: 42.5, h: 42.5, t: 1.6, nota: SILUETA },
   11032: {
     forma: "angulo",
@@ -211,6 +428,7 @@ const spec = {
     t: 1.3,
     nota: "Ángulo según la medida nominal del nombre (1/2 × 3/4 pulgadas); espesor ilustrativo.",
   },
+  // Ángulos, Tee y Solera.
   1304: { forma: "angulo", a: 25.4, b: 25.4, t: 1.6, nota: MEDIDA },
   1301: { forma: "angulo", a: 12.6, b: 12, t: 1.2, nota: MEDIDA },
   1303: { forma: "angulo", a: 19.05, b: 19.05, t: 1.4, nota: MEDIDA },
@@ -222,29 +440,77 @@ const spec = {
     t: 3,
     nota: "Ángulo según las medidas de la fuente (1.5 × 1.5 pulgadas, espesor 3 mm).",
   },
-  2488: { forma: "tuboRect", w: 25.4, h: 25.4, t: 1.2, nota: MEDIDA },
-  2489: { forma: "tuboRect", w: 38.1, h: 38.1, t: 1.4, nota: MEDIDA },
-  2521: { forma: "tuboRect", w: 50.8, h: 25.4, t: 1.3, nota: MEDIDA },
+  // Tubos cuadrados y rectangulares.
+  2488: { forma: "tuboRect", w: 25.4, h: 25.4, t: 1.3, nota: MEDIDA },
+  2489: { forma: "tuboRect", w: 38.1, h: 38.1, t: 1.5, nota: MEDIDA },
+  2521: { forma: "tuboRect", w: 50.8, h: 25.4, t: 1.4, nota: MEDIDA },
   82521: {
-    forma: "tuboRect",
+    forma: "tuboOrnamental",
     w: 50.8,
     h: 25.4,
-    t: 1.3,
-    nota: MEDIDA + " La fuente no dibuja el detalle ornamental.",
+    t: 1.4,
+    r: 6,
+    nota: ORNAMENTAL,
   },
   9613: {
-    forma: "tuboRect",
+    forma: "tuboOrnamental",
     w: 76.2,
     h: 44.45,
     t: 1.6,
-    nota: MEDIDA + " La fuente no dibuja el detalle ornamental.",
+    r: 9,
+    nota: ORNAMENTAL,
   },
   1122: { forma: "tuboRect", w: 76.2, h: 44.45, t: 1.6, nota: MEDIDA },
   11186: { forma: "tuboRect", w: 76.2, h: 25.4, t: 1.5, nota: MEDIDA },
-  12560: { forma: "canalInvertido", w: 52.6, h: 10, t: 1.2, nota: SILUETA },
-  6370: { forma: "marco", w: 14.8, h: 17.7, ceja: 6, t: 1.2, nota: SILUETA },
-  7014: { forma: "marco", w: 9.4, h: 11.3, ceja: 4, t: 1, nota: SILUETA },
-  7013: { forma: "canal", w: 24, h: 13, t: 1.5, nota: SILUETA },
+  // Accesorios.
+  12560: {
+    forma: "linea",
+    puntos: [
+      [5, 3],
+      [0, 0],
+      [0, 10],
+      [52.6, 10],
+      [52.6, 0],
+      [47.6, 3],
+    ],
+    t: 1.3,
+    nota: SILUETA,
+  },
+  6370: {
+    forma: "linea",
+    puntos: [
+      [3, 2.5],
+      [0, 0],
+      [0, 17.7],
+      [14.8, 17.7],
+      [14.8, 13],
+    ],
+    t: 1.3,
+    nota: SILUETA,
+  },
+  7014: {
+    forma: "linea",
+    puntos: [
+      [0, 0],
+      [0, 11.3],
+      [3, 11.3],
+      [9.4, 2.5],
+      [9.4, 0],
+    ],
+    t: 1.1,
+    nota: SILUETA,
+  },
+  7013: {
+    forma: "linea",
+    puntos: [
+      [0, 13],
+      [0, 0],
+      [24, 0],
+      [24, 13],
+    ],
+    t: 1.6,
+    nota: "Canal U con las medidas de la fuente (24 × 13 mm); espesor ilustrativo.",
+  },
 };
 
 // ---------- Proyección 3D y sombreado ----------
@@ -268,18 +534,18 @@ const norm = (v) => {
   return v.map((c) => c / l);
 };
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-// Luz principal de estudio arriba a la izquierda y luz de relleno a la derecha.
+// Luz principal de estudio arriba a la izquierda y relleno a la derecha.
 const KEY = norm([-0.5, 0.85, -0.6]),
   FILL = norm([0.8, 0.2, -0.4]);
 const HALF = norm([KEY[0], KEY[1], KEY[2] - 1]);
-// Aluminio natural: gris frío y claro.
+// Aluminio satinado: gris frío, reflejo suave y amplio.
 function metal(n, extra = 0) {
   const d = Math.max(0, dot(n, KEY)),
     f = Math.max(0, dot(n, FILL)),
-    sp = Math.pow(Math.max(0, dot(n, HALF)), 18);
-  const k = Math.max(0.28, 0.44 + 0.56 * d + 0.1 * f + extra);
-  const c = (base) => Math.round(Math.min(255, base * k + 70 * sp));
-  return [c(192), c(199), c(207)];
+    sp = Math.pow(Math.max(0, dot(n, HALF)), 10);
+  const k = Math.max(0.3, 0.44 + 0.54 * d + 0.12 * f + extra);
+  const c = (base) => Math.round(Math.min(255, base * k + 48 * sp));
+  return [c(190), c(197), c(205)];
 }
 const rgb = (color, m = 1, add = 0) =>
   `rgb(${color.map((v) => Math.round(Math.max(0, Math.min(255, v * m + add)))).join(",")})`;
@@ -296,12 +562,13 @@ function render(section) {
     cy = (Math.min(...ys) + Math.max(...ys)) / 2;
   const centre = (pts) => pts.map(([x, y]) => [x - cx, y - cy]);
   const O = centre(outer),
-    H = holes.map(centre);
+    Hs = holes.map(centre);
   const maxDim = Math.max(
     Math.max(...xs) - Math.min(...xs),
     Math.max(...ys) - Math.min(...ys),
   );
-  const L = maxDim * (2.1 + 1.7 * (1 - Math.min(1, maxDim / 111)));
+  // Longitud visible de la barra: más larga en perfiles pequeños.
+  const L = maxDim * (2.4 + 1.8 * (1 - Math.min(1, maxDim / 111)));
   const walls = (pts) =>
     pts.map((a, i) => {
       const b = pts[(i + 1) % pts.length];
@@ -320,39 +587,37 @@ function render(section) {
       };
     });
   const outerWalls = walls(O).filter((w) => w.visible);
-  const holeWalls = H.map((h) => walls(h).filter((w) => w.visible));
+  const holeWalls = Hs.map((h) => walls(h).filter((w) => w.visible));
   const front = O.map(([x, y]) => project([x, y, 0]));
-  const frontHoles = H.map((h) => h.map(([x, y]) => project([x, y, 0])));
-  const backHoles = H.map((h) => h.map(([x, y]) => project([x, y, L])));
+  const frontHoles = Hs.map((h) => h.map(([x, y]) => project([x, y, 0])));
+  const backHoles = Hs.map((h) => h.map(([x, y]) => project([x, y, L])));
   const all = [...outerWalls.flatMap((w) => w.quad), ...front];
   const minX = Math.min(...all.map((p) => p[0])),
     maxX = Math.max(...all.map((p) => p[0])),
     minY = Math.min(...all.map((p) => p[1])),
     maxY = Math.max(...all.map((p) => p[1]));
-  // El producto ocupa cerca de tres cuartas partes del cuadro para que se
-  // reconozca también en miniatura.
+  // El producto ocupa cerca del 80 % del cuadro.
   const scale = Math.min(
-    (SIZE * 0.78) / (maxX - minX),
-    (SIZE * 0.64) / (maxY - minY),
+    (W * 0.84) / (maxX - minX),
+    (H * 0.76) / (maxY - minY),
   );
-  const ox = SIZE / 2 - ((minX + maxX) / 2) * scale,
-    oy = SIZE * 0.47 - ((minY + maxY) / 2) * scale;
+  const ox = W / 2 - ((minX + maxX) / 2) * scale,
+    oy = H * 0.47 - ((minY + maxY) / 2) * scale;
   const tx = (pts) => pts.map(([x, y]) => [x * scale + ox, y * scale + oy]);
   let defs = "",
     body = "",
     g = 0;
-  // Cara lateral con reflejos alargados de aluminio cepillado.
   const face = (w, extra = 0) => {
     const [a, b, c, d] = tx(w.quad);
     const id = "g" + g++;
     const base = metal(w.n, extra);
     const stops = [
-      [0, 1.02, 6],
-      [0.12, 1.08, 14],
-      [0.3, 0.96, 0],
-      [0.52, 1.05, 10],
-      [0.74, 0.93, 0],
-      [1, 0.86, -4],
+      [0, 1.0, 4],
+      [0.14, 1.06, 12],
+      [0.34, 0.97, 0],
+      [0.55, 1.04, 8],
+      [0.78, 0.95, 0],
+      [1, 0.9, -2],
     ]
       .map(
         ([o, m, add]) =>
@@ -360,11 +625,11 @@ function render(section) {
       )
       .join("");
     defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${fmt((a[0] + b[0]) / 2)}" y1="${fmt((a[1] + b[1]) / 2)}" x2="${fmt((c[0] + d[0]) / 2)}" y2="${fmt((c[1] + d[1]) / 2)}">${stops}</linearGradient>`;
-    return `<path d="${pathOf([a, b, c, d])}" fill="url(#${id})" stroke="url(#${id})" stroke-width="0.9" stroke-linejoin="round"/>`;
+    return `<path d="${pathOf([a, b, c, d])}" fill="url(#${id})" stroke="url(#${id})" stroke-width="0.8" stroke-linejoin="round"/>`;
   };
-  // Sombra de contacto alineada con la barra y sombra ambiental amplia.
+  // Sombra de contacto alineada con la barra y sombra ambiental muy suave.
   const yMin = Math.min(...O.map((p) => p[1]));
-  const bottom = O.filter((p) => p[1] === yMin);
+  const bottom = O.filter((p) => Math.abs(p[1] - yMin) < 1e-6);
   const bx = bottom.reduce((s, p) => s + p[0], 0) / bottom.length;
   const [s0] = tx([project([bx, yMin, 0])]),
     [s1] = tx([project([bx, yMin, L])]);
@@ -374,35 +639,34 @@ function render(section) {
     my = (s0[1] + s1[1]) / 2 + Math.sin((ang * Math.PI) / 180) * 10;
   const widthPx = (Math.max(...xs) - Math.min(...xs)) * scale * 0.55 + 18;
   const shadow =
-    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 18)}" rx="${fmt(len / 2 + widthPx * 0.6)}" ry="${fmt(widthPx * 0.42 + 10)}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 18)})" fill="#2c3640" opacity="0.13" filter="url(#soft)"/>` +
-    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 5)}" rx="${fmt(Math.max(10, len / 2 - 14))}" ry="${fmt(Math.max(5, widthPx * 0.16))}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 5)})" fill="#1f2830" opacity="0.22" filter="url(#tight)"/>`;
+    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 16)}" rx="${fmt(len / 2 + widthPx * 0.5)}" ry="${fmt(widthPx * 0.35 + 10)}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 16)})" fill="#2c3640" opacity="0.10" filter="url(#soft)"/>` +
+    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 4)}" rx="${fmt(Math.max(10, len / 2 - 14))}" ry="${fmt(Math.max(4, widthPx * 0.12))}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 4)})" fill="#1f2830" opacity="0.2" filter="url(#tight)"/>`;
   for (const w of [...outerWalls].sort((p, q) => q.depth - p.depth))
     body += face(w);
-  H.forEach((_, i) => {
+  Hs.forEach((_, i) => {
     const clip = "c" + i;
     const fh = pathOf(tx(frontHoles[i]));
     defs += `<clipPath id="${clip}"><path d="${fh}"/></clipPath>`;
     body += `<g clip-path="url(#${clip})"><path d="${fh}" fill="url(#hueco)"/>`;
-    body += `<path d="${pathOf(tx(backHoles[i]))}" fill="#f3f5f7"/>`;
+    body += `<path d="${pathOf(tx(backHoles[i]))}" fill="#f6f7f9"/>`;
     for (const w of [...holeWalls[i]].sort((p, q) => q.depth - p.depth))
-      body += face(w, -0.2);
+      body += face(w, -0.22);
     body += "</g>";
   });
-  // Corte frontal: aluminio mecanizado más claro con borde iluminado.
+  // Corte frontal: aluminio mecanizado con borde definido.
   const capPts = tx(front);
   const cap = [pathOf(capPts), ...frontHoles.map((h) => pathOf(tx(h)))].join(
     " ",
   );
   const capA = capPts.reduce((m, p) => (p[0] + p[1] < m[0] + m[1] ? p : m));
   const capB = capPts.reduce((m, p) => (p[0] + p[1] > m[0] + m[1] ? p : m));
-  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}"><stop offset="0" stop-color="#f7f9fb"/><stop offset="0.45" stop-color="#e2e7ec"/><stop offset="1" stop-color="#c3cbd3"/></linearGradient>`;
-  body += `<path d="${cap}" fill="url(#cap)" fill-rule="evenodd" stroke="#7d8790" stroke-width="1.6" stroke-linejoin="round"/>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
-<defs><radialGradient id="bg" cx="50%" cy="38%" r="80%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#f5f7f9"/><stop offset="1" stop-color="#eef1f4"/></radialGradient>
-<linearGradient id="hueco" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4c555d"/><stop offset="1" stop-color="#8a939b"/></linearGradient>
-<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
-<filter id="tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>${defs}</defs>
-<rect width="${SIZE}" height="${SIZE}" fill="url(#bg)"/>
+  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}"><stop offset="0" stop-color="#f8fafb"/><stop offset="0.5" stop-color="#e1e6eb"/><stop offset="1" stop-color="#c4ccd4"/></linearGradient>`;
+  body += `<path d="${cap}" fill="url(#cap)" fill-rule="evenodd" stroke="#808a94" stroke-width="1.3" stroke-linejoin="round"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<defs><linearGradient id="hueco" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#48515a"/><stop offset="1" stop-color="#8a939b"/></linearGradient>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="20"/></filter>
+<filter id="tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>${defs}</defs>
+<rect width="${W}" height="${H}" fill="#ffffff"/>
 ${shadow}
 ${body}
 </svg>`;
@@ -415,6 +679,15 @@ if (faltan.length)
   throw new Error(
     "Falta la forma de: " + faltan.map((p) => p.codigo).join(", "),
   );
+// Ninguna sección puede repetirse entre productos distintos.
+const firmas = new Map();
+for (const p of productos) {
+  const { nota, ...geo } = spec[p.codigo];
+  const key = JSON.stringify(geo);
+  if (firmas.has(key))
+    throw new Error(`Geometría repetida: ${firmas.get(key)} y ${p.codigo}`);
+  firmas.set(key, p.codigo);
+}
 for (const grupo of ["perfiles", "accesorios", "herrajes"]) {
   const carpeta = path.join(assets, grupo);
   await mkdir(carpeta, { recursive: true });
@@ -424,13 +697,15 @@ for (const grupo of ["perfiles", "accesorios", "herrajes"]) {
 }
 await writeFile(path.join(assets, "herrajes/.gitkeep"), "");
 const lines = [];
+let bytes = 0;
 for (const p of productos) {
   const s = spec[p.codigo];
   const svg = render(shapes[s.forma](s));
   const destino = path.join(assets, p.imagen);
-  await sharp(Buffer.from(svg))
-    .webp({ quality: 88, effort: 6, smartSubsample: true })
+  const info = await sharp(Buffer.from(svg))
+    .webp({ quality: 86, effort: 6, smartSubsample: true })
     .toFile(destino);
+  bytes += info.size;
   lines.push(
     `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,
   );
@@ -438,10 +713,12 @@ for (const p of productos) {
 await writeFile(
   path.join(root, "packages/mobile/src/catalogImages.js"),
   "// Generado por scripts/catalogo/generar-imagenes.js. No editar a mano.\n" +
-    "// Imágenes ilustrativas incluidas en la app, asociadas por código de producto.\n" +
+    "// Renders ilustrativos incluidos en la app (1200 × 900), asociados por código.\n" +
     "// Una URL HTTPS registrada en el producto tiene prioridad sobre estas imágenes.\n" +
     "export const catalogImages = {\n" +
     lines.join("\n") +
     "\n};\n",
 );
-console.log(`Imágenes generadas: ${productos.length}`);
+console.log(
+  `Imágenes generadas: ${productos.length} · ${Math.round(bytes / 1024)} KB en total`,
+);

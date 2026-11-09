@@ -81,14 +81,19 @@ function ProductImage({ product, style, large = false }) {
     product.image_url && !failed
       ? { uri: product.image_url }
       : (bundled?.source ?? null);
+  // El contenedor fija la proporción 4:3 y la imagen lo llena sin recortarse
+  // ni deformarse (equivalente a object-fit: contain).
   if (source)
     return (
-      <Image
-        accessibilityLabel={"Imagen de " + product.name}
-        source={source}
-        onError={() => product.image_url && setFailed(true)}
-        style={[style, s.imageCover]}
-      />
+      <View style={[style, s.imageFrame]}>
+        <Image
+          accessibilityLabel={"Imagen de " + product.name}
+          source={source}
+          resizeMode="contain"
+          onError={() => product.image_url && setFailed(true)}
+          style={s.imageFill}
+        />
+      </View>
     );
   return (
     <View style={[style, s.placeholder]}>
@@ -2746,13 +2751,18 @@ const s = StyleSheet.create({
     padding: 9,
     minHeight: 78,
     marginVertical: 4,
+    shadowColor: "#0b2540",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
   },
   thumb: {
-    width: 69,
-    height: 66,
-    borderRadius: 9,
+    width: 96,
+    aspectRatio: 4 / 3,
+    borderRadius: 8,
     resizeMode: "contain",
-    backgroundColor: "#e8eef3",
+    backgroundColor: "#ffffff",
   },
   placeholder: { alignItems: "center", justifyContent: "center", gap: 8 },
   placeholderIcon: {
@@ -2899,19 +2909,22 @@ const s = StyleSheet.create({
   secondary: { backgroundColor: "#e1effc" },
   secondaryText: { color: "#0066cc" },
   image: {
-    height: 260,
     width: "100%",
+    aspectRatio: 4 / 3,
     resizeMode: "contain",
-    borderRadius: 14,
-    backgroundColor: "#edf3f7",
+    borderRadius: 16,
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#e1e9f1",
+    borderColor: "#e6edf4",
   },
-  imageWide: { height: 380 },
-  imageCover: {
-    resizeMode: "contain",
-    overflow: "hidden",
-    backgroundColor: "#eef1f4",
+  imageWide: { maxHeight: 460 },
+  imageFrame: { overflow: "hidden", backgroundColor: "#ffffff" },
+  imageFill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
   imageNote: { color: "#6a7f92", fontSize: 11, lineHeight: 15, marginTop: 6 },
   productCard: { position: "relative", marginVertical: 4 },
@@ -2925,8 +2938,10 @@ const s = StyleSheet.create({
   },
   tileImage: {
     width: "100%",
-    height: 200,
-    backgroundColor: "#eef1f4",
+    aspectRatio: 4 / 3,
+    backgroundColor: "#ffffff",
+    borderBottomWidth: 1,
+    borderColor: "#eef2f6",
   },
   tileBody: { padding: 12, gap: 2 },
   tileLink: {

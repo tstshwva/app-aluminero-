@@ -19,10 +19,12 @@ Fecha 8 de noviembre de 2026.
 
 ## Imágenes
 
-- scripts/catalogo/generar-imagenes.js produce una imagen WebP de 1024 × 1024 por producto, con aluminio cepillado, iluminación de estudio y sombra de contacto, en packages/mobile/assets/catalogo/perfiles y accesorios (herrajes queda preparada). Se nombran con el código, por ejemplo 2488-tubo-cuadrado-1-pulgada.webp, y se asocian por código en packages/mobile/src/catalogImages.js.
-- Son ilustraciones vectoriales generadas por código, no fotografías. Tubos, ángulos, Tee y tubos rectangulares usan las medidas exteriores de la fuente con un espesor de pared ilustrativo. Los perfiles especiales (zoclos, serie 35, cancel de baño, línea 1750, Zeta y accesorios) son siluetas ilustrativas. La ficha lo indica como «Imagen ilustrativa».
-- Los tubos ornamentales #82521 y #9613 se dibujan igual que sus versiones normales porque la fuente no define el detalle ornamental.
-- Si el producto tiene una URL HTTPS registrada, la app la usa en lugar de la ilustración. Si no carga, vuelve a la ilustración o a un marcador neutro.
+- scripts/catalogo/generar-imagenes.js produce un render WebP de 1200 × 900 (4:3) por producto, fondo blanco, aluminio satinado con reflejos a lo largo de la barra, iluminación de estudio, sombra de contacto y el producto ocupando cerca del 80 % del cuadro. Total aproximado: 440 KB para las 37 imágenes.
+- Se guardan en packages/mobile/assets/catalogo/perfiles y accesorios (herrajes queda preparada), con el código en el nombre, por ejemplo 2488-tubo-cuadrado-1-pulgada.webp, y se asocian por código en packages/mobile/src/catalogImages.js.
+- Cada producto tiene una sección propia; el generador se detiene si dos productos comparten geometría. Tubos redondos, cuadrados y rectangulares se ven huecos con su abertura visible; ángulos, Tee y Z muestran sus alas; rieles y guías muestran sus canales; la duela muestra lengüeta y ranura.
+- Son renders generados por código, no fotografías. Las medidas exteriores vienen de la fuente; el espesor de pared y la geometría interior de los perfiles especiales son ilustrativos, y la ficha lo indica. Las esquinas redondeadas de los tubos ornamentales también son ilustrativas. El proyecto no contiene dibujos técnicos ni fotografías originales de estos perfiles.
+- Para sustituir una imagen por una fotografía o dibujo técnico real, registra su URL HTTPS en el producto desde Empresa; tiene prioridad sobre el render.
+- En la app, la zona de imagen es blanca, en proporción 4:3 y sin recuadros grises; la imagen se ajusta con contain dentro del contenedor, sin recortarse ni deformarse.
 
 ## App
 
@@ -36,5 +38,5 @@ Fecha 8 de noviembre de 2026.
 
 - npm test: 34 pruebas aprobadas. Las nuevas cubren registro completo sin duplicados, códigos de las fuentes, discrepancias marcadas, precios, unidades y acabados sin inventar, una imagen por producto, importación idempotente con reversión ante error, filtros, búsqueda, favoritos, ficha y encargo con acabado.
 - tests/javascript/business-integration.js agrega el rechazo de un acabado no listado. Necesita SQL Server y no se ejecutó en este equipo.
-- Revisión visual en el navegador con datos de demostración a 375 × 812 (lista) y 1280 × 860 (cuadrícula).
+- Revisión visual en el navegador con datos de demostración a 375 × 812, 768 × 1024 y 1280 × 860: las 37 imágenes cargan, los marcos conservan 4:3 y no hay desbordamiento horizontal.
 - Pendiente: ejecutar la importación con --aplicar contra la base real, capturar precios, validar los cuatro registros marcados y sustituir las ilustraciones por fotografías o dibujos técnicos cuando existan.
