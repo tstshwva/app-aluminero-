@@ -18,7 +18,7 @@ El propietario necesita ver las dos apps en su teléfono para revisar el diseño
 
 1. En `apps/cliente/.env` y en `apps/empresa/.env`, escribir `EXPO_PUBLIC_DEMO=1`.
 2. Ejecutar `./iniciar.ps1 -Accion cliente` (o `empresa`) y escanear el código QR con Expo Go, con el teléfono y la computadora en la misma red Wi-Fi.
-3. En la pantalla de acceso, escribir cualquier correo y contraseña.
+3. En la pantalla de acceso, pulsar «Entrar a la demostración».
 
 ## Vista en el navegador de la PC
 

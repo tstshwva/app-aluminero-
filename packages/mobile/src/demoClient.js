@@ -182,13 +182,12 @@ function seed() {
     seq: {
       order: 1003,
       item: 10,
-      product: 7,
-      category: 4,
+      product: Math.max(...products.map(({ id }) => id)) + 1,
+      category: Math.max(3, ...importedCategories.map(({ id }) => id)) + 1,
       customer: 4,
       notification: 3,
       movement: 3,
       payment: 2,
-      user: 5,
     },
     company: {
       name: "Aluminios del Sureste (demostración)",
@@ -413,9 +412,8 @@ export function createDemoClient(audience) {
   };
   const api = {
     demo: true,
-    async login(email, password) {
+    async enterDemo() {
       await delay();
-      if (!email || !password) fail("Escribe correo y contraseña.");
       session = copy(
         db.users.find(
           (u) => u.role === (company() ? "Administrador" : "Cliente"),
@@ -430,17 +428,16 @@ export function createDemoClient(audience) {
       session = null;
     },
     async changePassword() {
-      await delay();
-      session = null;
+      fail("Cambia tu contraseña en la app conectada.", 409);
     },
     async register() {
-      await delay();
+      fail("Crea tu cuenta desde la app conectada.", 409);
     },
     async recovery() {
-      await delay();
+      fail("Recupera tu cuenta desde la app conectada.", 409);
     },
     async reset() {
-      await delay();
+      fail("Restablece tu contraseña en la app conectada.", 409);
     },
     async products(search) {
       await delay();
@@ -839,23 +836,8 @@ export function createDemoClient(audience) {
       if (!String(question ?? "").trim()) fail("Escribe tu pregunta.");
       fail("El asistente no está disponible en el modo demostración.", 503);
     },
-    async createStaff(body) {
-      await delay();
-      adminOnly();
-      if (
-        !String(body.name ?? "").trim() ||
-        !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email ?? "")
-      )
-        fail("Escribe nombre y un correo válido.");
-      const password = body.password ?? "";
-      if (password.length < 12 || password.length > 128)
-        fail("Usa una contraseña de 12 a 128 caracteres.");
-      db.users.push({
-        id: db.seq.user++,
-        name: body.name,
-        email: body.email,
-        role: body.role,
-      });
+    async createStaff() {
+      fail("Crea cuentas de personal desde la app conectada.", 409);
     },
     async registerPush() {
       fail(
@@ -863,7 +845,9 @@ export function createDemoClient(audience) {
         503,
       );
     },
-    async disablePush() {},
+    async disablePush() {
+      fail("Los avisos del teléfono se gestionan en la app conectada.", 503);
+    },
   };
   return api;
 }

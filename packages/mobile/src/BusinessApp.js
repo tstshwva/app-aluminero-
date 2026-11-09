@@ -991,6 +991,11 @@ export default function BusinessApp({
             {message}
           </Text>
         )}
+        {client.demo && (
+          <Text style={s.notice}>
+            Modo demostración · Los cambios se reinician al recargar.
+          </Text>
+        )}
         {screen === "inicio" && (
           <View>
             {heading(
@@ -1130,6 +1135,7 @@ export default function BusinessApp({
                     go("empresa"),
                   )}
                 {admin &&
+                  !client.demo &&
                   menuRow(
                     "Usuarios y permisos",
                     "Crear cuentas de personal",
@@ -2733,11 +2739,12 @@ export default function BusinessApp({
             {menuRow("Notificaciones", "Avisos de tus encargos", () =>
               go("notificaciones"),
             )}
-            {menuRow(
-              "Cambiar contraseña",
-              "Seguridad de la cuenta",
-              onPassword,
-            )}
+            {onPassword &&
+              menuRow(
+                "Cambiar contraseña",
+                "Seguridad de la cuenta",
+                onPassword,
+              )}
             {button("Cerrar sesión", () => onLogout(false), true)}
             {button(
               "Cerrar todas mis sesiones",

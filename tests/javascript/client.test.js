@@ -225,3 +225,21 @@ test("Logout pendiente revoca el token anterior y conserva un nuevo acceso", asy
   assert.equal(sent, "Bearer " + "A".repeat(64));
   assert.equal(await storage.get(), "B".repeat(64));
 });
+
+test("El registro exige que la API confirme una cuenta de comprador", async () => {
+  let response;
+  const client = createClient({
+    baseUrl: "https://api.integration.invalid/",
+    storage: memoryStorage(),
+    fetchImpl: async () => response,
+  });
+  response = new Response("<html>OK</html>", { status: 200 });
+  await assert.rejects(client.register({}), { status: 502 });
+  response = Response.json(
+    { id: "24", role: "Administrador" },
+    { status: 201 },
+  );
+  await assert.rejects(client.register({}), { status: 502 });
+  response = Response.json({ id: "24", role: "Cliente" }, { status: 201 });
+  assert.equal((await client.register({})).id, "24");
+});

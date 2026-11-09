@@ -105,22 +105,23 @@ function AppContent({ audience }) {
     mounted.current = true;
     run(async () => setUser(await client.current(audience)));
     const listener = AppState.addEventListener("change", (state) => {
-      setValues((previous) => ({
-        ...previous,
-        password: "",
-        confirmation: "",
-        currentPassword: "",
-        token: "",
-      }));
-      setShow(false);
-      if (state === "active")
-        run(async () => {
-          const current = await client.current(audience);
-          setUser(current);
-          if (!current) {
-            setMode("login");
-          }
-        });
+      if (state !== "active") {
+        setValues((previous) => ({
+          ...previous,
+          password: "",
+          confirmation: "",
+          currentPassword: "",
+          token: "",
+        }));
+        setShow(false);
+        return;
+      }
+      run(async () => {
+        const current = await client.current(audience);
+        setUser(current);
+        if (!current)
+          setMode((previous) => (previous === "change" ? "login" : previous));
+      });
     });
     return () => {
       mounted.current = false;
@@ -250,7 +251,7 @@ function AppContent({ audience }) {
           busy={busy}
           run={run}
           message={message}
-          onPassword={() => switchMode("change")}
+          onPassword={demo ? undefined : () => switchMode("change")}
           onLogout={logout}
           onUser={setUser}
         />
@@ -282,75 +283,88 @@ function AppContent({ audience }) {
           </View>
           {demo && (
             <Text accessibilityRole="text" style={styles.demo}>
-              Modo demostración: datos de ejemplo, sin conexión al servidor.
-              {!user
-                ? " Escribe cualquier correo y contraseña para entrar."
-                : ""}
+              Modo demostración: usa una cuenta de ejemplo. El registro real se
+              guarda desde la app conectada.
             </Text>
           )}
-          <View style={styles.card}>
-            <Text style={styles.title}>{title}</Text>
-            {mode === "register" &&
-              field("name", "Nombre completo", { maxLength: 120 })}
-            {mode === "register" &&
-              field("phone", "Teléfono", {
-                keyboard: "phone-pad",
-                maxLength: 25,
-              })}
-            {["login", "register", "forgot"].includes(mode) &&
-              field("email", "Correo electrónico", {
-                keyboard: "email-address",
-                maxLength: 254,
-              })}
-            {mode === "reset" &&
-              field("token", "Código de recuperación", {
-                secret: true,
-                maxLength: 64,
-              })}
-            {mode === "change" &&
-              field("currentPassword", "Contraseña actual", { secret: true })}
-            {mode !== "forgot" &&
-              field(
-                "password",
-                mode === "login" ? "Contraseña" : "Nueva contraseña",
-                { secret: true },
+          {demo ? (
+            <View style={styles.card}>
+              <Text style={styles.title}>Explora Aluformix</Text>
+              {button("Entrar a la demostración", () =>
+                run(async () => setUser(await client.enterDemo())),
               )}
-            {["register", "reset", "change"].includes(mode) &&
-              field("confirmation", "Confirma la contraseña", { secret: true })}
-            {mode !== "forgot" &&
-              button(
-                show ? "Ocultar contraseña" : "Mostrar contraseña",
-                () => setShow(!show),
-                true,
+            </View>
+          ) : (
+            <View style={styles.card}>
+              <Text style={styles.title}>{title}</Text>
+              {mode === "register" &&
+                field("name", "Nombre completo", { maxLength: 120 })}
+              {mode === "register" &&
+                field("phone", "Teléfono", {
+                  keyboard: "phone-pad",
+                  maxLength: 25,
+                })}
+              {["login", "register", "forgot"].includes(mode) &&
+                field("email", "Correo electrónico", {
+                  keyboard: "email-address",
+                  maxLength: 254,
+                })}
+              {mode === "reset" &&
+                field("token", "Código de recuperación", {
+                  secret: true,
+                  maxLength: 64,
+                })}
+              {mode === "change" &&
+                field("currentPassword", "Contraseña actual", { secret: true })}
+              {mode !== "forgot" &&
+                field(
+                  "password",
+                  mode === "login" ? "Contraseña" : "Nueva contraseña",
+                  { secret: true },
+                )}
+              {["register", "reset", "change"].includes(mode) &&
+                field("confirmation", "Confirma la contraseña", {
+                  secret: true,
+                })}
+              {mode !== "forgot" &&
+                button(
+                  show ? "Ocultar contraseña" : "Mostrar contraseña",
+                  () => setShow(!show),
+                  true,
+                )}
+              {button(
+                mode === "forgot"
+                  ? "Enviar instrucciones"
+                  : mode === "register"
+                    ? "Crear cuenta"
+                    : mode === "login"
+                      ? "Iniciar sesión"
+                      : "Guardar contraseña",
+                submit,
               )}
-            {button(
-              mode === "forgot"
-                ? "Enviar instrucciones"
-                : mode === "register"
-                  ? "Crear cuenta"
-                  : mode === "login"
-                    ? "Iniciar sesión"
-                    : "Guardar contraseña",
-              submit,
-            )}
-            {mode === "login" &&
-              audience === "cliente" &&
-              button(
-                "Crear cuenta de comprador",
-                () => switchMode("register"),
-                true,
-              )}
-            {mode === "login" &&
-              button("Olvidé mi contraseña", () => switchMode("forgot"), true)}
-            {mode === "forgot" &&
-              button("Ya tengo un código", () => switchMode("reset"), true)}
-            {mode !== "login" &&
-              button(
-                mode === "change" ? "Volver a mi cuenta" : "Volver al acceso",
-                () => switchMode("login"),
-                true,
-              )}
-          </View>
+              {mode === "login" &&
+                audience === "cliente" &&
+                button(
+                  "Crear cuenta de comprador",
+                  () => switchMode("register"),
+                  true,
+                )}
+              {mode === "login" &&
+                button(
+                  "Olvidé mi contraseña",
+                  () => switchMode("forgot"),
+                  true,
+                )}
+              {mode === "forgot" &&
+                button("Ya tengo un código", () => switchMode("reset"), true)}
+              {mode !== "login" &&
+                button(
+                  mode === "change" ? "Volver a mi cuenta" : "Volver al acceso",
+                  () => switchMode("login"),
+                  true,
+                )}
+            </View>
+          )}
           {busy && <ActivityIndicator size="large" color="#007bff" />}
           {!!message && (
             <Text accessibilityLiveRegion="polite" style={styles.message}>

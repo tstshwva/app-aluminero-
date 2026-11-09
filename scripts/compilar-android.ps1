@@ -55,6 +55,7 @@ if ($existingKey -and !$existingPassword) {
 }
 $priorPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
 $priorUrl = $env:EXPO_PUBLIC_API_URL
+$priorDemo = $env:EXPO_PUBLIC_DEMO
 $priorCi = $env:CI
 try {
     if ($existingPassword) {
@@ -73,6 +74,7 @@ try {
     $signingPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
     Remove-Item Env:ALUFORMIX_APK_SIGNING_PASSWORD
     $env:EXPO_PUBLIC_API_URL = $url
+    $env:EXPO_PUBLIC_DEMO = '0'
     $env:CI = '1'
     $expo = Join-Path $root 'node_modules/expo/bin/cli'
     foreach ($app in $Apps) {
@@ -148,5 +150,6 @@ if (project.hasProperty("aluformixNativeDir")) {
 } finally {
     $env:ALUFORMIX_APK_SIGNING_PASSWORD = $priorPassword
     $env:EXPO_PUBLIC_API_URL = $priorUrl
+    $env:EXPO_PUBLIC_DEMO = $priorDemo
     $env:CI = $priorCi
 }

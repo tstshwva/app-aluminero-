@@ -149,12 +149,23 @@ export function createClient({
       }
       return session.user;
     },
-    register: (body) =>
-      request("api/auth/register", {
+    async register(body) {
+      const account = await request("api/auth/register", {
         method: "POST",
         body,
         authorization: false,
-      }),
+      });
+      if (
+        account?.role !== "Cliente" ||
+        !/^[1-9][0-9]*$/.test(account.id ?? "")
+      ) {
+        throw new ApiError(
+          502,
+          "El servidor no confirmó el registro. Intenta iniciar sesión para comprobarlo.",
+        );
+      }
+      return account;
+    },
     async current(audience) {
       const ticket = generation;
       const token = await sessionTask(() => storage.get());
