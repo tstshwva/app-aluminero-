@@ -16,17 +16,24 @@ import { StatusBar } from "expo-status-bar";
 import { createClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
+import { createDemoClient } from "./demoClient";
+
+// Modo demostración: solo con EXPO_PUBLIC_DEMO=1 en el .env de la app.
+// Usa datos de ejemplo en memoria y no se conecta a la API.
+const demo = process.env.EXPO_PUBLIC_DEMO === "1";
 
 export default function AluformixApp({ audience }) {
   const storage = useMemo(() => createSessionStorage(audience), [audience]);
   const client = useMemo(
     () =>
-      createClient({
-        baseUrl: process.env.EXPO_PUBLIC_API_URL ?? "",
-        storage,
-        fetchImpl: secureFetch,
-      }),
-    [storage],
+      demo
+        ? createDemoClient(audience)
+        : createClient({
+            baseUrl: process.env.EXPO_PUBLIC_API_URL ?? "",
+            storage,
+            fetchImpl: secureFetch,
+          }),
+    [storage, audience],
   );
   const [user, setUser] = useState(null),
     [mode, setMode] = useState("login"),
@@ -211,6 +218,12 @@ export default function AluformixApp({ audience }) {
         <Text style={styles.subtitle}>
           {audience === "empresa" ? "Empresa" : "Clientes"}
         </Text>
+        {demo && (
+          <Text accessibilityRole="text" style={styles.demo}>
+            Modo demostración: datos de ejemplo, sin conexión al servidor.
+            {!user ? " Escribe cualquier correo y contraseña para entrar." : ""}
+          </Text>
+        )}
         {!user || mode === "change" ? (
           <View style={styles.card}>
             <Text style={styles.title}>{title}</Text>
@@ -351,4 +364,14 @@ const styles = StyleSheet.create({
   name: { fontSize: 19, fontWeight: "700", color: "#102c46" },
   navigation: { marginVertical: 12 },
   empty: { paddingVertical: 24, color: "#526b82" },
+  demo: {
+    backgroundColor: "#fff6e0",
+    borderColor: "#f1dca4",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    color: "#6b4e00",
+    fontSize: 14,
+    lineHeight: 20,
+  },
 });

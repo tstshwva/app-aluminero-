@@ -102,6 +102,10 @@ for (const app of ["cliente", "empresa"]) {
       url.pathname.endsWith("/");
   } catch {}
   report(`URL HTTPS pública de ${app}`, valid);
+  report(
+    `Modo demostración desactivado en ${app} (EXPO_PUBLIC_DEMO vacío)`,
+    mobile.EXPO_PUBLIC_DEMO !== "1",
+  );
 }
 console.log(
   "Esta revisión no conecta a MySQL, no envía correos ni demuestra confianza del certificado en un teléfono.",
