@@ -96,9 +96,17 @@ function ProductImage({ product, style, large = false }) {
       </View>
     );
   return (
-    <View style={[style, s.placeholder]}>
-      <View style={large ? s.placeholderLarge : s.placeholderIcon} />
-      {large && <Text style={s.subtitle}>Imagen pendiente</Text>}
+    <View
+      accessibilityLabel={"Sin imagen de " + product.name}
+      style={[style, s.imageFrame, s.placeholder]}
+    >
+      <Image
+        source={require("../assets/aluformix-logo.png")}
+        style={large ? s.placeholderLogoLarge : s.placeholderLogo}
+      />
+      <Text style={large ? s.placeholderText : s.placeholderTextSmall}>
+        Imagen pendiente
+      </Text>
     </View>
   );
 }
@@ -251,7 +259,16 @@ export default function BusinessApp({
             recent: (await client.orders()).slice(0, 3),
           }
         : {
-            products: (await client.products()).slice(0, 4),
+            // Se destacan primero los materiales que tienen imagen.
+            products: (await client.products())
+              .map((p, i) => ({
+                p,
+                i,
+                img: p.image_url || catalogImages[String(p.code)] ? 0 : 1,
+              }))
+              .sort((a, b) => a.img - b.img || a.i - b.i)
+              .slice(0, 4)
+              .map((x) => x.p),
             categories: await client.categories(),
           };
     if (next === "stockbajo") {
@@ -2764,7 +2781,22 @@ const s = StyleSheet.create({
     resizeMode: "contain",
     backgroundColor: "#ffffff",
   },
-  placeholder: { alignItems: "center", justifyContent: "center", gap: 8 },
+  placeholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "#edf1f5",
+  },
+  placeholderLogo: { width: 30, height: 30, opacity: 0.35, borderRadius: 15 },
+  placeholderLogoLarge: {
+    width: 64,
+    height: 64,
+    opacity: 0.3,
+    borderRadius: 32,
+  },
+  placeholderTextSmall: { color: "#8a9bab", fontSize: 9, fontWeight: "600" },
+  placeholderText: { color: "#8a9bab", fontSize: 13, fontWeight: "600" },
   placeholderIcon: {
     width: 26,
     height: 19,
