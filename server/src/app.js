@@ -10,7 +10,7 @@ import {
   requireRole,
 } from "./errors.js";
 import { equalText } from "./crypto.js";
-import { rows, acquireAppLock, releaseAppLock } from "./database.js";
+import { rows } from "./database.js";
 import { AuthService } from "./auth.js";
 import { businessRoutes } from "./business.js";
 import { createRateLimit } from "./rate-limit.js";
@@ -211,34 +211,7 @@ export function createApp({
       fields(req.body, ["email", "password"]);
       if (!text(setupName, 120))
         throw new ApiError(503, "Falta configurar el responsable.");
-      const db = await pool.getConnection();
-      let locked = false;
-      try {
-        locked = await acquireAppLock(db, "aluformix_first_admin", 5);
-        if (!locked) throw new ApiError(409, "Inténtalo nuevamente.");
-        const [count] = await rows(
-          db,
-          "SELECT COUNT(*) AS total FROM users WHERE role_id=1",
-        );
-        if (Number(count.total) !== 0)
-          throw new ApiError(409, "Ya existe administrador.");
-        await db.beginTransaction();
-        try {
-          const user = await auth.create(
-            { ...req.body, name: setupName },
-            1,
-            db,
-          );
-          await db.commit();
-          res.json(user);
-        } catch (error) {
-          await db.rollback();
-          throw error;
-        }
-      } finally {
-        if (locked) await releaseAppLock(db, "aluformix_first_admin");
-        await db.release();
-      }
+      res.json(await auth.createFirstAdmin({ ...req.body, name: setupName }));
     }),
   );
   app.get(
@@ -251,7 +224,7 @@ export function createApp({
       const result = await rows(
         pool,
         `SELECT id,category_id,code,name,description,unit,finish,length_mm,price,stock,reserved,minimum_stock,image_url,active,stock-reserved AS available FROM products
-      WHERE (?=1 OR active=1) AND (?='' OR LOCATE(?,name)>0 OR LOCATE(?,code)>0) ORDER BY name LIMIT 100`,
+      WHERE (?=1 OR active=1) AND (?='' OR LOCATE(?,name)>0 OR LOCATE(?,code)>0) ORDER BY name LIMIT 1000`,
         [
           isStaff(req.user) ? 1 : 0,
           search.trim(),

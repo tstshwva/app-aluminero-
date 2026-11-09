@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   AppState,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import { fetch as secureFetch } from "expo/fetch";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { createClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
@@ -23,7 +25,20 @@ import "./dialogs";
 // Usa datos de ejemplo en memoria y no se conecta a la API.
 const demo = process.env.EXPO_PUBLIC_DEMO === "1";
 
+// En el navegador, la página se declara en español para que no se ofrezca
+// traducirla automáticamente (por ejemplo, «Cód.» se traducía como «Bacalao»).
+if (Platform.OS === "web" && typeof document !== "undefined")
+  document.documentElement.lang = "es-MX";
+
 export default function AluformixApp({ audience }) {
+  return (
+    <SafeAreaProvider>
+      <AppContent audience={audience} />
+    </SafeAreaProvider>
+  );
+}
+
+function AppContent({ audience }) {
   const storage = useMemo(() => createSessionStorage(audience), [audience]);
   const client = useMemo(
     () =>
@@ -205,27 +220,56 @@ export default function AluformixApp({ audience }) {
     reset: "Nueva contraseña",
     change: "Cambia tu contraseña",
   }[mode];
+  if (user && mode !== "change") {
+    return (
+      <SafeAreaView style={styles.businessScreen}>
+        <StatusBar style="dark" />
+        <BusinessApp
+          key={user.id}
+          client={client}
+          user={user}
+          audience={audience}
+          busy={busy}
+          run={run}
+          message={message}
+          onPassword={() => switchMode("change")}
+          onLogout={logout}
+          onUser={setUser}
+        />
+      </SafeAreaView>
+    );
+  }
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.screen}>
+      <KeyboardAvoidingView
+        style={styles.screen}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Text style={styles.logo}>ALUFORMIX</Text>
-        <Text style={styles.subtitle}>
-          {audience === "empresa" ? "Empresa" : "Clientes"}
-        </Text>
-        {demo && (
-          <Text accessibilityRole="text" style={styles.demo}>
-            Modo demostración: datos de ejemplo, sin conexión al servidor.
-            {!user ? " Escribe cualquier correo y contraseña para entrar." : ""}
-          </Text>
-        )}
-        {!user || mode === "change" ? (
+        <StatusBar style="dark" />
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.brand}>
+            <Image
+              source={require("../assets/aluformix-logo.png")}
+              style={styles.brandImage}
+            />
+            <View>
+              <Text style={styles.logo}>ALUFORMIX</Text>
+              <Text style={styles.subtitle}>
+                {audience === "empresa" ? "EMPRESA" : "CLIENTE"}
+              </Text>
+            </View>
+          </View>
+          {demo && (
+            <Text accessibilityRole="text" style={styles.demo}>
+              Modo demostración: datos de ejemplo, sin conexión al servidor.
+              {!user
+                ? " Escribe cualquier correo y contraseña para entrar."
+                : ""}
+            </Text>
+          )}
           <View style={styles.card}>
             <Text style={styles.title}>{title}</Text>
             {mode === "register" &&
@@ -289,34 +333,30 @@ export default function AluformixApp({ audience }) {
                 true,
               )}
           </View>
-        ) : (
-          <BusinessApp
-            key={user.id}
-            client={client}
-            user={user}
-            audience={audience}
-            busy={busy}
-            run={run}
-            onPassword={() => switchMode("change")}
-            onLogout={logout}
-            onUser={setUser}
-          />
-        )}
-        {busy && <ActivityIndicator size="large" color="#007bff" />}
-        {!!message && (
-          <Text accessibilityLiveRegion="polite" style={styles.message}>
-            {message}
-          </Text>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {busy && <ActivityIndicator size="large" color="#007bff" />}
+          {!!message && (
+            <Text accessibilityLiveRegion="polite" style={styles.message}>
+              {message}
+            </Text>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f4f8ff" },
+  screen: { flex: 1, backgroundColor: "#f2f6fb" },
+  businessScreen: { flex: 1, backgroundColor: "#f2f6fb" },
+  brand: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 9,
+  },
+  brandImage: { width: 44, height: 44, borderRadius: 22 },
   container: {
     padding: 24,
-    paddingTop: 60,
+    paddingTop: 28,
     paddingBottom: 48,
     width: "100%",
     // En el navegador de la PC se limita al ancho de un teléfono.
@@ -325,7 +365,12 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   logo: { fontSize: 25, fontWeight: "800", color: "#07325a" },
-  subtitle: { color: "#526b82", fontSize: 15 },
+  subtitle: {
+    color: "#526b82",
+    fontSize: 10,
+    letterSpacing: 1.6,
+    fontWeight: "800",
+  },
   title: {
     fontSize: 27,
     fontWeight: "700",

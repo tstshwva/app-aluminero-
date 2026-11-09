@@ -50,7 +50,10 @@ export function createAssistant(
       if (!response.ok) throw new Error();
       const value = await response.json();
       const answer = value.candidates?.[0]?.content?.parts
-        ?.map((p) => p.text ?? "")
+        ?.filter(
+          (part) => part?.thought !== true && typeof part?.text === "string",
+        )
+        .map((part) => part.text)
         .join("")
         .trim();
       if (!answer || answer.length > 6000) throw new Error();

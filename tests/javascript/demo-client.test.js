@@ -9,8 +9,12 @@ test("Modo demostración: el cliente compra, acepta la cotización y se reserva 
   const user = await c.login("x@y.mx", "cualquiera", "cliente");
   assert.equal(user.role, "Cliente");
 
-  const found = await c.products("perf");
+  const found = await c.products("PERF-3");
   assert.deepEqual(found.map((p) => p.code), ["PERF-3"]);
+  // La demostración incluye los 124 registros con código del catálogo maestro.
+  const all = await c.products("");
+  assert.ok(all.some((p) => p.code === "07333"));
+  assert.equal(all.filter((p) => p.price === "0.00").length, 124);
   assert.equal((await c.favorites()).length, 1);
   await c.favorite(5, true);
   assert.equal((await c.favorites()).length, 2);

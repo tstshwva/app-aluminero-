@@ -1,0 +1,1332 @@
+{
+  "generado_por": "scripts/catalogo/generar-imagenes.js",
+  "aviso": "Renders e ilustraciones generados por código; no son fotografías ni reproducciones del arte del proveedor. Estado 'validada' solo tras revisión del cliente.",
+  "resumen": {
+    "ilustrativa": 132,
+    "pendiente": 1
+  },
+  "imagenes": [
+    {
+      "codigo": "53883",
+      "nombre": "Pasamanos de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/53883-pasamanos-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/53883-pasamanos-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "22196",
+      "nombre": "Tubo redondo de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/22196-tubo-redondo-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/22196-tubo-redondo-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "22197",
+      "nombre": "Tubo redondo de 1 pulgada",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/22197-tubo-redondo-1-pulgada.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/22197-tubo-redondo-1-pulgada.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "53896",
+      "nombre": "Pasamanos de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/53896-pasamanos-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/53896-pasamanos-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "8327",
+      "nombre": "Zoclo Hercúlite de 1 1/2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/8327-zoclo-herculite-1-1-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/8327-zoclo-herculite-1-1-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9776",
+      "nombre": "Zoclo servilletero",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9776-zoclo-servilletero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9776-zoclo-servilletero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Tubos y Barandales 18.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "4843",
+      "nombre": "Zoclo decorativo para pared",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/4843-zoclo-decorativo-pared.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/4843-zoclo-decorativo-pared.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Zoclos 17.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "12560",
+      "nombre": "Tapa para sistema de zoclo",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/12560-tapa-sistema-zoclo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/12560-tapa-sistema-zoclo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Zoclos 17.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "2273",
+      "nombre": "Marco colonial serie 35",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/2273-marco-colonial-serie-35.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/2273-marco-colonial-serie-35.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Serie 35 16.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "2274",
+      "nombre": "Contramarco serie 35",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/2274-contramarco-serie-35.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/2274-contramarco-serie-35.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Serie 35 16.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "1087",
+      "nombre": "Celosía fija",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1087-celosia-fija.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1087-celosia-fija.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Recubrimientos 15.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "6617",
+      "nombre": "Duela lisa de 4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/6617-duela-lisa-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/6617-duela-lisa-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Recubrimientos 15.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "63299",
+      "nombre": "Perfil Zeta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/63299-perfil-zeta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/63299-perfil-zeta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Recubrimientos 15.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "11174",
+      "nombre": "Riel superior de baño",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11174-riel-superior-bano.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11174-riel-superior-bano.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Cancel de  baño 14.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11035",
+      "nombre": "Marco económico para cancel de baño",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11035-marco-economico-cancel-bano.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11035-marco-economico-cancel-bano.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Cancel de  baño 14.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "10198",
+      "nombre": "Guía inferior de baño",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/10198-guia-inferior-bano.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/10198-guia-inferior-bano.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Cancel de  baño 14.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "1046",
+      "nombre": "Marco de 1 3/4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1046-marco-1-3-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1046-marco-1-3-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Cancel de  baño 14.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9204",
+      "nombre": "Cerco de puerta de 1750",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9204-cerco-puerta-1750.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9204-cerco-puerta-1750.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9187",
+      "nombre": "Zoclo de puerta de 1750",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9187-zoclo-puerta-1750.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9187-zoclo-puerta-1750.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9207",
+      "nombre": "Cabezal de 1750",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9207-cabezal-1750.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9207-cabezal-1750.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9183",
+      "nombre": "Intermedio de 1750",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9183-intermedio-1750.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9183-intermedio-1750.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11032",
+      "nombre": "Batiente de 1/2 × 3/4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11032-batiente-1-2-x-3-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11032-batiente-1-2-x-3-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "6370",
+      "nombre": "Junquillo recto de 1750",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/6370-junquillo-recto-1750.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/6370-junquillo-recto-1750.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Puerta Batiente13.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "1301",
+      "nombre": "Ángulo de 1/2 × 1/2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1301-angulo-1-2-x-1-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1301-angulo-1-2-x-1-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Ángulos Tee 12.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "1304",
+      "nombre": "Ángulo de 1 pulgada",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1304-angulo-1-pulgada.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1304-angulo-1-pulgada.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Ángulos Tee 12.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "1303",
+      "nombre": "Ángulo de 3/4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1303-angulo-3-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1303-angulo-3-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Ángulos Tee 12.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "1613",
+      "nombre": "Tee de 1 pulgada",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1613-tee-1-pulgada.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1613-tee-1-pulgada.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Ángulos Tee 12.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "14",
+      "nombre": "Ángulo de 1.5 × 1.5 pulgadas × 3 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/14-angulo-1-5-x-1-5-pulgadas-x-3-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/14-angulo-1-5-x-1-5-pulgadas-x-3-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "Ángulos Tee 12.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Ángulo según el plano (37.5 × 37.5 mm, espesor 3 mm)."
+    },
+    {
+      "codigo": "2488",
+      "nombre": "Tubo cuadrado de 1 pulgada",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/2488-tubo-cuadrado-1-pulgada.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/2488-tubo-cuadrado-1-pulgada.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos cuadrados 11.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "2489",
+      "nombre": "Tubo cuadrado de 1 1/2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/2489-tubo-cuadrado-1-1-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/2489-tubo-cuadrado-1-1-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos cuadrados 11.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "7014",
+      "nombre": "Junquillo de 1 pulgada",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7014-junquillo-1-pulgada.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7014-junquillo-1-pulgada.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos cuadrados 11.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7013",
+      "nombre": "Base para vidrio",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7013-base-vidrio.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7013-base-vidrio.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos cuadrados 11.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "2521",
+      "nombre": "Tubo rectangular normal de 2 × 1 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/2521-tubo-rectangular-normal-2-x-1-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/2521-tubo-rectangular-normal-2-x-1-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos rectangulares 10.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "82521",
+      "nombre": "Tubo rectangular ornamental de 2 × 1 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/82521-tubo-rectangular-ornamental-2-x-1-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/82521-tubo-rectangular-ornamental-2-x-1-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos rectangulares 10.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo. El plano dibuja la misma sección exterior que el tubo normal 2521."
+    },
+    {
+      "codigo": "9613",
+      "nombre": "Tubo rectangular ornamental de 3 × 1 3/4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9613-tubo-rectangular-ornamental-3-x-1-3-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9613-tubo-rectangular-ornamental-3-x-1-3-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos rectangulares 10.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo. El plano dibuja la misma sección exterior que el tubo normal 1122."
+    },
+    {
+      "codigo": "1122",
+      "nombre": "Tubo rectangular normal de 3 × 1 3/4 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/1122-tubo-rectangular-normal-3-x-1-3-4-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/1122-tubo-rectangular-normal-3-x-1-3-4-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos rectangulares 10.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "11186",
+      "nombre": "Tubo rectangular de 3 × 1 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11186-tubo-rectangular-3-x-1-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11186-tubo-rectangular-3-x-1-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "tubos rectangulares 10.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Sección modelada a partir del plano de origen; espesor de pared ilustrativo."
+    },
+    {
+      "codigo": "6533",
+      "nombre": "Cabezal y zoclo mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/6533-cabezal-zoclo-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/6533-cabezal-zoclo-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "6534",
+      "nombre": "Cerco mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/6534-cerco-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/6534-cerco-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "07333",
+      "nombre": "Perfil mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/07333-perfil-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/07333-perfil-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "15309",
+      "nombre": "Jamba y cabezal",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15309-jamba-cabezal.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15309-jamba-cabezal.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "15311",
+      "nombre": "Cabezal y zoclo",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15311-cabezal-zoclo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15311-cabezal-zoclo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "15310",
+      "nombre": "Riel",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15310-riel.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15310-riel.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "15312",
+      "nombre": "Cerco",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15312-cerco.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15312-cerco.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11835",
+      "nombre": "Jamba y cabezal",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11835-jamba-cabezal.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11835-jamba-cabezal.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "19495",
+      "nombre": "Cerco",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/19495-cerco.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/19495-cerco.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11839",
+      "nombre": "Riel intermedio",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11839-riel-intermedio.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11839-riel-intermedio.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11837",
+      "nombre": "Cabezal y zoclo",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11837-cabezal-zoclo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11837-cabezal-zoclo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "11838",
+      "nombre": "Riel",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11838-riel.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11838-riel.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9083",
+      "nombre": "Bolsa de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9083-bolsa-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9083-bolsa-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9085",
+      "nombre": "Tapa bolsa de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9085-tapa-bolsa-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9085-tapa-bolsa-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9084",
+      "nombre": "Escalonado de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9084-escalonado-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9084-escalonado-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "4051",
+      "nombre": "Tapa lisa de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/4051-tapa-lisa-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/4051-tapa-lisa-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "8591",
+      "nombre": "Bolsa lisa de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/8591-bolsa-lisa-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/8591-bolsa-lisa-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9088",
+      "nombre": "Junquillo de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9088-junquillo-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9088-junquillo-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 6.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7518",
+      "nombre": "Cabezal y jamba",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7518-cabezal-jamba.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7518-cabezal-jamba.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7818",
+      "nombre": "Adaptador XX",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7818-adaptador-xx.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7818-adaptador-xx.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "4286",
+      "nombre": "Riel",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/4286-riel.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/4286-riel.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7825",
+      "nombre": "Zoclo puerta de 2 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7825-zoclo-puerta-2-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7825-zoclo-puerta-2-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9955",
+      "nombre": "Traslape puerta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9955-traslape-puerta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9955-traslape-puerta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7821",
+      "nombre": "Cerco puerta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7821-cerco-puerta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7821-cerco-puerta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9135",
+      "nombre": "Bolsa de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9135-bolsa-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9135-bolsa-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7315",
+      "nombre": "Tapa bolsa de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7315-tapa-bolsa-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7315-tapa-bolsa-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9136",
+      "nombre": "Escalonado de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9136-escalonado-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9136-escalonado-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7316",
+      "nombre": "Tapa lisa de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7316-tapa-lisa-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7316-tapa-lisa-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9114",
+      "nombre": "Bolsa lisa de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9114-bolsa-lisa-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9114-bolsa-lisa-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9112",
+      "nombre": "Junquillo de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9112-junquillo-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9112-junquillo-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana fija 4.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7826",
+      "nombre": "Cabezal y jamba",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7826-cabezal-jamba.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7826-cabezal-jamba.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9957",
+      "nombre": "Riel",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9957-riel.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9957-riel.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7847",
+      "nombre": "Cerco chapa puerta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7847-cerco-chapa-puerta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7847-cerco-chapa-puerta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7848",
+      "nombre": "Traslape puerta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7848-traslape-puerta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7848-traslape-puerta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7842",
+      "nombre": "Zoclo puerta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7842-zoclo-puerta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7842-zoclo-puerta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7836",
+      "nombre": "Cabezal ventana",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7836-cabezal-ventana.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7836-cabezal-ventana.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "78410",
+      "nombre": "Perfil código 78410 (descripción pendiente)",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/78410-perfil-codigo-78410-descripcion-pendiente.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/78410-perfil-codigo-78410-descripcion-pendiente.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "18409",
+      "nombre": "Perfil código 18409 (descripción pendiente)",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/18409-perfil-codigo-18409-descripcion-pendiente.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/18409-perfil-codigo-18409-descripcion-pendiente.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "02082",
+      "nombre": "Junquillo embellecedor",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/02082-junquillo-embellecedor.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/02082-junquillo-embellecedor.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "9082",
+      "nombre": "Intermedio",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9082-intermedio.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9082-intermedio.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "10220",
+      "nombre": "Adaptador OXXO",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/10220-adaptador-oxxo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/10220-adaptador-oxxo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7835",
+      "nombre": "Zoclo ventana",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7835-zoclo-ventana.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7835-zoclo-ventana.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7844",
+      "nombre": "Traslape ventana de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7844-traslape-ventana-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7844-traslape-ventana-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "7850",
+      "nombre": "Cerco OXXO de 3 pulgadas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7850-cerco-oxxo-3-pulgadas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7850-cerco-oxxo-3-pulgadas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG62017",
+      "nombre": "Riel triple",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62017-riel-triple.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62017-riel-triple.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "62000",
+      "nombre": "Riel doble",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62000-riel-doble.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62000-riel-doble.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 2",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG62001",
+      "nombre": "Cerco 6 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62001-cerco-6-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62001-cerco-6-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG64207",
+      "nombre": "Riel adaptador",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG64207-riel-adaptador.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG64207-riel-adaptador.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 3",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG62002",
+      "nombre": "Aleta traslape",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62002-aleta-traslape.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62002-aleta-traslape.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG62003",
+      "nombre": "Adaptador OXXO",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62003-adaptador-oxxo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62003-adaptador-oxxo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "62006",
+      "nombre": "Refuerzo interior",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62006-refuerzo-interior.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62006-refuerzo-interior.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 4",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "MXG62019",
+      "nombre": "Mosquitero de lujo",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62019-mosquitero-lujo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62019-mosquitero-lujo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 5",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "62094",
+      "nombre": "Escalonado triple",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62094-escalonado-triple.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62094-escalonado-triple.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 5",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "62020",
+      "nombre": "Escalonado doble",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62020-escalonado-doble.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62020-escalonado-doble.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 6",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "62022",
+      "nombre": "Junquillo de 6 mm",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/62022-junquillo-6-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/62022-junquillo-6-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "productos ex 2.pdf pág. 6",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72054",
+      "nombre": "Riel triple",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72054-riel-triple.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72054-riel-triple.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 3, 8, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "75052",
+      "nombre": "Riel doble",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/75052-riel-doble.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/75052-riel-doble.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 3, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72091",
+      "nombre": "Riel adaptador",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72091-riel-adaptador.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72091-riel-adaptador.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72056",
+      "nombre": "Cerco 24 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72056-cerco-24-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72056-cerco-24-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72058",
+      "nombre": "Aleta",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72058-aleta.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72058-aleta.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72015",
+      "nombre": "Adaptador mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72015-adaptador-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72015-adaptador-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72059",
+      "nombre": "Adaptador vidrio 12 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72059-adaptador-vidrio-12-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72059-adaptador-vidrio-12-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 8, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72060",
+      "nombre": "Adaptador vidrio 15 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72060-adaptador-vidrio-15-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72060-adaptador-vidrio-15-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72061",
+      "nombre": "Adaptador vidrio 18 mm",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72061-adaptador-vidrio-18-mm.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72061-adaptador-vidrio-18-mm.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72016",
+      "nombre": "Porta felpas",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72016-porta-felpas.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72016-porta-felpas.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 8, 16, 17, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "74206",
+      "nombre": "OXXO central",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/74206-oxxo-central.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/74206-oxxo-central.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "72013",
+      "nombre": "Refuerzo",
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72013-refuerzo.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72013-refuerzo.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
+    },
+    {
+      "codigo": "GN-608",
+      "nombre": "Escuadra de alineación",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-608-escuadra-alineacion.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-608-escuadra-alineacion.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16",
+      "estado": "ilustrativa",
+      "nota": "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas."
+    },
+    {
+      "codigo": null,
+      "nombre": "Calza de neopreno",
+      "ruta": null,
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/sin-codigo-106-calza-neopreno.webp",
+      "tipo": "pendiente",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
+      "estado": "pendiente",
+      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+    },
+    {
+      "codigo": "FN-110",
+      "nombre": "Felpa con plástico",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/FN-110-felpa-plastico.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/FN-110-felpa-plastico.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16, 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
+    },
+    {
+      "codigo": "F-306E",
+      "nombre": "Cierre embutido S/T",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F-306E-cierre-embutido-s-t.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F-306E-cierre-embutido-s-t.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GYC-100MID",
+      "nombre": "Contra y gancho",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GYC-100MID-contra-gancho.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GYC-100MID-contra-gancho.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 15, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 15, 16); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "UN-305T",
+      "nombre": "Uñero metálico",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/UN-305T-unero-metalico.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/UN-305T-unero-metalico.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "M.P. / F-608",
+      "nombre": "M-PuntoP / Manilla",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/M-P-F-608-m-puntop-manilla.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/M-P-F-608-m-puntop-manilla.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 16); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "45/30.03-A",
+      "nombre": "Carro tándem",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/45-30-03-A-carro-tandem.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/45-30-03-A-carro-tandem.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GT45/40.03A",
+      "nombre": "Carro de 70 kg",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GT45-40-03A-carro-70-kg.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GT45-40-03A-carro-70-kg.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16, 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 16, 17); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "T26/9X",
+      "nombre": "Carro para mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/T26-9X-carro-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/T26-9X-carro-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GN-623",
+      "nombre": "Candado de hoja",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-623-candado-hoja.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-623-candado-hoja.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 16); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GN-622TT",
+      "nombre": "Tapa de traslape",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-622TT-tapa-traslape.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-622TT-tapa-traslape.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 16); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GN-481",
+      "nombre": "Escuadra de botón",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-481-escuadra-boton.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-481-escuadra-boton.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15, 16, 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 15, 16, 17); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GN-622CV",
+      "nombre": "Cortavientos",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-622CV-cortavientos.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-622CV-cortavientos.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 15); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "GN-554",
+      "nombre": "Tapa de dren",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-554-tapa-dren.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-554-tapa-dren.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15",
+      "estado": "ilustrativa",
+      "nota": "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas."
+    },
+    {
+      "codigo": "E-126/6.5",
+      "nombre": "Empaque para acristalar",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/E-126-6-5-empaque-acristalar.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/E-126-6-5-empaque-acristalar.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
+    },
+    {
+      "codigo": "195-15 PENS",
+      "nombre": "Empaque cuña",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/195-15-PENS-empaque-cuna.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/195-15-PENS-empaque-cuna.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
+    },
+    {
+      "codigo": "F306",
+      "nombre": "Cierre brio",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F306-cierre-brio.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F306-cierre-brio.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 16",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 16); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "F305",
+      "nombre": "Uñero embutido",
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F305-unero-embutido.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F305-unero-embutido.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 17); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "TE",
+      "nombre": "Tela mosquitera",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/TE-tela-mosquitera.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/TE-tela-mosquitera.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 17); no reproduce el mecanismo interno ni medidas exactas."
+    },
+    {
+      "codigo": "319-4.0",
+      "nombre": "Vinil mosquitero",
+      "ruta": "packages/mobile/assets/catalogo/accesorios/319-4-0-vinil-mosquitero.webp",
+      "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/319-4-0-vinil-mosquitero.webp",
+      "tipo": "render_3d_generado_por_codigo",
+      "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Ventana corrediza 1380",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/ventana-corrediza-1380.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Ventana corrediza 1500",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/ventana-corrediza-1500.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Puerta y ventana corrediza 2000",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/puerta-y-ventana-corrediza-2000.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Puerta y ventana corrediza 3000",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/puerta-y-ventana-corrediza-3000.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Corrediza C-80",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/corrediza-c-80.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema C-100 MID",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/c-100-mid.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Puerta y ventana fija 2000",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/puerta-y-ventana-fija-2000.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    },
+    {
+      "codigo": null,
+      "nombre": "Sistema Puerta y ventana fija 3000",
+      "ruta": "packages/mobile/assets/catalogo/sistemas/puerta-y-ventana-fija-3000.webp",
+      "tipo": "ilustracion_de_sistema",
+      "fuente_tecnica": null,
+      "estado": "ilustrativa",
+      "nota": "Portada del sistema; no sustituye las imágenes de los componentes."
+    }
+  ]
+}

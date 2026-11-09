@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
+import path from "node:path";
 import { transformSync } from "@babel/core";
 import React, { act } from "react";
 import TestRenderer from "react-test-renderer";
@@ -11,13 +12,22 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
+    .replace(/require\("\.\.\/assets\/[^"\n]+\.png"\)/g, "0")
     .replace(
       /from ['"]react['"];/,
       `from '${pathToFileURL(require.resolve("react")).href}';`,
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"]react-native['"];/s,
-      `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View';`,
+      `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
+    )
+    .replace(
+      /import\s*\{[^}]*\}\s*from ['"].\/catalogImages['"];/,
+      "const catalogImages=globalThis.__catalogImages??{},genericImages={},systemImages={};",
+    )
+    .replace(
+      /from ['"]@aluformix\/catalog['"];/,
+      `from '${pathToFileURL(path.resolve("packages/catalog/src/index.js")).href}';`,
     )
     .replace(
       /import\s*\{\s*randomUUID\s*\}\s*from ['"]expo-crypto['"];/,
@@ -131,23 +141,45 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     const node = renderer.root.findAll(
       (n) =>
         n.type === "Pressable" &&
-        n.findAll((x) => x.type === "Text" && x.children.join("") === label)
-          .length > 0,
+        (n.props.accessibilityLabel === label ||
+          n.findAll((x) => x.type === "Text" && x.children.join("") === label)
+            .length > 0),
     )[0];
     assert.ok(node, "Botón disponible: " + label);
     await act(async () => {
       await node.props.onPress();
     });
   }
+  const tabs = () =>
+    renderer.root.findAll(
+      (n) => n.type === "Pressable" && n.props.accessibilityRole === "tab",
+    );
+  assert.deepEqual(
+    tabs().map((tab) => tab.props.accessibilityLabel),
+    ["Inicio", "Catálogo", "Encargos", "Perfil"],
+  );
   await press("Explorar catálogo");
+  assert.equal(
+    tabs().find((tab) => tab.props.accessibilityState.selected)?.props
+      .accessibilityLabel,
+    "Catálogo",
+  );
   await press("Ver P-10");
-  await press("Agregar o actualizar en carrito");
+  await press("Agregar al encargo");
+  await press("Aumentar Perfil de prueba UI");
+  assert.ok(
+    renderer.root.findAll(
+      (n) => n.type === "Text" && n.children.join("") === "$800.00",
+    ).length,
+  );
+  await press("Reducir Perfil de prueba UI");
   await press("Revisar solicitud");
   await press("Enviar solicitud");
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
   assert.match(calls[0].requestKey, /^[a-f0-9-]{36}$/i);
   await press("Ver seguimiento");
+  await press("Ver cotización");
   await press("Aceptar cotización y reservar material");
   assert.deepEqual(calls[1], { orderId: "20", revision: 2 });
   assert.ok(
@@ -231,8 +263,9 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
     renderer.root.findAll(
       (n) =>
         n.type === "Pressable" &&
-        n.findAll((x) => x.type === "Text" && x.children.join("") === label)
-          .length > 0,
+        (n.props.accessibilityLabel === label ||
+          n.findAll((x) => x.type === "Text" && x.children.join("") === label)
+            .length > 0),
     );
   async function press(label) {
     assert.ok(buttons(label).length, "Botón disponible: " + label);
@@ -240,8 +273,23 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
       await buttons(label)[0].props.onPress();
     });
   }
-  assert.equal(buttons("Crear cuenta de personal").length, 0);
-  await press("Ver solicitudes");
+  const tabs = () =>
+    renderer.root.findAll(
+      (n) => n.type === "Pressable" && n.props.accessibilityRole === "tab",
+    );
+  assert.deepEqual(
+    tabs().map((tab) => tab.props.accessibilityLabel),
+    ["Inicio", "Inventario", "Encargos", "Más"],
+  );
+  await press("Más");
+  assert.equal(
+    tabs().find((tab) => tab.props.accessibilityState.selected)?.props
+      .accessibilityLabel,
+    "Más",
+  );
+  assert.equal(buttons("Usuarios y permisos").length, 0);
+  await press("Inicio");
+  await press("Revisar encargos");
   await press("Ver detalle y seguimiento");
   await press("Enviar cotización");
   assert.equal(calls[0].body.prices[0].unitPrice, "400.00");
@@ -252,5 +300,176 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
   await press("Registrar entrega");
   assert.equal(state, "Entregado");
   assert.equal(calls[1].revision, 1);
+  await act(async () => renderer.unmount());
+});
+test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", async () => {
+  const { default: data } = await import("../../packages/catalog/src/data.js");
+  const { catalogRows } = await import("../../server/src/catalog-import.js");
+  const categories = [],
+    calls = [];
+  const products = catalogRows(data.productos).map((r, i) => {
+    let category = categories.find((c) => c.name === r.category);
+    if (!category) {
+      category = { id: categories.length + 1, name: r.category };
+      categories.push(category);
+    }
+    return {
+      id: String(i + 1),
+      category_id: category.id,
+      code: r.code,
+      name: r.name,
+      description: r.description,
+      unit: r.unit,
+      finish: r.finish,
+      length_mm: r.lengthMm,
+      price: r.price,
+      image_url: null,
+      active: 1,
+      available: "0.000",
+    };
+  });
+  const favorites = new Set(["1"]);
+  const client = {
+    products: async () => products,
+    categories: async () => categories,
+    favorites: async () => products.filter((p) => favorites.has(p.id)),
+    favorite: async (id, enabled) => {
+      calls.push({ favorite: id, enabled });
+      if (enabled) favorites.add(String(id));
+      else favorites.delete(String(id));
+    },
+    product: async (id) => products.find((p) => p.id === String(id)),
+    company: async () => ({ tax_rate: "0.1600" }),
+    profile: async () => ({ name: "Comprador" }),
+    createOrder: async (body) => {
+      calls.push(body);
+      return { id: "50" };
+    },
+  };
+  globalThis.__uiWidth = 1200;
+  const BusinessApp = await component();
+  let renderer;
+  await act(async () => {
+    renderer = TestRenderer.create(
+      React.createElement(BusinessApp, {
+        client,
+        user: { id: "1", name: "Comprador", role: "Cliente" },
+        audience: "cliente",
+        busy: false,
+        run: async (action) => action(),
+        onUser() {},
+        onPassword() {},
+        onLogout() {},
+      }),
+    );
+  });
+  const texts = () =>
+    renderer.root
+      .findAll((n) => n.type === "Text")
+      .map((n) => n.children.join(""));
+  const cards = () =>
+    renderer.root
+      .findAll(
+        (n) =>
+          n.type === "Pressable" &&
+          /^Ver /.test(n.props.accessibilityLabel ?? ""),
+      )
+      .map((n) => n.props.accessibilityLabel.slice(4));
+  async function press(label) {
+    const node = renderer.root.findAll(
+      (n) =>
+        n.type === "Pressable" &&
+        (n.props.accessibilityLabel === label ||
+          n.findAll((x) => x.type === "Text" && x.children.join("") === label)
+            .length > 0),
+    )[0];
+    assert.ok(node, "Botón disponible: " + label);
+    await act(async () => {
+      await node.props.onPress();
+    });
+  }
+  async function type(label, value) {
+    const input = renderer.root.find(
+      (n) => n.type === "TextInput" && n.props.accessibilityLabel === label,
+    );
+    await act(async () => input.props.onChangeText(value));
+  }
+  const idOf = (code) => products.find((p) => p.code === code).id;
+  const total = products.length;
+  await press("Catálogo");
+  assert.equal(cards().length, total);
+  assert.ok(texts().includes(total + " productos"));
+  assert.ok(!texts().some((t) => /$0.00/.test(t)), "Nunca muestra $0.00");
+  assert.ok(texts().includes("Consultar precio"));
+  assert.ok(
+    !texts().some((t) => /53883 · Barra de 6 m/.test(t)),
+    "Sin 6 m por defecto",
+  );
+  await press("Filtrar Perfiles");
+  assert.equal(
+    cards().length,
+    data.productos.filter((p) => p.codigo && p.grupo === "Perfiles").length,
+  );
+  await press("Cancel de baño");
+  assert.deepEqual(cards().sort(), ["10198", "1046", "11035", "11174"]);
+  await press("Filtrar Herrajes");
+  assert.equal(cards().length, 12);
+  await press("Filtrar Sistemas");
+  assert.equal(cards().filter((c) => c.startsWith("sistema ")).length, 8);
+  await press("Ver sistema C-100 MID");
+  assert.ok(texts().includes("Guía de armado C-100 MID"));
+  assert.ok(texts().includes("Calculadora de cortes"));
+  await type("Ancho total L (mm)", "2000");
+  await type("Alto total H (mm)", "1500");
+  assert.ok(
+    texts().some((t) => t.startsWith("862 × 1288 mm")),
+    "Vidrio LF × HF según la tabla",
+  );
+  assert.ok(texts().some((t) => /certificación estructural/.test(t)));
+  await press("Catálogo");
+  await press("Filtrar Todos");
+  await press("Vidrio");
+  assert.deepEqual(cards().sort(), ["7013", "7014"]);
+  await press("Vidrio");
+  await type("Buscar producto", "2488");
+  assert.deepEqual(cards(), ["2488"]);
+  await type("Buscar producto", "07333");
+  assert.deepEqual(cards(), ["07333"]);
+  await type("Buscar producto", "pasamanos");
+  assert.deepEqual(cards().sort(), ["53883", "53896"]);
+  await type("Buscar producto", "sin coincidencias xyz");
+  assert.ok(texts().includes("No encontramos productos"));
+  await press("Limpiar filtros");
+  await press("♥ Favoritos");
+  assert.deepEqual(cards(), [products[0].code]);
+  await press("♥ Favoritos");
+  await press("Agregar a favoritos 2488");
+  assert.deepEqual(calls.at(-1), { favorite: idOf("2488"), enabled: true });
+  assert.ok(
+    renderer.root.findAll(
+      (n) => n.props.accessibilityLabel === "Quitar de favoritos 2488",
+    ).length,
+  );
+  await press("Ver 2488");
+  assert.ok(texts().includes("Tubo cuadrado de 1 pulgada"));
+  assert.ok(texts().includes("Código 2488"));
+  assert.ok(texts().includes("25.4 × 25.4 mm"));
+  assert.ok(texts().includes("Natural, Blanco, Negro"));
+  assert.ok(texts().includes("Verificado con el plano"));
+  assert.ok(texts().includes("AGREGAR A ENCARGO"));
+  await assert.rejects(press("Agregar al encargo"), /acabado/);
+  await press("Negro");
+  await press("Agregar al encargo");
+  await press("Revisar solicitud");
+  await press("Enviar solicitud");
+  assert.deepEqual(calls.at(-1).items, [
+    {
+      productId: idOf("2488"),
+      quantity: "1",
+      cutLengthMm: null,
+      finish: "Negro",
+    },
+  ]);
+  delete globalThis.__uiWidth;
   await act(async () => renderer.unmount());
 });

@@ -2,7 +2,54 @@
 
 **Actualización del 5 de noviembre de 2026.** El proveedor actual es SQL Server. La base recibida y sus ampliaciones están en database/sqlserver. La conexión local se verifica con scripts/verificar-sqlserver.js. Los apartados anteriores sobre MySQL se conservan como referencia de la implementación previa y de su compatibilidad. La revisión de seguridad está en docs/registro-16-revision-seguridad.md.
 
-Dos aplicaciones independientes: **Cliente** (comprador) y **Empresa** (administrador/operador). React Native + Expo SDK 58, JavaScript/JSX, Node.js 24 + Express 5 y MySQL 8.4. El proyecto está fuera de Codex y utiliza las herramientas portátiles de la carpeta hermana Aluformix-herramientas.
+Dos aplicaciones independientes: **Cliente** (comprador) y **Empresa** (administrador/operador). React Native + Expo SDK 58, JavaScript/JSX, Node.js 24, Express 5 y SQL Server 2022. El proyecto está fuera de Codex y utiliza las herramientas portátiles de la carpeta hermana Aluformix-herramientas.
+
+## APK Android
+
+El proyecto produce dos APK independientes firmados. Para regenerarlos en Windows, instala Node.js 24, JDK 17 y Android SDK con la plataforma android-37.0, Build Tools 37.0.0, NDK 27.1.12297006, CMake 3.22.1 y Platform Tools. Define JAVA_HOME y ANDROID_HOME en la terminal. En Windows, usa una ruta corta para GRADLE_USER_HOME si personalizas la caché, porque Ninja tiene límites de longitud. Ejecuta npm ci desde la raíz.
+
+### Prueba por USB
+
+Con la base local configurada y su certificado en .local, inicia la API con npm run api. En otra terminal, desde la raíz:
+
+```powershell
+node scripts/verificar-sqlserver.js
+node scripts/conexion-local.js verificar
+./scripts/compilar-android.ps1 -Usb
+adb devices
+adb reverse tcp:5180 tcp:5180
+adb install -r .local/apk/Aluformix-cliente-usb.apk
+adb install -r .local/apk/Aluformix-empresa-usb.apk
+```
+
+Activa la depuración USB y acepta la autorización del equipo antes de ejecutar adb. Si PORT difiere de 5180, usa ese puerto a ambos lados de adb reverse. Restablece el puente tras desconectar y volver a conectar el teléfono. Los APK USB confían en el certificado público local solo para localhost. Conserva la validación TLS y no abre puertos de Windows. Si se renueva el certificado, recompila. Compila para arm64-v8a y x86_64.
+
+### APK para conexión pública
+
+```powershell
+./scripts/compilar-android.ps1 -ApiUrl 'https://api.ejemplo.com/'
+```
+
+Usa la URL HTTPS real con un certificado que el teléfono reconozca. El script regenera los directorios nativos de Expo y los excluye de Git. La firma se verifica después de la compilación y se conserva en .local/android-signing. Para poder actualizar instalaciones, conserva la clave y la capacidad de recuperar su contraseña protegida por Windows. No distribuyas la clave privada. Los APK USB son para la prueba conectada a esta computadora.
+
+### Primer administrador y Gemini
+
+Crea la cuenta real de Empresa en una terminal PowerShell 7 con ./scripts/crear-primer-admin.ps1. Pide los datos sin mostrar la contraseña, usa el mismo bloqueo y validación de la API y solo permite el alta inicial. Cliente puede registrarse desde su app.
+
+Genera una clave en Google AI Studio y ejecuta ./scripts/configurar-gemini.ps1 en PowerShell 7. La clave se introduce de forma oculta, se comprueba con un catálogo de prueba y se guarda en el .env del servidor. Reinicia la API tras guardar. Para repetir la comprobación usa node --env-file=.env scripts/verificar-gemini.js. En la app, abre el asistente con una cuenta válida. Evita incluir información personal en las consultas.
+
+Para avisos push, configura proyectos Expo, FCM y el identificador de proyecto de cada app antes de compilar. Para recuperación de contraseña, configura y prueba SMTP. El flujo de catálogo y encargos funciona sin esos proveedores.
+
+## Catálogo de aluminio
+
+Fuente única: database/catalogo/fuentes/catalogo_maestro_ALUFORMIX.json (125 registros conciliados de 18 PDF del cliente). Los JSON anteriores están en database/catalogo/historicos y no se importan. Para registrar los productos en la base, desde la raíz:
+
+```powershell
+node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js
+node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js --aplicar
+```
+
+El primer comando solo muestra el plan. La importación no duplica ni modifica productos existentes y omite el registro sin código. Si cambia el maestro, ejecuta node scripts/catalogo/normalizar-catalogo.js y node scripts/catalogo/generar-imagenes.js. Conflictos y pendientes: docs/catalogo-revision.md; estado de imágenes: database/catalogo/image-manifest.json; detalle: docs/registro-22-catalogo-maestro.md.
 
 ## Funciones implementadas
 
@@ -29,7 +76,7 @@ Dos aplicaciones independientes: **Cliente** (comprador) y **Empresa** (administ
 - server/src/business.js: operaciones del negocio y transacciones.
 - server/src/amounts.js: cálculo decimal exacto con BigInt y redondeo a centavos.
 - server/src/auth.js y crypto.js: cuentas, hashes y sesiones.
-- server/src/database.js: MySQL y transacciones con consultas preparadas.
+- server/src/database.js: acceso a SQL Server y compatibilidad con MySQL, transacciones y consultas preparadas.
 - server/src/assistant.js: conexión de IA, sin claves en la app.
 - server/src/push.js: cola de envío y recibos de notificaciones.
 - database/005_business.sql: migración nueva de versión 3 a 4.
@@ -54,7 +101,7 @@ Escribe `EXPO_PUBLIC_DEMO=1` en `apps/cliente/.env` y en `apps/empresa/.env`. Ej
 
 ## Base de datos
 
-**La API nueva exige esquema versión 4.** La base local real todavía no se migró durante este avance: falta ejecutar la migración con acceso autorizado a MySQL. No ejecutar 001_schema.sql sobre una base existente.
+**La API exige esquema versión 4.** SQL Server es el proveedor activo y sus scripts están en database/sqlserver. Lo siguiente corresponde a instalaciones anteriores con MySQL.
 
 Base nueva: 001_schema.sql → 003_integrity.sql → 004_authentication.sql → 005_business.sql. manual_remove_demo.sql es histórico y no forma parte de la instalación.
 
@@ -86,7 +133,7 @@ Pruebas de autenticación, cantidades, IA con proveedor simulado, componentes de
 
 Los listados muestran hasta 100 registros por consulta; falta paginación para volúmenes mayores. Carrito en memoria: no persiste al cerrar o reinstanciar la pantalla de negocio. Las imágenes se cargan desde URL HTTPS, no hay carga de fotos al servidor. No hay facturación fiscal, pasarela, reembolsos, verificación del correo ni medición automática/OCR de listas. Estas extensiones requieren definir reglas adicionales.
 
-Pendiente para uso real: migrar MySQL local con respaldo, configurar credenciales/certificados y dirección HTTPS, habilitar correo/IA/push, crear el primer administrador real, instalar y comprobar ambas apps en teléfonos y respaldar la versión actual en GitHub. Registros históricos C# y sus imágenes se conservan como evidencia anterior, no como código vigente.
+Pendiente para uso por Internet: configurar una dirección HTTPS confiable, habilitar y probar correo, IA y push, crear el primer administrador real y validar ambas apps en teléfonos. Registros históricos C# y sus imágenes se conservan como evidencia anterior, no como código vigente.
 
 ## Conectar primero en esta computadora
 

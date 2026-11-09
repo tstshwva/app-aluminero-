@@ -49,3 +49,10 @@ Sin `EXPO_PUBLIC_DEMO=1`, la vista web intenta conectar con `EXPO_PUBLIC_API_URL
 - Revisión de sintaxis JSX de `App.js` y `demoClient.js` con el compilador de TypeScript: sin errores.
 - No se probó todavía en un teléfono físico ni en el navegador desde este entorno, porque aquí no se pueden instalar las dependencias de Expo.
 - La lectura de códigos con cámara depende del soporte de `expo-camera` en el navegador; se revisa en el teléfono.
+
+## Actualización del 9 de noviembre de 2026
+
+- La rama se actualizó sobre main (catálogo maestro de 125 registros, sistemas, guía C-100 MID y 124 imágenes).
+- Los datos de demostración incluyen los 124 productos con código del catálogo maestro, con precio pendiente («Consultar precio»), además de los productos de ejemplo.
+- Las apps declaran react-dom, react-native-web y @expo/metro-runtime, así que basta con npm ci y npm run cliente:web o npm run empresa:web con EXPO_PUBLIC_DEMO=1 en el .env de cada app.
+- Los encargos de demostración guardan el acabado elegido.
