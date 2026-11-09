@@ -473,3 +473,56 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   delete globalThis.__uiWidth;
   await act(async () => renderer.unmount());
 });
+test("Perfil: el interruptor de modo oscuro cambia el tema", async () => {
+  const BusinessApp = await component();
+  const changes = [];
+  const client = {
+    products: async () => [],
+    categories: async () => [],
+    profile: async () => ({ name: "Comprador", phone: "", address: "" }),
+  };
+  const props = (dark) => ({
+    client,
+    user: { id: "1", name: "Comprador", role: "Cliente", email: "c@x.mx" },
+    audience: "cliente",
+    busy: false,
+    dark,
+    onDarkMode: (value) => changes.push(value),
+    run: async (action) => action(),
+    onUser() {},
+    onPassword() {},
+    onLogout() {},
+  });
+  let renderer;
+  await act(async () => {
+    renderer = TestRenderer.create(
+      React.createElement(BusinessApp, props(false)),
+    );
+  });
+  const press = async (label) => {
+    const node = renderer.root.findAll(
+      (n) => n.type === "Pressable" && n.props.accessibilityLabel === label,
+    )[0];
+    assert.ok(node, "Botón disponible: " + label);
+    await act(async () => node.props.onPress());
+  };
+  const shellColor = () =>
+    renderer.root.findAll((n) => n.type === "View")[0].props.style
+      .backgroundColor;
+  assert.equal(shellColor(), "#f2f6fb");
+  await press("Perfil");
+  const toggle = () =>
+    renderer.root.find(
+      (n) =>
+        n.type === "Pressable" && n.props.accessibilityLabel === "Modo oscuro",
+    );
+  assert.equal(toggle().props.accessibilityState.checked, false);
+  await press("Modo oscuro");
+  assert.deepEqual(changes, [true]);
+  await act(async () =>
+    renderer.update(React.createElement(BusinessApp, props(true))),
+  );
+  assert.equal(toggle().props.accessibilityState.checked, true);
+  assert.equal(shellColor(), "#0e1621");
+  await act(async () => renderer.unmount());
+});

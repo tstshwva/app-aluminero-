@@ -18,6 +18,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { createClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
+import { loadDarkMode, saveDarkMode } from "./preferences";
 import { createDemoClient } from "./demoClient";
 import "./dialogs";
 
@@ -40,6 +41,19 @@ export default function AluformixApp({ audience }) {
 
 function AppContent({ audience }) {
   const storage = useMemo(() => createSessionStorage(audience), [audience]);
+  // Modo oscuro: preferencia de cada persona, guardada en el dispositivo.
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    let active = true;
+    loadDarkMode(audience).then((value) => active && setDark(value));
+    return () => {
+      active = false;
+    };
+  }, [audience]);
+  const changeDarkMode = (value) => {
+    setDark(value);
+    saveDarkMode(audience, value);
+  };
   const client = useMemo(
     () =>
       demo
@@ -222,12 +236,16 @@ function AppContent({ audience }) {
   }[mode];
   if (user && mode !== "change") {
     return (
-      <SafeAreaView style={styles.businessScreen}>
-        <StatusBar style="dark" />
+      <SafeAreaView
+        style={[styles.businessScreen, dark && styles.businessScreenDark]}
+      >
+        <StatusBar style={dark ? "light" : "dark"} />
         <BusinessApp
           key={user.id}
           client={client}
           user={user}
+          dark={dark}
+          onDarkMode={changeDarkMode}
           audience={audience}
           busy={busy}
           run={run}
@@ -347,6 +365,7 @@ function AppContent({ audience }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#f2f6fb" },
   businessScreen: { flex: 1, backgroundColor: "#f2f6fb" },
+  businessScreenDark: { backgroundColor: "#0e1621" },
   brand: {
     flexDirection: "row",
     alignItems: "center",

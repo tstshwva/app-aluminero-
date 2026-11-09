@@ -171,6 +171,8 @@ const help = [
 export default function BusinessApp({
   client,
   user,
+  dark = false,
+  onDarkMode,
   audience,
   busy,
   run,
@@ -179,6 +181,7 @@ export default function BusinessApp({
   onUser,
   message,
 }) {
+  s = dark ? darkStyles : lightStyles;
   const company = audience === "empresa",
     admin = user.role === "Administrador";
   const [screen, setScreen] = useState("inicio"),
@@ -912,7 +915,7 @@ export default function BusinessApp({
       <TextInput
         accessibilityLabel="Buscar producto"
         placeholder={placeholder}
-        placeholderTextColor="#526b82"
+        placeholderTextColor={dark ? "#7f93a6" : "#526b82"}
         value={search}
         onChangeText={setSearch}
         onSubmitEditing={searchCatalog}
@@ -1698,7 +1701,9 @@ export default function BusinessApp({
               "Mi encargo",
               "Revisa los materiales y las cantidades solicitadas.",
             )}
-            {!cart.length && <Text>Tu carrito está vacío.</Text>}
+            {!cart.length && (
+              <Text style={s.plain}>Tu carrito está vacío.</Text>
+            )}
             {cart.map((item, index) =>
               card(
                 item.productId,
@@ -1831,7 +1836,7 @@ export default function BusinessApp({
                   ),
                 )}
                 {!data.customers?.length && (
-                  <Text>Primero registra un cliente.</Text>
+                  <Text style={s.plain}>Primero registra un cliente.</Text>
                 )}
               </View>
             )}
@@ -1900,7 +1905,7 @@ export default function BusinessApp({
                 {cart.map((i) => (
                   <View key={i.productId} style={s.amountRow}>
                     <View style={s.grow}>
-                      <Text>
+                      <Text style={s.plain}>
                         {i.quantity} × {i.product.name}
                       </Text>
                       <Text style={s.subtitle}>
@@ -1928,7 +1933,7 @@ export default function BusinessApp({
                 <Text style={s.successMark}>✓</Text>
               </View>
               <Text style={[s.title, s.center]}>¡Recibimos tu encargo!</Text>
-              <Text>
+              <Text style={s.plain}>
                 Solicitud #{data.orderId} guardada. La empresa puede consultarla
                 en sus encargos y avisos.
               </Text>
@@ -2089,14 +2094,16 @@ export default function BusinessApp({
               "datos",
               <>
                 <Text style={s.name}>{order.status}</Text>
-                <Text>
+                <Text style={s.plain}>
                   {order.customer_name} · {order.customer_phone}
                 </Text>
-                <Text>
+                <Text style={s.plain}>
                   {order.fulfillment} ·{" "}
                   {order.delivery_address ?? "Recogida en sucursal"}
                 </Text>
-                <Text>{order.notes ?? "Sin indicaciones adicionales"}</Text>
+                <Text style={s.plain}>
+                  {order.notes ?? "Sin indicaciones adicionales"}
+                </Text>
               </>,
             )}
             {(orderView === "detalle" ||
@@ -2106,10 +2113,10 @@ export default function BusinessApp({
                   i.id,
                   <>
                     <Text style={s.name}>{i.product_name}</Text>
-                    <Text>
+                    <Text style={s.plain}>
                       {i.product_code} · {i.finish}
                     </Text>
-                    <Text>
+                    <Text style={s.plain}>
                       {i.quantity} × ${i.unit_price} · corte:{" "}
                       {i.cut_length_mm ?? "Sin corte"} mm
                     </Text>
@@ -2144,7 +2151,7 @@ export default function BusinessApp({
                     ["Saldo", quote.balance],
                   ].map(([label, amount]) => (
                     <View key={label} style={s.amountRow}>
-                      <Text>{label}</Text>
+                      <Text style={s.plain}>{label}</Text>
                       <Text style={s.name}>${amount}</Text>
                     </View>
                   ))}
@@ -2250,7 +2257,7 @@ export default function BusinessApp({
                 "pago",
                 <>
                   <Text style={s.name}>Registrar pago recibido</Text>
-                  <Text>
+                  <Text style={s.plain}>
                     Registra únicamente un pago que ya recibiste. No se cobra
                     desde esta pantalla.
                   </Text>
@@ -2396,7 +2403,7 @@ export default function BusinessApp({
                   : "Ajustar existencia física",
               data.product.name,
             )}
-            <Text>
+            <Text style={s.plain}>
               Existencias: {data.product.stock} · reservado:{" "}
               {data.product.reserved}
             </Text>
@@ -2447,10 +2454,10 @@ export default function BusinessApp({
                 card(
                   m.id,
                   <>
-                    <Text>
+                    <Text style={s.plain}>
                       {m.type} · {m.quantity}
                     </Text>
-                    <Text>
+                    <Text style={s.plain}>
                       {m.reason} · {m.created_at}
                     </Text>
                   </>,
@@ -2522,10 +2529,14 @@ export default function BusinessApp({
               "contacto",
               <>
                 <Text style={s.name}>Contacto</Text>
-                <Text>Teléfono: {data.customer.phone || "Sin registrar"}</Text>
-                <Text>Correo: {data.customer.email || "Sin registrar"}</Text>
+                <Text style={s.plain}>
+                  Teléfono: {data.customer.phone || "Sin registrar"}
+                </Text>
+                <Text style={s.plain}>
+                  Correo: {data.customer.email || "Sin registrar"}
+                </Text>
                 {!!data.customer.address && (
-                  <Text>{data.customer.address}</Text>
+                  <Text style={s.plain}>{data.customer.address}</Text>
                 )}
               </>,
             )}
@@ -2572,7 +2583,7 @@ export default function BusinessApp({
         {screen === "notificaciones" && (
           <View>
             {heading("Notificaciones", "Actualizaciones de tus encargos.")}
-            <Text>
+            <Text style={s.plain}>
               Los avisos internos se actualizan al abrir esta pantalla o pulsar
               Actualizar. Para avisos con la app cerrada se requiere una
               instalación propia con notificaciones configuradas.
@@ -2601,14 +2612,16 @@ export default function BusinessApp({
                 }),
               true,
             )}
-            {!data.notifications?.length && <Text>No hay notificaciones.</Text>}
+            {!data.notifications?.length && (
+              <Text style={s.plain}>No hay notificaciones.</Text>
+            )}
             {data.notifications?.map((n) =>
               card(
                 n.id,
                 <>
                   <Text style={s.name}>{n.read_at ? "Leída" : "Nueva"}</Text>
-                  <Text>{n.message}</Text>
-                  <Text>{n.created_at}</Text>
+                  <Text style={s.plain}>{n.message}</Text>
+                  <Text style={s.plain}>{n.created_at}</Text>
                   {n.order_id &&
                     button("Ver encargo", () =>
                       perform(async () => {
@@ -2639,7 +2652,9 @@ export default function BusinessApp({
               "cuenta",
               <>
                 <Text style={s.sectionTitle}>{user.name}</Text>
-                {!!form.businessName && <Text>{form.businessName}</Text>}
+                {!!form.businessName && (
+                  <Text style={s.plain}>{form.businessName}</Text>
+                )}
                 <Text style={s.subtitle}>{user.email}</Text>
                 {!!form.phone && <Text style={s.subtitle}>{form.phone}</Text>}
                 {button(
@@ -2650,6 +2665,27 @@ export default function BusinessApp({
                 )}
               </>,
             )}
+            <Text style={s.sectionTitle}>Apariencia</Text>
+            <Pressable
+              accessibilityRole="switch"
+              accessibilityLabel="Modo oscuro"
+              accessibilityState={{ checked: dark }}
+              disabled={!onDarkMode}
+              onPress={() => onDarkMode?.(!dark)}
+              style={s.menuRow}
+            >
+              <View style={s.grow}>
+                <Text style={s.name}>Modo oscuro</Text>
+                <Text style={s.subtitle}>
+                  {dark
+                    ? "Activado: colores oscuros que cansan menos la vista."
+                    : "Desactivado: usa los colores claros de siempre."}
+                </Text>
+              </View>
+              <View style={[s.switchTrack, dark && s.switchTrackOn]}>
+                <View style={[s.switchKnob, dark && s.switchKnobOn]} />
+              </View>
+            </Pressable>
             {profileEditing &&
               card(
                 "editar-perfil",
@@ -2774,7 +2810,7 @@ export default function BusinessApp({
         {screen === "ia" && (
           <View>
             <Text style={s.title}>Asistente de materiales</Text>
-            <Text>
+            <Text style={s.plain}>
               Tu pregunta y hasta 50 materiales del catálogo se envían a Gemini.
               Evita incluir datos personales. La IA solo da orientación; no
               cambia encargos.
@@ -2827,10 +2863,10 @@ export default function BusinessApp({
             "contacto",
             <>
               <Text style={s.title}>{data.company?.name ?? "Sucursal"}</Text>
-              <Text>
+              <Text style={s.plain}>
                 {data.company?.phone ?? "Teléfono pendiente de configurar"}
               </Text>
-              <Text>
+              <Text style={s.plain}>
                 {data.company?.address ?? "Dirección pendiente de configurar"}
               </Text>
             </>,
@@ -2870,9 +2906,31 @@ export default function BusinessApp({
     </View>
   );
 }
-const s = StyleSheet.create({
+const baseStyles = {
   shell: { flex: 1, backgroundColor: "#f2f6fb" },
   grow: { flex: 1, minWidth: 0 },
+  plain: { color: "#102c46" },
+  switchTrack: {
+    width: 50,
+    height: 30,
+    borderRadius: 15,
+    padding: 3,
+    backgroundColor: "#ccd9e5",
+    justifyContent: "center",
+  },
+  switchTrackOn: { backgroundColor: "#007bff" },
+  switchKnob: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#ffffff",
+    shadowColor: "#0b2540",
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  switchKnobOn: { alignSelf: "flex-end" },
   header: {
     minHeight: 56,
     paddingHorizontal: 12,
@@ -2893,7 +2951,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon: { width: 21, height: 21, resizeMode: "contain" },
+  icon: { width: 21, height: 21, resizeMode: "contain", tintColor: "#102c46" },
   badge: {
     position: "absolute",
     top: 3,
@@ -3405,4 +3463,69 @@ const s = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
   },
-});
+};
+
+// ---------- Tema claro / oscuro ----------
+// El modo oscuro se deriva de los mismos estilos: los colores de texto y de
+// fondo/borde se traducen por separado (el texto blanco de los botones azules
+// se conserva). Las zonas de imagen siguen blancas porque los renders tienen
+// fondo blanco, como una fotografía de catálogo.
+const DARK_TEXT = {
+  "#102c46": "#e8eef5",
+  "#526b82": "#9fb2c4",
+  "#405e77": "#b3c4d4",
+  "#334f68": "#c3d1de",
+  "#5d7489": "#8fa4b8",
+  "#0071d9": "#5aa9ff",
+  "#0066cc": "#6cb2ff",
+  "#6a7f92": "#8fa4b8",
+  "#8a9bab": "#8fa4b8",
+  "#674b18": "#f0d9a8",
+  "#8a5a00": "#f2b84b",
+};
+const DARK_BACKGROUND = {
+  white: "#16212e",
+  "#fff": "#1c2a3a",
+  "#f2f6fb": "#0e1621",
+  "#e6eff8": "#1b2836",
+  "#e1effc": "#1d3049",
+  "#e7f1fb": "#1d3049",
+  "#e9f2fb": "#1d3049",
+  "#e3eefb": "#1f3550",
+  "#fff2d6": "#3a2f14",
+  "#0a4579": "#2f6fb5",
+  "rgba(255,255,255,0.92)": "rgba(22,33,46,0.92)",
+  "#e1e9f1": "#26364a",
+  "#dce7f2": "#26364a",
+  "#cfdeec": "#2c3e54",
+  "#bdcee0": "#34485f",
+  "#e5ebf2": "#223144",
+  "#e6edf4": "#26364a",
+  "#eef2f6": "#223144",
+  "#eef3f8": "#223144",
+  "#edf1f5": "#223144",
+  "#ccd9e5": "#34485f",
+};
+const TEXT_KEYS = new Set(["color", "tintColor"]);
+function darkVariant(styles) {
+  return Object.fromEntries(
+    Object.entries(styles).map(([name, style]) => [
+      name,
+      Object.fromEntries(
+        Object.entries(style).map(([prop, value]) => {
+          if (typeof value !== "string") return [prop, value];
+          const map = TEXT_KEYS.has(prop)
+            ? DARK_TEXT
+            : /Color$/.test(prop)
+              ? DARK_BACKGROUND
+              : null;
+          return [prop, map?.[value] ?? value];
+        }),
+      ),
+    ]),
+  );
+}
+const lightStyles = StyleSheet.create(baseStyles);
+const darkStyles = StyleSheet.create(darkVariant(baseStyles));
+// Hoja activa; BusinessApp la fija en cada render según el tema elegido.
+let s = lightStyles;
