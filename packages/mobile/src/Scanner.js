@@ -9,29 +9,71 @@ export default function Scanner({ onScan, onClose, onManual }) {
     Linking.openSettings().catch(() =>
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
     );
-  const button = (label, action) => (
+  const button = (label, action, secondary = false) => (
     <Pressable
       onPress={action}
       accessibilityRole="button"
       style={{
         padding: 16,
-        backgroundColor: "#007bff",
+        backgroundColor: secondary ? "#e1effc" : "#006fe5",
         borderRadius: 12,
         marginVertical: 8,
       }}
     >
-      <Text style={{ color: "white", textAlign: "center", fontWeight: "700" }}>
+      <Text
+        style={{
+          color: secondary ? "#0066bd" : "white",
+          textAlign: "center",
+          fontWeight: "700",
+        }}
+      >
         {label}
       </Text>
     </Pressable>
   );
   return (
     <View>
-      <Text style={{ fontSize: 22, fontWeight: "700" }}>Escanear material</Text>
-      <Text>
-        Enfoca el código de barras o QR que contiene el código del catálogo. La
-        cámara no calcula medidas.
+      <Text
+        style={{
+          fontSize: 27,
+          fontWeight: "800",
+          color: "#102c46",
+          marginTop: 12,
+        }}
+      >
+        Escanear material
       </Text>
+      <Text style={{ color: "#526b82", marginVertical: 6 }}>
+        Lectura de códigos del catálogo.
+      </Text>
+      <Text
+        style={{
+          color: "#31546e",
+          backgroundColor: "#e1effc",
+          padding: 12,
+          borderRadius: 10,
+          marginVertical: 8,
+        }}
+      >
+        Enfoca el código de barras o QR del material. Verifica el resultado en
+        el catálogo.
+      </Text>
+      {!permission?.granted && (
+        <View
+          style={{
+            minHeight: 175,
+            marginVertical: 8,
+            borderRadius: 14,
+            backgroundColor: "#102c46",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "700" }}>
+            Escáner de materiales
+          </Text>
+        </View>
+      )}
       {!permission ? (
         <Text>Consultando permiso…</Text>
       ) : !permission.granted ? (
@@ -50,7 +92,12 @@ export default function Scanner({ onScan, onClose, onManual }) {
         </View>
       ) : (
         <CameraView
-          style={{ height: 330, marginVertical: 16 }}
+          style={{
+            height: 300,
+            marginVertical: 8,
+            borderRadius: 14,
+            overflow: "hidden",
+          }}
           facing="back"
           barcodeScannerSettings={{
             barcodeTypes: [
@@ -82,7 +129,7 @@ export default function Scanner({ onScan, onClose, onManual }) {
       )}
       {!!message && <Text accessibilityLiveRegion="polite">{message}</Text>}
       {button("Buscar manualmente", onManual)}
-      {button("Volver sin escanear", onClose)}
+      {button("Volver sin escanear", onClose, true)}
     </View>
   );
 }

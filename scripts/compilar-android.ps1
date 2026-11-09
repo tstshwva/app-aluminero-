@@ -80,6 +80,34 @@ try {
         try {
             & $node $expo prebuild --platform android --no-install --clean
             Confirmar-Codigo "Generación nativa de $app"
+
+            # Evita rutas largas en los objetos generados por Ninja en Windows.
+            $gradleFile = Join-Path $PWD 'android/app/build.gradle'
+            $nativeRoot = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' }
+            $nativeDir = Join-Path $nativeRoot "af/$app"
+            $gradle = [IO.File]::ReadAllText($gradleFile)
+            $gradle = $gradle -replace '(?m)^android \{ defaultConfig \{ externalNativeBuild \{ cmake \{ arguments "-DCMAKE_OBJECT_PATH_MAX=240" \} \} \} \}\s*$', ''
+            if (-not $gradle.Contains('aluformixNativeDir')) {
+                $gradle += [char]10 + @"
+if (project.hasProperty("aluformixNativeDir")) {
+    android {
+        externalNativeBuild {
+            cmake {
+                buildStagingDirectory = file(project.property("aluformixNativeDir"))
+            }
+        }
+        defaultConfig {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCMAKE_OBJECT_PATH_MAX=248"
+                }
+            }
+        }
+    }
+}
+"@
+            }
+            [IO.File]::WriteAllText($gradleFile, $gradle + [char]10)
             if ($Usb) {
                 $main = 'android/app/src/main'
                 New-Item -ItemType Directory -Path "$main/res/raw","$main/res/xml" -Force | Out-Null
@@ -100,7 +128,7 @@ try {
             }
             Push-Location android
             try {
-                & .\gradlew.bat :app:assembleRelease --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64'
+                & .\gradlew.bat :app:assembleRelease --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64' "-PaluformixNativeDir=$nativeDir"
                 Confirmar-Codigo "Compilación de $app"
                 $source = (Resolve-Path 'app/build/outputs/apk/release/app-release.apk').Path
             } finally { Pop-Location }

@@ -11,13 +11,14 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
+    .replace(/require\("\.\.\/assets\/[^"\n]+\.png"\)/g, "0")
     .replace(
       /from ['"]react['"];/,
       `from '${pathToFileURL(require.resolve("react")).href}';`,
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"]react-native['"];/s,
-      `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View';`,
+      `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View';`,
     )
     .replace(
       /import\s*\{\s*randomUUID\s*\}\s*from ['"]expo-crypto['"];/,
@@ -131,23 +132,45 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     const node = renderer.root.findAll(
       (n) =>
         n.type === "Pressable" &&
-        n.findAll((x) => x.type === "Text" && x.children.join("") === label)
-          .length > 0,
+        (n.props.accessibilityLabel === label ||
+          n.findAll((x) => x.type === "Text" && x.children.join("") === label)
+            .length > 0),
     )[0];
     assert.ok(node, "Botón disponible: " + label);
     await act(async () => {
       await node.props.onPress();
     });
   }
+  const tabs = () =>
+    renderer.root.findAll(
+      (n) => n.type === "Pressable" && n.props.accessibilityRole === "tab",
+    );
+  assert.deepEqual(
+    tabs().map((tab) => tab.props.accessibilityLabel),
+    ["Inicio", "Catálogo", "Encargos", "Perfil"],
+  );
   await press("Explorar catálogo");
+  assert.equal(
+    tabs().find((tab) => tab.props.accessibilityState.selected)?.props
+      .accessibilityLabel,
+    "Catálogo",
+  );
   await press("Ver P-10");
-  await press("Agregar o actualizar en carrito");
+  await press("Agregar al encargo");
+  await press("Aumentar Perfil de prueba UI");
+  assert.ok(
+    renderer.root.findAll(
+      (n) => n.type === "Text" && n.children.join("") === "$800.00",
+    ).length,
+  );
+  await press("Reducir Perfil de prueba UI");
   await press("Revisar solicitud");
   await press("Enviar solicitud");
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
   assert.match(calls[0].requestKey, /^[a-f0-9-]{36}$/i);
   await press("Ver seguimiento");
+  await press("Ver cotización");
   await press("Aceptar cotización y reservar material");
   assert.deepEqual(calls[1], { orderId: "20", revision: 2 });
   assert.ok(
@@ -231,8 +254,9 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
     renderer.root.findAll(
       (n) =>
         n.type === "Pressable" &&
-        n.findAll((x) => x.type === "Text" && x.children.join("") === label)
-          .length > 0,
+        (n.props.accessibilityLabel === label ||
+          n.findAll((x) => x.type === "Text" && x.children.join("") === label)
+            .length > 0),
     );
   async function press(label) {
     assert.ok(buttons(label).length, "Botón disponible: " + label);
@@ -240,8 +264,23 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
       await buttons(label)[0].props.onPress();
     });
   }
-  assert.equal(buttons("Crear cuenta de personal").length, 0);
-  await press("Ver solicitudes");
+  const tabs = () =>
+    renderer.root.findAll(
+      (n) => n.type === "Pressable" && n.props.accessibilityRole === "tab",
+    );
+  assert.deepEqual(
+    tabs().map((tab) => tab.props.accessibilityLabel),
+    ["Inicio", "Inventario", "Encargos", "Más"],
+  );
+  await press("Más");
+  assert.equal(
+    tabs().find((tab) => tab.props.accessibilityState.selected)?.props
+      .accessibilityLabel,
+    "Más",
+  );
+  assert.equal(buttons("Usuarios y permisos").length, 0);
+  await press("Inicio");
+  await press("Revisar encargos");
   await press("Ver detalle y seguimiento");
   await press("Enviar cotización");
   assert.equal(calls[0].body.prices[0].unitPrice, "400.00");
