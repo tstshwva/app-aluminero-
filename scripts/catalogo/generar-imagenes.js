@@ -16,7 +16,7 @@ const root = path.resolve(
   "../..",
 );
 const assets = path.join(root, "packages/mobile/assets/catalogo");
-const SIZE = 800;
+const SIZE = 1024;
 
 // ---------- Secciones (milímetros, eje Y hacia arriba) ----------
 const rect = (x0, y0, x1, y1) => [
@@ -248,17 +248,9 @@ const spec = {
 };
 
 // ---------- Proyección 3D y sombreado ----------
-const YAW = (36 * Math.PI) / 180,
-  PITCH = (-24 * Math.PI) / 180;
-function project([x, y, z]) {
-  const x1 = x * Math.cos(YAW) + z * Math.sin(YAW);
-  const z1 = -x * Math.sin(YAW) + z * Math.cos(YAW);
-  const y2 = y * Math.cos(PITCH) - z1 * Math.sin(PITCH);
-  const z2 = y * Math.sin(PITCH) + z1 * Math.cos(PITCH);
-  return [x1, -y2, z2];
-}
-const rotate = (n) => {
-  const [x, y, z] = n;
+const YAW = (34 * Math.PI) / 180,
+  PITCH = (-22 * Math.PI) / 180;
+const rotate = ([x, y, z]) => {
   const x1 = x * Math.cos(YAW) + z * Math.sin(YAW);
   const z1 = -x * Math.sin(YAW) + z * Math.cos(YAW);
   return [
@@ -267,20 +259,30 @@ const rotate = (n) => {
     y * Math.sin(PITCH) + z1 * Math.cos(PITCH),
   ];
 };
+const project = (p) => {
+  const [x, y, z] = rotate(p);
+  return [x, -y, z];
+};
 const norm = (v) => {
   const l = Math.hypot(...v);
   return v.map((c) => c / l);
 };
-const LIGHT = norm([-0.45, 0.8, -0.55]);
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+// Luz principal de estudio arriba a la izquierda y luz de relleno a la derecha.
+const KEY = norm([-0.5, 0.85, -0.6]),
+  FILL = norm([0.8, 0.2, -0.4]);
+const HALF = norm([KEY[0], KEY[1], KEY[2] - 1]);
+// Aluminio natural: gris frío y claro.
 function metal(n, extra = 0) {
-  const diffuse = Math.max(0, dot(n, LIGHT));
-  const half = norm([LIGHT[0], LIGHT[1], LIGHT[2] - 1]);
-  const spec = Math.pow(Math.max(0, dot(n, half)), 24);
-  const k = 0.5 + 0.46 * diffuse + extra;
-  const c = (base) => Math.round(Math.min(255, base * k + 255 * 0.32 * spec));
-  return `rgb(${c(196)},${c(203)},${c(211)})`;
+  const d = Math.max(0, dot(n, KEY)),
+    f = Math.max(0, dot(n, FILL)),
+    sp = Math.pow(Math.max(0, dot(n, HALF)), 18);
+  const k = Math.max(0.28, 0.44 + 0.56 * d + 0.1 * f + extra);
+  const c = (base) => Math.round(Math.min(255, base * k + 70 * sp));
+  return [c(192), c(199), c(207)];
 }
+const rgb = (color, m = 1, add = 0) =>
+  `rgb(${color.map((v) => Math.round(Math.max(0, Math.min(255, v * m + add)))).join(",")})`;
 const fmt = (n) => n.toFixed(2);
 const pathOf = (pts) =>
   "M" + pts.map(([x, y]) => fmt(x) + " " + fmt(y)).join(" L") + " Z";
@@ -314,7 +316,7 @@ function render(section) {
         n,
         quad,
         depth: quad.reduce((s, p) => s + p[2], 0) / 4,
-        visible: rotate(n)[2] < 0,
+        visible: rotate(n)[2] < -1e-6,
       };
     });
   const outerWalls = walls(O).filter((w) => w.visible);
@@ -322,53 +324,86 @@ function render(section) {
   const front = O.map(([x, y]) => project([x, y, 0]));
   const frontHoles = H.map((h) => h.map(([x, y]) => project([x, y, 0])));
   const backHoles = H.map((h) => h.map(([x, y]) => project([x, y, L])));
-  // Encaje en el lienzo.
   const all = [...outerWalls.flatMap((w) => w.quad), ...front];
   const minX = Math.min(...all.map((p) => p[0])),
     maxX = Math.max(...all.map((p) => p[0])),
     minY = Math.min(...all.map((p) => p[1])),
     maxY = Math.max(...all.map((p) => p[1]));
-  const scale = Math.min(560 / (maxX - minX), 520 / (maxY - minY));
+  // El producto ocupa cerca de tres cuartas partes del cuadro para que se
+  // reconozca también en miniatura.
+  const scale = Math.min(
+    (SIZE * 0.78) / (maxX - minX),
+    (SIZE * 0.64) / (maxY - minY),
+  );
   const ox = SIZE / 2 - ((minX + maxX) / 2) * scale,
-    oy = SIZE / 2 - 20 - ((minY + maxY) / 2) * scale;
+    oy = SIZE * 0.47 - ((minY + maxY) / 2) * scale;
   const tx = (pts) => pts.map(([x, y]) => [x * scale + ox, y * scale + oy]);
-  const sw = Math.max(0.6, 1.1);
   let defs = "",
     body = "",
     g = 0;
+  // Cara lateral con reflejos alargados de aluminio cepillado.
   const face = (w, extra = 0) => {
     const [a, b, c, d] = tx(w.quad);
     const id = "g" + g++;
-    const base = metal(w.n, extra),
-      far = metal(w.n, extra - 0.12),
-      sheen = metal(w.n, extra + 0.1);
-    defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${fmt((a[0] + b[0]) / 2)}" y1="${fmt((a[1] + b[1]) / 2)}" x2="${fmt((c[0] + d[0]) / 2)}" y2="${fmt((c[1] + d[1]) / 2)}"><stop offset="0" stop-color="${base}"/><stop offset="0.35" stop-color="${sheen}"/><stop offset="1" stop-color="${far}"/></linearGradient>`;
-    return `<path d="${pathOf([a, b, c, d])}" fill="url(#${id})" stroke="url(#${id})" stroke-width="${sw}" stroke-linejoin="round"/>`;
+    const base = metal(w.n, extra);
+    const stops = [
+      [0, 1.02, 6],
+      [0.12, 1.08, 14],
+      [0.3, 0.96, 0],
+      [0.52, 1.05, 10],
+      [0.74, 0.93, 0],
+      [1, 0.86, -4],
+    ]
+      .map(
+        ([o, m, add]) =>
+          `<stop offset="${o}" stop-color="${rgb(base, m, add)}"/>`,
+      )
+      .join("");
+    defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${fmt((a[0] + b[0]) / 2)}" y1="${fmt((a[1] + b[1]) / 2)}" x2="${fmt((c[0] + d[0]) / 2)}" y2="${fmt((c[1] + d[1]) / 2)}">${stops}</linearGradient>`;
+    return `<path d="${pathOf([a, b, c, d])}" fill="url(#${id})" stroke="url(#${id})" stroke-width="0.9" stroke-linejoin="round"/>`;
   };
+  // Sombra de contacto alineada con la barra y sombra ambiental amplia.
+  const yMin = Math.min(...O.map((p) => p[1]));
+  const bottom = O.filter((p) => p[1] === yMin);
+  const bx = bottom.reduce((s, p) => s + p[0], 0) / bottom.length;
+  const [s0] = tx([project([bx, yMin, 0])]),
+    [s1] = tx([project([bx, yMin, L])]);
+  const ang = (Math.atan2(s1[1] - s0[1], s1[0] - s0[0]) * 180) / Math.PI;
+  const len = Math.hypot(s1[0] - s0[0], s1[1] - s0[1]);
+  const mx = (s0[0] + s1[0]) / 2 + Math.cos((ang * Math.PI) / 180) * 10,
+    my = (s0[1] + s1[1]) / 2 + Math.sin((ang * Math.PI) / 180) * 10;
+  const widthPx = (Math.max(...xs) - Math.min(...xs)) * scale * 0.55 + 18;
+  const shadow =
+    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 18)}" rx="${fmt(len / 2 + widthPx * 0.6)}" ry="${fmt(widthPx * 0.42 + 10)}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 18)})" fill="#2c3640" opacity="0.13" filter="url(#soft)"/>` +
+    `<ellipse cx="${fmt(mx)}" cy="${fmt(my + 5)}" rx="${fmt(Math.max(10, len / 2 - 14))}" ry="${fmt(Math.max(5, widthPx * 0.16))}" transform="rotate(${fmt(ang)} ${fmt(mx)} ${fmt(my + 5)})" fill="#1f2830" opacity="0.22" filter="url(#tight)"/>`;
   for (const w of [...outerWalls].sort((p, q) => q.depth - p.depth))
     body += face(w);
   H.forEach((_, i) => {
     const clip = "c" + i;
-    defs += `<clipPath id="${clip}"><path d="${pathOf(tx(frontHoles[i]))}"/></clipPath>`;
-    body += `<g clip-path="url(#${clip})"><path d="${pathOf(tx(frontHoles[i]))}" fill="#5f6870"/>`;
-    body += `<path d="${pathOf(tx(backHoles[i]))}" fill="#eef1f4"/>`;
+    const fh = pathOf(tx(frontHoles[i]));
+    defs += `<clipPath id="${clip}"><path d="${fh}"/></clipPath>`;
+    body += `<g clip-path="url(#${clip})"><path d="${fh}" fill="url(#hueco)"/>`;
+    body += `<path d="${pathOf(tx(backHoles[i]))}" fill="#f3f5f7"/>`;
     for (const w of [...holeWalls[i]].sort((p, q) => q.depth - p.depth))
-      body += face(w, -0.18);
+      body += face(w, -0.2);
     body += "</g>";
   });
-  const cap = [pathOf(tx(front)), ...frontHoles.map((h) => pathOf(tx(h)))].join(
+  // Corte frontal: aluminio mecanizado más claro con borde iluminado.
+  const capPts = tx(front);
+  const cap = [pathOf(capPts), ...frontHoles.map((h) => pathOf(tx(h)))].join(
     " ",
   );
-  const capA = tx(front).reduce((m, p) => (p[0] + p[1] < m[0] + m[1] ? p : m));
-  const capB = tx(front).reduce((m, p) => (p[0] + p[1] > m[0] + m[1] ? p : m));
-  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}"><stop offset="0" stop-color="#eef1f4"/><stop offset="0.55" stop-color="#d3d9df"/><stop offset="1" stop-color="#b9c1c9"/></linearGradient>`;
-  body += `<path d="${cap}" fill="url(#cap)" fill-rule="evenodd" stroke="#8e979f" stroke-width="1.2" stroke-linejoin="round"/>`;
-  const shadowY = maxY * scale + oy + 14;
+  const capA = capPts.reduce((m, p) => (p[0] + p[1] < m[0] + m[1] ? p : m));
+  const capB = capPts.reduce((m, p) => (p[0] + p[1] > m[0] + m[1] ? p : m));
+  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}"><stop offset="0" stop-color="#f7f9fb"/><stop offset="0.45" stop-color="#e2e7ec"/><stop offset="1" stop-color="#c3cbd3"/></linearGradient>`;
+  body += `<path d="${cap}" fill="url(#cap)" fill-rule="evenodd" stroke="#7d8790" stroke-width="1.6" stroke-linejoin="round"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
-<defs><radialGradient id="bg" cx="50%" cy="42%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e7ebef"/></radialGradient>
-<filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>${defs}</defs>
+<defs><radialGradient id="bg" cx="50%" cy="38%" r="80%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#f5f7f9"/><stop offset="1" stop-color="#eef1f4"/></radialGradient>
+<linearGradient id="hueco" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4c555d"/><stop offset="1" stop-color="#8a939b"/></linearGradient>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+<filter id="tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>${defs}</defs>
 <rect width="${SIZE}" height="${SIZE}" fill="url(#bg)"/>
-<ellipse cx="${SIZE / 2}" cy="${fmt(Math.min(SIZE - 40, shadowY))}" rx="${fmt(((maxX - minX) * scale) / 2.1)}" ry="22" fill="#3b4650" opacity="0.18" filter="url(#blur)"/>
+${shadow}
 ${body}
 </svg>`;
 }
@@ -394,7 +429,7 @@ for (const p of productos) {
   const svg = render(shapes[s.forma](s));
   const destino = path.join(assets, p.imagen);
   await sharp(Buffer.from(svg))
-    .webp({ quality: 84, effort: 6 })
+    .webp({ quality: 88, effort: 6, smartSubsample: true })
     .toFile(destino);
   lines.push(
     `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,

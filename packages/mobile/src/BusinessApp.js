@@ -2908,7 +2908,11 @@ const s = StyleSheet.create({
     borderColor: "#e1e9f1",
   },
   imageWide: { height: 380 },
-  imageCover: { resizeMode: "cover", overflow: "hidden" },
+  imageCover: {
+    resizeMode: "contain",
+    overflow: "hidden",
+    backgroundColor: "#eef1f4",
+  },
   imageNote: { color: "#6a7f92", fontSize: 11, lineHeight: 15, marginTop: 6 },
   productCard: { position: "relative", marginVertical: 4 },
   productTile: {

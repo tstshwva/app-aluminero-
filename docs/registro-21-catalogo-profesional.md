@@ -19,7 +19,7 @@ Fecha 8 de noviembre de 2026.
 
 ## Imágenes
 
-- scripts/catalogo/generar-imagenes.js produce una imagen WebP de 800 × 800 por producto en packages/mobile/assets/catalogo/perfiles y accesorios (herrajes queda preparada). Se nombran con el código, por ejemplo 2488-tubo-cuadrado-1-pulgada.webp, y se asocian por código en packages/mobile/src/catalogImages.js.
+- scripts/catalogo/generar-imagenes.js produce una imagen WebP de 1024 × 1024 por producto, con aluminio cepillado, iluminación de estudio y sombra de contacto, en packages/mobile/assets/catalogo/perfiles y accesorios (herrajes queda preparada). Se nombran con el código, por ejemplo 2488-tubo-cuadrado-1-pulgada.webp, y se asocian por código en packages/mobile/src/catalogImages.js.
 - Son ilustraciones vectoriales generadas por código, no fotografías. Tubos, ángulos, Tee y tubos rectangulares usan las medidas exteriores de la fuente con un espesor de pared ilustrativo. Los perfiles especiales (zoclos, serie 35, cancel de baño, línea 1750, Zeta y accesorios) son siluetas ilustrativas. La ficha lo indica como «Imagen ilustrativa».
 - Los tubos ornamentales #82521 y #9613 se dibujan igual que sus versiones normales porque la fuente no define el detalle ornamental.
 - Si el producto tiene una URL HTTPS registrada, la app la usa en lugar de la ilustración. Si no carga, vuelve a la ilustración o a un marcador neutro.
