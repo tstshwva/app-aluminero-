@@ -2,8 +2,8 @@
   "generado_por": "scripts/catalogo/generar-imagenes.js",
   "aviso": "Renders e ilustraciones generados por código; no son fotografías ni reproducciones del arte del proveedor. Estado 'validada' solo tras revisión del cliente.",
   "resumen": {
-    "ilustrativa": 45,
-    "pendiente": 88
+    "ilustrativa": 118,
+    "pendiente": 15
   },
   "imagenes": [
     {
@@ -379,682 +379,682 @@
     {
       "codigo": "6533",
       "nombre": "Cabezal y zoclo mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/6533-cabezal-zoclo-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/6533-cabezal-zoclo-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "6534",
       "nombre": "Cerco mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/6534-cerco-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/6534-cerco-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "07333",
       "nombre": "Perfil mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/07333-perfil-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/07333-perfil-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "mosquiteros 9.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "15309",
       "nombre": "Jamba y cabezal",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15309-jamba-cabezal.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15309-jamba-cabezal.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "15311",
       "nombre": "Cabezal y zoclo",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15311-cabezal-zoclo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15311-cabezal-zoclo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "15310",
       "nombre": "Riel",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15310-riel.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15310-riel.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "15312",
       "nombre": "Cerco",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/15312-cerco.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/15312-cerco.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "VENTANA corediza 1380.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "11835",
       "nombre": "Jamba y cabezal",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11835-jamba-cabezal.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11835-jamba-cabezal.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "19495",
       "nombre": "Cerco",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/19495-cerco.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/19495-cerco.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "11839",
       "nombre": "Riel intermedio",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11839-riel-intermedio.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11839-riel-intermedio.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "11837",
       "nombre": "Cabezal y zoclo",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11837-cabezal-zoclo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11837-cabezal-zoclo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "11838",
       "nombre": "Riel",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/11838-riel.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/11838-riel.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 1500 7.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9083",
       "nombre": "Bolsa de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9083-bolsa-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9083-bolsa-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9085",
       "nombre": "Tapa bolsa de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9085-tapa-bolsa-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9085-tapa-bolsa-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9084",
       "nombre": "Escalonado de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9084-escalonado-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9084-escalonado-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "4051",
       "nombre": "Tapa lisa de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/4051-tapa-lisa-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/4051-tapa-lisa-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "8591",
       "nombre": "Bolsa lisa de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/8591-bolsa-lisa-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/8591-bolsa-lisa-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9088",
       "nombre": "Junquillo de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9088-junquillo-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9088-junquillo-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 6.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7518",
       "nombre": "Cabezal y jamba",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7518-cabezal-jamba.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7518-cabezal-jamba.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7818",
       "nombre": "Adaptador XX",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7818-adaptador-xx.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7818-adaptador-xx.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "4286",
       "nombre": "Riel",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/4286-riel.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/4286-riel.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7825",
       "nombre": "Zoclo puerta de 2 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7825-zoclo-puerta-2-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7825-zoclo-puerta-2-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9955",
       "nombre": "Traslape puerta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9955-traslape-puerta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9955-traslape-puerta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7821",
       "nombre": "Cerco puerta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7821-cerco-puerta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7821-cerco-puerta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "puerta ventana corediza 5.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9135",
       "nombre": "Bolsa de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9135-bolsa-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9135-bolsa-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7315",
       "nombre": "Tapa bolsa de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7315-tapa-bolsa-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7315-tapa-bolsa-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9136",
       "nombre": "Escalonado de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9136-escalonado-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9136-escalonado-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7316",
       "nombre": "Tapa lisa de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/7316-tapa-lisa-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/7316-tapa-lisa-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9114",
       "nombre": "Bolsa lisa de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9114-bolsa-lisa-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9114-bolsa-lisa-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9112",
       "nombre": "Junquillo de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/9112-junquillo-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/9112-junquillo-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana fija 4.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7826",
       "nombre": "Cabezal y jamba",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7826-cabezal-jamba.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7826-cabezal-jamba.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9957",
       "nombre": "Riel",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9957-riel.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9957-riel.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7847",
       "nombre": "Cerco chapa puerta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7847-cerco-chapa-puerta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7847-cerco-chapa-puerta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7848",
       "nombre": "Traslape puerta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7848-traslape-puerta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7848-traslape-puerta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7842",
       "nombre": "Zoclo puerta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7842-zoclo-puerta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7842-zoclo-puerta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7836",
       "nombre": "Cabezal ventana",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7836-cabezal-ventana.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7836-cabezal-ventana.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "78410",
       "nombre": "Perfil código 78410 (descripción pendiente)",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/78410-perfil-codigo-78410-descripcion-pendiente.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/78410-perfil-codigo-78410-descripcion-pendiente.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "18409",
       "nombre": "Perfil código 18409 (descripción pendiente)",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/18409-perfil-codigo-18409-descripcion-pendiente.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/18409-perfil-codigo-18409-descripcion-pendiente.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "02082",
       "nombre": "Junquillo embellecedor",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/02082-junquillo-embellecedor.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/02082-junquillo-embellecedor.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 3",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "9082",
       "nombre": "Intermedio",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/9082-intermedio.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/9082-intermedio.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "10220",
       "nombre": "Adaptador OXXO",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/10220-adaptador-oxxo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/10220-adaptador-oxxo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7835",
       "nombre": "Zoclo ventana",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7835-zoclo-ventana.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7835-zoclo-ventana.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7844",
       "nombre": "Traslape ventana de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7844-traslape-ventana-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7844-traslape-ventana-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "7850",
       "nombre": "Cerco OXXO de 3 pulgadas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/7850-cerco-oxxo-3-pulgadas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/7850-cerco-oxxo-3-pulgadas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "ventana corediza 3.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG62017",
       "nombre": "Riel triple",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62017-riel-triple.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62017-riel-triple.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "62000",
       "nombre": "Riel doble",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62000-riel-doble.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62000-riel-doble.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 2",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG62001",
       "nombre": "Cerco 6 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62001-cerco-6-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62001-cerco-6-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 3",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG64207",
       "nombre": "Riel adaptador",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG64207-riel-adaptador.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG64207-riel-adaptador.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 3",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG62002",
       "nombre": "Aleta traslape",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62002-aleta-traslape.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62002-aleta-traslape.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG62003",
       "nombre": "Adaptador OXXO",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62003-adaptador-oxxo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62003-adaptador-oxxo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "62006",
       "nombre": "Refuerzo interior",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62006-refuerzo-interior.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62006-refuerzo-interior.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 4",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "MXG62019",
       "nombre": "Mosquitero de lujo",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/MXG62019-mosquitero-lujo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/MXG62019-mosquitero-lujo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 5",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "62094",
       "nombre": "Escalonado triple",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62094-escalonado-triple.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62094-escalonado-triple.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 5",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "62020",
       "nombre": "Escalonado doble",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/62020-escalonado-doble.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/62020-escalonado-doble.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "62022",
       "nombre": "Junquillo de 6 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/62022-junquillo-6-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/62022-junquillo-6-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "productos ex 2.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72054",
       "nombre": "Riel triple",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72054-riel-triple.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72054-riel-triple.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 3, 8, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "75052",
       "nombre": "Riel doble",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/75052-riel-doble.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/75052-riel-doble.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 3, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72091",
       "nombre": "Riel adaptador",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72091-riel-adaptador.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72091-riel-adaptador.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72056",
       "nombre": "Cerco 24 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72056-cerco-24-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72056-cerco-24-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72058",
       "nombre": "Aleta",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72058-aleta.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72058-aleta.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72015",
       "nombre": "Adaptador mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72015-adaptador-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72015-adaptador-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 4, 8, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72059",
       "nombre": "Adaptador vidrio 12 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72059-adaptador-vidrio-12-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72059-adaptador-vidrio-12-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 8, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72060",
       "nombre": "Adaptador vidrio 15 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72060-adaptador-vidrio-15-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72060-adaptador-vidrio-15-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72061",
       "nombre": "Adaptador vidrio 18 mm",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72061-adaptador-vidrio-18-mm.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72061-adaptador-vidrio-18-mm.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72016",
       "nombre": "Porta felpas",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72016-porta-felpas.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72016-porta-felpas.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 8, 16, 17, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "74206",
       "nombre": "OXXO central",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/74206-oxxo-central.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/74206-oxxo-central.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "72013",
       "nombre": "Refuerzo",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/perfiles/72013-refuerzo.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/perfiles/72013-refuerzo.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 5, 13, 27",
-      "estado": "pendiente",
-      "nota": "Sección pendiente de modelar a partir del plano."
+      "estado": "ilustrativa",
+      "nota": "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos."
     },
     {
       "codigo": "GN-608",
       "nombre": "Escuadra de alineación",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-608-escuadra-alineacion.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-608-escuadra-alineacion.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas."
     },
     {
       "codigo": null,
@@ -1069,12 +1069,12 @@
     {
       "codigo": "FN-110",
       "nombre": "Felpa con plástico",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/FN-110-felpa-plastico.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/FN-110-felpa-plastico.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16, 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
     },
     {
       "codigo": "F-306E",
@@ -1189,32 +1189,32 @@
     {
       "codigo": "GN-554",
       "nombre": "Tapa de dren",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-554-tapa-dren.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-554-tapa-dren.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas."
     },
     {
       "codigo": "E-126/6.5",
       "nombre": "Empaque para acristalar",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/E-126-6-5-empaque-acristalar.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/E-126-6-5-empaque-acristalar.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
     },
     {
       "codigo": "195-15 PENS",
       "nombre": "Empaque cuña",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/195-15-PENS-empaque-cuna.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/195-15-PENS-empaque-cuna.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
     },
     {
       "codigo": "F306",
@@ -1249,12 +1249,12 @@
     {
       "codigo": "319-4.0",
       "nombre": "Vinil mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/319-4-0-vinil-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/319-4-0-vinil-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados."
     },
     {
       "codigo": null,

@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import data from "../../packages/catalog/src/data.js";
+import { seccionesSistemas } from "./secciones-sistemas.js";
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -564,6 +565,24 @@ const SECCIONES = {
     nota: PLANO_SIMPLE,
   },
 };
+// Lote de sistemas (mosquiteros, corredizas, fijas, C-80 y C-100 MID).
+const NOTA_FLEXIBLE =
+  "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados.";
+const NOTA_PLANA =
+  "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas.";
+for (const [codigo, valor] of Object.entries(
+  seccionesSistemas({ rect, solid, wall, arc }),
+)) {
+  const entrada = Array.isArray(valor) ? { piezas: valor } : valor;
+  SECCIONES[codigo] = {
+    ...entrada,
+    nota: entrada.opciones?.color
+      ? NOTA_FLEXIBLE
+      : ["GN-608", "GN-554"].includes(codigo)
+        ? NOTA_PLANA
+        : PLANO_SIMPLE,
+  };
+}
 // Perfiles idénticos en el plano: se permite repetir su geometría.
 const MISMA_SECCION_EN_PLANO = [
   ["2521", "82521"],
@@ -864,7 +883,9 @@ for (const p of data.productos) {
     .map((f) => `${f.archivo} pág. ${f.paginas_pdf.join(", ")}`)
     .join("; ");
   if (s) {
-    bytes += (await webp(render(s.piezas), path.join(assets, p.imagen))).size;
+    bytes += (
+      await webp(render(s.piezas, s.opciones), path.join(assets, p.imagen))
+    ).size;
     lineas.push(
       `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,
     );
