@@ -22,3 +22,11 @@ Las siluetas respetan las cotas impresas, la disposición de paredes, canales, p
 
 - npm test: 35 pruebas aprobadas (incluye que cada ruta del manifiesto exista y sea única).
 - Navegador: 116 imágenes cargadas en el catálogo de la vista previa (110 renders del catálogo y 6 genéricas de productos de demostración) y 14 avisos de imagen pendiente, que corresponden a los mecanismos y a la tela mosquitera.
+
+## Herrajes (actualización)
+
+- scripts/catalogo/herrajes.js modela los 14 pendientes como piezas ensambladas (cuerpos, ruedas, palancas, placas), no como perfiles extruidos: carros 45/30.03-A, GT45/40.03A y T26/9X; cierres F-306E y F306; uñeros UN-305T y F305; M.P. / F-608; contra y gancho GYC-100MID; candado GN-623; escuadra de botón GN-481; tapa de traslape GN-622TT; cortavientos GN-622CV y rollo de tela mosquitera TE.
+- Su nota indica que son representaciones ilustrativas según el dibujo del manual, sin mecanismo interno ni medidas exactas.
+- Total: 124 de 125 registros con imagen. Queda solo la calza de neopreno, que no tiene código y no se importa.
+- La versión web declara el idioma es-MX para que el navegador no traduzca la interfaz (traducía «Cód.» como «Bacalao»).
+- Navegador: 130 imágenes cargadas (124 del catálogo y 6 de demostración) y ningún aviso de imagen pendiente.

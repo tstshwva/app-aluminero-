@@ -19,6 +19,11 @@ import { createClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
 
+// En el navegador, la página se declara en español para que no se ofrezca
+// traducirla automáticamente (por ejemplo, «Cód.» se traducía como «Bacalao»).
+if (Platform.OS === "web" && typeof document !== "undefined")
+  document.documentElement.lang = "es-MX";
+
 export default function AluformixApp({ audience }) {
   return (
     <SafeAreaProvider>

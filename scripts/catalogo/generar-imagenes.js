@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import data from "../../packages/catalog/src/data.js";
 import { seccionesSistemas } from "./secciones-sistemas.js";
+import { herrajes } from "./herrajes.js";
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -753,6 +754,87 @@ ${body}
 </svg>`;
 }
 
+// ---------- Piezas ensambladas (herrajes) ----------
+const MATERIALES = {
+  metal: [190, 197, 205],
+  cromo: [214, 220, 228],
+  nylon: [74, 79, 86],
+  malla: [118, 126, 134],
+};
+function renderPieza(cuerpos) {
+  const caras = [];
+  for (const cu of cuerpos) {
+    const outer = ccw(cu.outer),
+      holes = cu.holes.map(cw);
+    const color = MATERIALES[cu.mat] ?? MATERIALES.metal;
+    const lados = (pts) =>
+      pts.map((a, i) => {
+        const b = pts[(i + 1) % pts.length];
+        return {
+          n: norm([b[1] - a[1], -(b[0] - a[0]), 0]),
+          pts: [
+            [...a, cu.z0],
+            [...b, cu.z0],
+            [...b, cu.z1],
+            [...a, cu.z1],
+          ].map(project),
+          color,
+        };
+      });
+    caras.push(...lados(outer), ...holes.flatMap(lados));
+    for (const [z, n] of [
+      [cu.z0, [0, 0, -1]],
+      [cu.z1, [0, 0, 1]],
+    ])
+      caras.push({
+        n,
+        pts: outer.map(([x, y]) => project([x, y, z])),
+        holes: holes.map((h) => h.map(([x, y]) => project([x, y, z]))),
+        color,
+        tapa: true,
+      });
+  }
+  const visibles = caras
+    .filter((f) => rotate(f.n)[2] < -1e-6)
+    .map((f) => ({
+      ...f,
+      depth: f.pts.reduce((s, p) => s + p[2], 0) / f.pts.length,
+    }))
+    .sort((a, b) => b.depth - a.depth);
+  const all = visibles.flatMap((f) => f.pts);
+  const minX = Math.min(...all.map((p) => p[0])),
+    maxX = Math.max(...all.map((p) => p[0])),
+    minY = Math.min(...all.map((p) => p[1])),
+    maxY = Math.max(...all.map((p) => p[1]));
+  const scale = Math.min((W * 0.8) / (maxX - minX), (H * 0.74) / (maxY - minY));
+  const ox = W / 2 - ((minX + maxX) / 2) * scale,
+    oy = H * 0.47 - ((minY + maxY) / 2) * scale;
+  const tx = (list) => list.map(([x, y]) => [x * scale + ox, y * scale + oy]);
+  let defs = "",
+    body = "",
+    g = 0;
+  for (const f of visibles) {
+    const base = metal(f.n, f.tapa ? 0.06 : 0, f.color);
+    const pts = tx(f.pts);
+    const id = "p" + g++;
+    const a = pts[0],
+      b = pts[Math.floor(pts.length / 2)];
+    defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${fmt(a[0])}" y1="${fmt(a[1])}" x2="${fmt(b[0])}" y2="${fmt(b[1])}"><stop offset="0" stop-color="${rgb(base, 1.04, 8)}"/><stop offset="0.5" stop-color="${rgb(base)}"/><stop offset="1" stop-color="${rgb(base, 0.93)}"/></linearGradient>`;
+    const d = [pathOf(pts), ...(f.holes ?? []).map((h) => pathOf(tx(h)))].join(
+      " ",
+    );
+    body += `<path d="${d}" fill="url(#${id})" fill-rule="evenodd" stroke="rgba(55,64,74,0.35)" stroke-width="0.9" stroke-linejoin="round"/>`;
+  }
+  const sx = ((minX + maxX) / 2) * scale + ox,
+    sy = maxY * scale + oy;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<defs><filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>${defs}</defs>
+<rect width="${W}" height="${H}" fill="#ffffff"/>
+<ellipse cx="${fmt(sx)}" cy="${fmt(Math.min(H - 30, sy + 10))}" rx="${fmt(((maxX - minX) * scale) / 2.2)}" ry="24" fill="#2c3640" opacity="0.14" filter="url(#soft)"/>
+${body}
+</svg>`;
+}
+
 // ---------- Ilustración de sistemas (conjunto armado en alzado) ----------
 function systemSvg(tipo) {
   const frame = (x, y, w, h, t, fill = "url(#al)") =>
@@ -874,17 +956,30 @@ const sobrantes = Object.keys(SECCIONES).filter(
 if (sobrantes.length)
   throw new Error("Secciones sin producto: " + sobrantes.join(", "));
 
+// Herrajes y accesorios no extruidos: piezas ensambladas.
+const PIEZAS = {};
+for (const [codigo, cuerpos] of Object.entries(herrajes({ rect }))) {
+  const p = data.productos.find((x) => x.codigo === codigo);
+  if (!p) throw new Error("Herraje sin producto: " + codigo);
+  PIEZAS[codigo] = {
+    cuerpos,
+    nota: `Representación ilustrativa de la pieza a partir del dibujo del manual (${p.fuentes.map((f) => "pág. " + f.paginas_pdf.join(", ")).join("; ")}); no reproduce el mecanismo interno ni medidas exactas.`,
+  };
+}
 let bytes = 0;
 const lineas = [],
   manifiesto = [];
 for (const p of data.productos) {
-  const s = p.codigo ? SECCIONES[p.codigo] : null;
+  const s = p.codigo ? (SECCIONES[p.codigo] ?? PIEZAS[p.codigo]) : null;
   const fuente = p.fuentes
     .map((f) => `${f.archivo} pág. ${f.paginas_pdf.join(", ")}`)
     .join("; ");
   if (s) {
     bytes += (
-      await webp(render(s.piezas, s.opciones), path.join(assets, p.imagen))
+      await webp(
+        s.cuerpos ? renderPieza(s.cuerpos) : render(s.piezas, s.opciones),
+        path.join(assets, p.imagen),
+      )
     ).size;
     lineas.push(
       `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,

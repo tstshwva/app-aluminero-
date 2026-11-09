@@ -2,8 +2,8 @@
   "generado_por": "scripts/catalogo/generar-imagenes.js",
   "aviso": "Renders e ilustraciones generados por código; no son fotografías ni reproducciones del arte del proveedor. Estado 'validada' solo tras revisión del cliente.",
   "resumen": {
-    "ilustrativa": 118,
-    "pendiente": 15
+    "ilustrativa": 132,
+    "pendiente": 1
   },
   "imagenes": [
     {
@@ -1079,112 +1079,112 @@
     {
       "codigo": "F-306E",
       "nombre": "Cierre embutido S/T",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F-306E-cierre-embutido-s-t.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F-306E-cierre-embutido-s-t.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GYC-100MID",
       "nombre": "Contra y gancho",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GYC-100MID-contra-gancho.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GYC-100MID-contra-gancho.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 15, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 15, 16); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "UN-305T",
       "nombre": "Uñero metálico",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/UN-305T-unero-metalico.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/UN-305T-unero-metalico.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "M.P. / F-608",
       "nombre": "M-PuntoP / Manilla",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/M-P-F-608-m-puntop-manilla.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/M-P-F-608-m-puntop-manilla.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 16); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "45/30.03-A",
       "nombre": "Carro tándem",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/45-30-03-A-carro-tandem.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/45-30-03-A-carro-tandem.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GT45/40.03A",
       "nombre": "Carro de 70 kg",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GT45-40-03A-carro-70-kg.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GT45-40-03A-carro-70-kg.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6, 16, 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 16, 17); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "T26/9X",
       "nombre": "Carro para mosquitero",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/T26-9X-carro-mosquitero.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/T26-9X-carro-mosquitero.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GN-623",
       "nombre": "Candado de hoja",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-623-candado-hoja.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-623-candado-hoja.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 16); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GN-622TT",
       "nombre": "Tapa de traslape",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-622TT-tapa-traslape.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-622TT-tapa-traslape.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 16); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GN-481",
       "nombre": "Escuadra de botón",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/GN-481-escuadra-boton.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/GN-481-escuadra-boton.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15, 16, 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 15, 16, 17); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GN-622CV",
       "nombre": "Cortavientos",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/GN-622CV-cortavientos.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/GN-622CV-cortavientos.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 7, 15",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 7, 15); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "GN-554",
@@ -1219,32 +1219,32 @@
     {
       "codigo": "F306",
       "nombre": "Cierre brio",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F306-cierre-brio.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F306-cierre-brio.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 16",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 16); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "F305",
       "nombre": "Uñero embutido",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/herrajes/F305-unero-embutido.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/herrajes/F305-unero-embutido.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 17); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "TE",
       "nombre": "Tela mosquitera",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/TE-tela-mosquitera.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/TE-tela-mosquitera.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 17",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 17); no reproduce el mecanismo interno ni medidas exactas."
     },
     {
       "codigo": "319-4.0",
