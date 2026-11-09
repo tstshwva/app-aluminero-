@@ -58,7 +58,7 @@ $priorUrl = $env:EXPO_PUBLIC_API_URL
 $priorCi = $env:CI
 try {
     if ($existingPassword) {
-        $protected = Get-Content -LiteralPath $encryptedPassword -Raw | ConvertTo-SecureString
+        $protected = (Get-Content -LiteralPath $encryptedPassword -Raw).Trim() | ConvertTo-SecureString
         $env:ALUFORMIX_APK_SIGNING_PASSWORD = [System.Net.NetworkCredential]::new('', $protected).Password
     } else {
         $secret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
@@ -88,7 +88,7 @@ try {
 <network-security-config>
     <base-config cleartextTrafficPermitted="false" />
     <domain-config cleartextTrafficPermitted="false">
-        <domain>localhost</domain>
+        <domain includeSubdomains="false">localhost</domain>
         <trust-anchors><certificates src="@raw/aluformix_usb_cert" /></trust-anchors>
     </domain-config>
 </network-security-config>

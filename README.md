@@ -6,7 +6,7 @@ Dos aplicaciones independientes: **Cliente** (comprador) y **Empresa** (administ
 
 ## APK Android
 
-El proyecto produce dos APK independientes firmados. Para regenerarlos en Windows, instala Node.js 24, JDK 17 y Android SDK con la plataforma android-37.0, Build Tools 37.0.0, NDK 27.1.12297006, CMake 3.22.1 y Platform Tools. Define JAVA_HOME y ANDROID_HOME en la terminal. Ejecuta npm ci desde la raíz.
+El proyecto produce dos APK independientes firmados. Para regenerarlos en Windows, instala Node.js 24, JDK 17 y Android SDK con la plataforma android-37.0, Build Tools 37.0.0, NDK 27.1.12297006, CMake 3.22.1 y Platform Tools. Define JAVA_HOME y ANDROID_HOME en la terminal. En Windows, usa una ruta corta para GRADLE_USER_HOME si personalizas la caché, porque Ninja tiene límites de longitud. Ejecuta npm ci desde la raíz.
 
 ### Prueba por USB
 
@@ -36,7 +36,7 @@ Usa la URL HTTPS real con un certificado que el teléfono reconozca. El script r
 
 Crea la cuenta real de Empresa en una terminal PowerShell 7 con ./scripts/crear-primer-admin.ps1. Pide los datos sin mostrar la contraseña, usa el mismo bloqueo y validación de la API y solo permite el alta inicial. Cliente puede registrarse desde su app.
 
-Genera una clave en Google AI Studio y configura GEMINI_API_KEY y GEMINI_MODEL exclusivamente en el .env del servidor. Ejecuta node --env-file=.env scripts/verificar-gemini.js para comprobar una respuesta real con un catálogo de prueba, y reinicia la API tras guardar la configuración. En la app, abre el asistente con una cuenta válida. Evita incluir información personal en las consultas.
+Genera una clave en Google AI Studio y ejecuta ./scripts/configurar-gemini.ps1 en PowerShell 7. La clave se introduce de forma oculta, se comprueba con un catálogo de prueba y se guarda en el .env del servidor. Reinicia la API tras guardar. Para repetir la comprobación usa node --env-file=.env scripts/verificar-gemini.js. En la app, abre el asistente con una cuenta válida. Evita incluir información personal en las consultas.
 
 Para avisos push, configura proyectos Expo, FCM y el identificador de proyecto de cada app antes de compilar. Para recuperación de contraseña, configura y prueba SMTP. El flujo de catálogo y encargos funciona sin esos proveedores.
 
