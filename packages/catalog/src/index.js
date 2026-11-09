@@ -259,5 +259,28 @@ export function subcategoriesFor(group, products, categoryNameOf = () => "") {
   return [...known, ...extra];
 }
 
+// Tipo genérico de imagen para productos sin imagen propia, según su nombre.
+// El orden importa: las reglas más específicas van primero.
+const GENERIC_RULES = [
+  ["vidrio", /\b(vidrio|cristal|espejo)/],
+  ["rueda", /\b(rueda|carretilla|rodaja|balero)/],
+  ["chapa", /\b(chapa|cerradura|jaladera|manija|pasador)/],
+  ["angulo", /\bangulo/],
+  ["tubo-cuadrado", /\btubo\b.*\bcuadrad/],
+  ["tubo-rectangular", /\btubo\b.*\brectangul/],
+  ["tubo-redondo", /\b(tubo|pasamano)/],
+  [
+    "perfil-corrediza",
+    /\b(corrediz|riel|perfil|marco|canal|zoclo|jamba|cabezal)/,
+  ],
+];
+export function genericTypeOf(name) {
+  const text = String(name ?? "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+  return GENERIC_RULES.find(([, rule]) => rule.test(text))?.[0] ?? null;
+}
+
 export const reviewNotes = (product) =>
   catalogInfo(product?.code)?.revision ?? [];

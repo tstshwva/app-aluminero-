@@ -40,3 +40,13 @@ export const catalogImages = {
   "7014": { source: require("../assets/catalogo/accesorios/7014-junquillo-1-pulgada.webp"), illustrative: true, note: "Representación ilustrativa: la fuente no define la geometría completa del perfil comercial." },
   "7013": { source: require("../assets/catalogo/accesorios/7013-base-vidrio.webp"), illustrative: true, note: "Canal U con las medidas de la fuente (24 × 13 mm); espesor ilustrativo." },
 };
+export const genericImages = {
+  "angulo": { source: require("../assets/catalogo/genericas/angulo.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "tubo-cuadrado": { source: require("../assets/catalogo/genericas/tubo-cuadrado.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "tubo-rectangular": { source: require("../assets/catalogo/genericas/tubo-rectangular.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "tubo-redondo": { source: require("../assets/catalogo/genericas/tubo-redondo.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "perfil-corrediza": { source: require("../assets/catalogo/genericas/perfil-corrediza.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "vidrio": { source: require("../assets/catalogo/genericas/vidrio.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "rueda": { source: require("../assets/catalogo/genericas/rueda.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "chapa": { source: require("../assets/catalogo/genericas/chapa.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+};

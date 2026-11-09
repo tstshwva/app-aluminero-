@@ -7,6 +7,7 @@ import {
   classify,
   filterCatalog,
   finishesOf,
+  genericTypeOf,
   priceLabel,
   searchProducts,
   subcategoriesFor,
@@ -211,6 +212,13 @@ test("Estructura, filtros combinables y búsqueda del catálogo", () => {
     group: "Herrajes",
     subcategory: "Bisagras",
   });
+  assert.equal(genericTypeOf('Perfil serie 3" corredizo'), "perfil-corrediza");
+  assert.equal(genericTypeOf('Tubo cuadrado 1"'), "tubo-cuadrado");
+  assert.equal(genericTypeOf('Ángulo 3/4"'), "angulo");
+  assert.equal(genericTypeOf("Vidrio claro 6 mm"), "vidrio");
+  assert.equal(genericTypeOf("Rueda para corrediza 35"), "rueda");
+  assert.equal(genericTypeOf("Chapa de seguridad"), "chapa");
+  assert.equal(genericTypeOf("Tornillo"), null);
   assert.deepEqual(classify({ code: "X-2" }, "Vidrio"), {
     group: "Otros",
     subcategory: "Vidrio",

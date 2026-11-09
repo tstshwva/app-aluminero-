@@ -16,13 +16,14 @@ import {
 import { randomUUID } from "expo-crypto";
 import Scanner from "./Scanner";
 import { registerPush, disablePush } from "./push";
-import { catalogImages } from "./catalogImages";
+import { catalogImages, genericImages } from "./catalogImages";
 import {
   GROUPS,
   catalogInfo,
   classify,
   filterCatalog,
   finishesOf,
+  genericTypeOf,
   isPricePending,
   reviewNotes,
   subcategoriesFor,
@@ -76,7 +77,7 @@ function displayCents(value) {
 // ilustrativa incluida en la app y, si ninguna carga, un marcador neutro.
 function ProductImage({ product, style, large = false }) {
   const [failed, setFailed] = useState(false);
-  const bundled = catalogImages[String(product.code ?? "")];
+  const bundled = bundledImageOf(product);
   const source =
     product.image_url && !failed
       ? { uri: product.image_url }
@@ -110,8 +111,15 @@ function ProductImage({ product, style, large = false }) {
     </View>
   );
 }
-const usesIllustration = (p) =>
-  !p.image_url && Boolean(catalogImages[String(p.code ?? "")]);
+const usesIllustration = (p) => !p.image_url && Boolean(bundledImageOf(p));
+// Render propio del producto o, si no existe, imagen genérica según su tipo.
+function bundledImageOf(p) {
+  return (
+    catalogImages[String(p.code ?? "")] ??
+    genericImages[genericTypeOf(p.name)] ??
+    null
+  );
+}
 const emptyFilter = {
   group: "",
   subcategory: "",
@@ -1273,8 +1281,7 @@ export default function BusinessApp({
               />
               {usesIllustration(data.product) && (
                 <Text style={s.imageNote}>
-                  Imagen ilustrativa ·{" "}
-                  {catalogImages[String(data.product.code)].note}
+                  Imagen ilustrativa · {bundledImageOf(data.product).note}
                 </Text>
               )}
             </View>

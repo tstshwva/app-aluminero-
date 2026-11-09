@@ -539,13 +539,13 @@ const KEY = norm([-0.5, 0.85, -0.6]),
   FILL = norm([0.8, 0.2, -0.4]);
 const HALF = norm([KEY[0], KEY[1], KEY[2] - 1]);
 // Aluminio satinado: gris frío, reflejo suave y amplio.
-function metal(n, extra = 0) {
+function metal(n, extra = 0, color = [190, 197, 205]) {
   const d = Math.max(0, dot(n, KEY)),
     f = Math.max(0, dot(n, FILL)),
     sp = Math.pow(Math.max(0, dot(n, HALF)), 10);
   const k = Math.max(0.3, 0.44 + 0.54 * d + 0.12 * f + extra);
   const c = (base) => Math.round(Math.min(255, base * k + 48 * sp));
-  return [c(190), c(197), c(205)];
+  return color.map(c);
 }
 const rgb = (color, m = 1, add = 0) =>
   `rgb(${color.map((v) => Math.round(Math.max(0, Math.min(255, v * m + add)))).join(",")})`;
@@ -553,7 +553,7 @@ const fmt = (n) => n.toFixed(2);
 const pathOf = (pts) =>
   "M" + pts.map(([x, y]) => fmt(x) + " " + fmt(y)).join(" L") + " Z";
 
-function render(section) {
+function render(section, opts = {}) {
   const outer = ccw(section.outer),
     holes = section.holes.map(cw);
   const xs = outer.map((p) => p[0]),
@@ -568,7 +568,9 @@ function render(section) {
     Math.max(...ys) - Math.min(...ys),
   );
   // Longitud visible de la barra: más larga en perfiles pequeños.
-  const L = maxDim * (2.4 + 1.8 * (1 - Math.min(1, maxDim / 111)));
+  const L = opts.largo
+    ? maxDim * opts.largo
+    : maxDim * (2.4 + 1.8 * (1 - Math.min(1, maxDim / 111)));
   const walls = (pts) =>
     pts.map((a, i) => {
       const b = pts[(i + 1) % pts.length];
@@ -610,7 +612,7 @@ function render(section) {
   const face = (w, extra = 0) => {
     const [a, b, c, d] = tx(w.quad);
     const id = "g" + g++;
-    const base = metal(w.n, extra);
+    const base = metal(w.n, extra, opts.color);
     const stops = [
       [0, 1.0, 4],
       [0.14, 1.06, 12],
@@ -660,7 +662,7 @@ function render(section) {
   );
   const capA = capPts.reduce((m, p) => (p[0] + p[1] < m[0] + m[1] ? p : m));
   const capB = capPts.reduce((m, p) => (p[0] + p[1] > m[0] + m[1] ? p : m));
-  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}"><stop offset="0" stop-color="#f8fafb"/><stop offset="0.5" stop-color="#e1e6eb"/><stop offset="1" stop-color="#c4ccd4"/></linearGradient>`;
+  defs += `<linearGradient id="cap" gradientUnits="userSpaceOnUse" x1="${fmt(capA[0])}" y1="${fmt(capA[1])}" x2="${fmt(capB[0])}" y2="${fmt(capB[1])}">${opts.corte ?? '<stop offset="0" stop-color="#f8fafb"/><stop offset="0.5" stop-color="#e1e6eb"/><stop offset="1" stop-color="#c4ccd4"/>'}</linearGradient>`;
   body += `<path d="${cap}" fill="url(#cap)" fill-rule="evenodd" stroke="#808a94" stroke-width="1.3" stroke-linejoin="round"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 <defs><linearGradient id="hueco" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#48515a"/><stop offset="1" stop-color="#8a939b"/></linearGradient>
@@ -710,6 +712,67 @@ for (const p of productos) {
     `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,
   );
 }
+// Imágenes genéricas por tipo para productos sin imagen propia (por ejemplo,
+// productos registrados desde la app). Se asignan por nombre con genericTypeOf.
+const GENERICA =
+  "Imagen genérica según el tipo de producto; no corresponde a un modelo específico.";
+const genericas = {
+  angulo: { seccion: shapes.angulo({ a: 25.4, b: 25.4, t: 1.6 }) },
+  "tubo-cuadrado": { seccion: shapes.tuboRect({ w: 30, h: 30, t: 1.4 }) },
+  "tubo-rectangular": { seccion: shapes.tuboRect({ w: 60, h: 30, t: 1.5 }) },
+  "tubo-redondo": { seccion: shapes.tuboRedondo({ d: 38, t: 1.4 }) },
+  "perfil-corrediza": {
+    seccion: shapes.peine({
+      w: 76,
+      base: 1.8,
+      aletas: [
+        { x: 0.9, h: 22, t: 1.8 },
+        { x: 22, h: 14, t: 1.6 },
+        { x: 38, h: 18, t: 1.6 },
+        { x: 54, h: 14, t: 1.6 },
+        { x: 75.1, h: 22, t: 1.8 },
+      ],
+    }),
+  },
+  vidrio: {
+    seccion: { outer: rect(0, 0, 120, 6), holes: [] },
+    opciones: {
+      largo: 1.1,
+      color: [168, 206, 214],
+      corte:
+        '<stop offset="0" stop-color="#e3f5f6"/><stop offset="1" stop-color="#86bcc4"/>',
+    },
+  },
+  rueda: {
+    seccion: shapes.tuboRedondo({ d: 35, t: 11 }),
+    opciones: { largo: 0.32 },
+  },
+  chapa: {
+    seccion: {
+      outer: roundRect(0, 0, 32, 70, 5),
+      holes: [
+        circle(4.5, 48).map(([x, y]) => [x + 16, y + 44]),
+        rect(14.2, 28, 17.8, 40),
+      ],
+    },
+    opciones: { largo: 0.45 },
+  },
+};
+await mkdir(path.join(assets, "genericas"), { recursive: true });
+for (const archivo of await readdir(path.join(assets, "genericas")))
+  if (archivo.endsWith(".webp"))
+    await rm(path.join(assets, "genericas", archivo));
+const lineasGenericas = [];
+for (const [tipo, g] of Object.entries(genericas)) {
+  const svg = render(g.seccion, g.opciones);
+  const info = await sharp(Buffer.from(svg))
+    .webp({ quality: 86, effort: 6, smartSubsample: true })
+    .toFile(path.join(assets, "genericas", tipo + ".webp"));
+  bytes += info.size;
+  lineasGenericas.push(
+    `  ${JSON.stringify(tipo)}: { source: require("../assets/catalogo/genericas/${tipo}.webp"), illustrative: true, generic: true, note: ${JSON.stringify(GENERICA)} },`,
+  );
+}
 await writeFile(
   path.join(root, "packages/mobile/src/catalogImages.js"),
   "// Generado por scripts/catalogo/generar-imagenes.js. No editar a mano.\n" +
@@ -717,6 +780,9 @@ await writeFile(
     "// Una URL HTTPS registrada en el producto tiene prioridad sobre estas imágenes.\n" +
     "export const catalogImages = {\n" +
     lines.join("\n") +
+    "\n};\n" +
+    "export const genericImages = {\n" +
+    lineasGenericas.join("\n") +
     "\n};\n",
 );
 console.log(

@@ -22,8 +22,8 @@ async function component() {
       `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
     )
     .replace(
-      /import\s*\{\s*catalogImages\s*\}\s*from ['"].\/catalogImages['"];/,
-      "const catalogImages=globalThis.__catalogImages??{};",
+      /import\s*\{[^}]*\}\s*from ['"].\/catalogImages['"];/,
+      "const catalogImages=globalThis.__catalogImages??{},genericImages={};",
     )
     .replace(
       /from ['"]@aluformix\/catalog['"];/,
