@@ -47,6 +47,17 @@ const icons = {
   camera: require("../assets/icon-camera.png"),
   cart: require("../assets/icon-cart.png"),
   arrow: require("../assets/icon-arrow.png"),
+  catalog: require("../assets/icon-catalog.png"),
+};
+// Variantes rellenas para la pestaña activa (scripts/generar-iconos.js).
+const activeIcons = {
+  home: require("../assets/icon-home-active.png"),
+  catalog: require("../assets/icon-catalog-active.png"),
+  inventory: require("../assets/icon-inventory-active.png"),
+  orders: require("../assets/icon-orders-active.png"),
+  cart: require("../assets/icon-cart-active.png"),
+  profile: require("../assets/icon-profile-active.png"),
+  more: require("../assets/icon-more-active.png"),
 };
 const statuses = [
   "",
@@ -596,7 +607,7 @@ export default function BusinessApp({
     [
       company ? "Inventario" : "Catálogo",
       "catalogo",
-      company ? "inventory" : "search",
+      company ? "inventory" : "catalog",
     ],
     ["Encargos", "encargos", company ? "cart" : "orders"],
     [
@@ -2836,11 +2847,21 @@ export default function BusinessApp({
             onPress={() => (next === "encargos" ? goOrders() : go(next))}
             style={s.tab}
           >
-            <Image
-              source={icons[icon]}
-              style={[s.tabIcon, activeTab === next && s.activeIcon]}
-            />
-            <Text style={[s.tabLabel, activeTab === next && s.active]}>
+            <View style={[s.tabPill, activeTab === next && s.tabPillActive]}>
+              <Image
+                source={
+                  activeTab === next
+                    ? (activeIcons[icon] ?? icons[icon])
+                    : icons[icon]
+                }
+                style={[s.tabIcon, activeTab === next && s.activeIcon]}
+              />
+            </View>
+            <Text
+              selectable={false}
+              numberOfLines={1}
+              style={[s.tabLabel, activeTab === next && s.active]}
+            >
               {label}
             </Text>
           </Pressable>
@@ -2913,25 +2934,45 @@ const s = StyleSheet.create({
     backgroundColor: "white",
     borderTopWidth: 1,
     borderColor: "#e5ebf2",
-    paddingHorizontal: 5,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingTop: 6,
+    paddingBottom: 6,
+    shadowColor: "#0b2540",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: -2 },
+    elevation: 6,
   },
   tab: {
     flex: 1,
-    minHeight: 49,
+    minHeight: 52,
     alignItems: "center",
     justifyContent: "center",
-    gap: 1,
+    gap: 3,
+    userSelect: "none",
   },
+  tabPill: {
+    width: 56,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabPillActive: { backgroundColor: "#e3eefb" },
   tabIcon: {
-    width: 22,
-    height: 22,
-    tintColor: "#526b82",
+    width: 23,
+    height: 23,
+    tintColor: "#5d7489",
     resizeMode: "contain",
   },
-  activeIcon: { tintColor: "#0071d9" },
-  tabLabel: { color: "#526b82", fontSize: 11 },
-  active: { color: "#0071d9", fontWeight: "700" },
+  activeIcon: { tintColor: "#0066cc" },
+  tabLabel: {
+    color: "#5d7489",
+    fontSize: 11.5,
+    fontWeight: "600",
+    letterSpacing: 0.1,
+  },
+  active: { color: "#0066cc", fontWeight: "800" },
   heading: { marginTop: 12, marginBottom: 16, gap: 4 },
   title: { fontSize: 27, fontWeight: "800", color: "#102c46" },
   subtitle: { color: "#526b82", fontSize: 13, lineHeight: 18 },
