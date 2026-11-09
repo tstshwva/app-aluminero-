@@ -1,0 +1,324 @@
+{
+  "Cancel de Baño": [
+    {
+      "codigo": "#11174",
+      "nombre": "Riel Superior de Baño",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Riel superior para cancel de baño con ancho de 50.8 mm."
+    },
+    {
+      "codigo": "#10198",
+      "nombre": "Guía Inferior de Baño",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Guía inferior para cancel de baño."
+    },
+    {
+      "codigo": "#1046",
+      "nombre": "Marco de 1 3/4\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Marco estructural de 1 3/4 pulgadas."
+    },
+    {
+      "codigo": "#11035",
+      "nombre": "Marco Económico Cancel de Baño",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Marco económico diseñado para canceles de baño."
+    }
+  ],
+  "Puerta Batiente Línea 1750": [
+    {
+      "codigo": "#9204",
+      "nombre": "Cerco Puerta de 1750",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Cerco para puerta batiente de 1750."
+    },
+    {
+      "codigo": "#9187",
+      "nombre": "Zoclo Puerta de 1750",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Zoclo para puerta batiente de 1750 con ancho de 79.5 mm."
+    },
+    {
+      "codigo": "#9207",
+      "nombre": "Cabezal de 1750",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Cabezal para puerta batiente de 1750."
+    },
+    {
+      "codigo": "#9183",
+      "nombre": "Intermedio 1750",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Perfil intermedio para puerta batiente de 1750."
+    },
+    {
+      "codigo": "#11032",
+      "nombre": "Batiente de 1/2\" x 3/4\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Batiente de dimensiones 1/2\" x 3/4\"."
+    },
+    {
+      "codigo": "#6370",
+      "nombre": "Junquillo Recto de 1750",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Junquillo recto de 1750."
+    }
+  ],
+  "Ángulos y Tees": [
+    {
+      "codigo": "#1613",
+      "nombre": "Tee de 1\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Perfil tipo T de 1 pulgada."
+    },
+    {
+      "codigo": "#1304",
+      "nombre": "Ángulo de 1\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Ángulo estructural de 1 pulgada."
+    },
+    {
+      "codigo": "#14",
+      "nombre": "Ángulo de 1.5\" x 1.5\" x 3mm",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Ángulo de 1.5\" x 1.5\" con espesor de 3 mm."
+    },
+    {
+      "codigo": "#1301",
+      "nombre": "Ángulo de 1/2\" x 1/2\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Ángulo pequeño de 1/2\" x 1/2\"."
+    },
+    {
+      "codigo": "#1303",
+      "nombre": "Ángulo de 3/4\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Ángulo de 3/4 de pulgada."
+    }
+  ],
+  "Tubos Cuadrados y Complementos": [
+    {
+      "codigo": "#2488",
+      "nombre": "Tubo Cuadrado de 1\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo cuadrado de 1 pulgada."
+    },
+    {
+      "codigo": "#2489",
+      "nombre": "Tubo Cuadrado de 1 1/2\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo cuadrado de 1 1/2 pulgadas."
+    },
+    {
+      "codigo": "#7014",
+      "nombre": "Junquillo de 1\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Junquillo de 1 pulgada."
+    },
+    {
+      "codigo": "#7013",
+      "nombre": "Base para Vidrio",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Perfil base para instalación de vidrio."
+    }
+  ],
+  "Tubos Rectangulares": [
+    {
+      "codigo": "#2521",
+      "nombre": "Tubo Rectangular 2\" x 1\" Normal",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo rectangular de 2\" x 1\" línea normal."
+    },
+    {
+      "codigo": "#82521",
+      "nombre": "Tubo Rectangular 2\" x 1\" Ornamental",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo rectangular de 2\" x 1\" línea ornamental."
+    },
+    {
+      "codigo": "#9613",
+      "nombre": "Tubo 3\" x 1 3/4\" Ornamental",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo rectangular de 3\" x 1 3/4\" ornamental."
+    },
+    {
+      "codigo": "#1122",
+      "nombre": "Tubo 3\" x 1 3/4\" Normal",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo rectangular de 3\" x 1 3/4\" normal."
+    },
+    {
+      "codigo": "#11186",
+      "nombre": "Tubo 3\" x 1\"",
+      "categoria": "Perfiles",
+      "unidad_medida": "Barra de 6 m",
+      "acabados_variantes": [
+        "Natural",
+        "Blanco",
+        "Negro"
+      ],
+      "precio_estimado": 0.0,
+      "descripcion_breve": "Tubo rectangular de 3\" x 1\"."
+    }
+  ]
+}

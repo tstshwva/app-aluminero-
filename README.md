@@ -40,6 +40,17 @@ Genera una clave en Google AI Studio y ejecuta ./scripts/configurar-gemini.ps1 e
 
 Para avisos push, configura proyectos Expo, FCM y el identificador de proyecto de cada app antes de compilar. Para recuperación de contraseña, configura y prueba SMTP. El flujo de catálogo y encargos funciona sin esos proveedores.
 
+## Catálogo de aluminio
+
+37 perfiles y accesorios provenientes de database/catalogo/fuentes, con una imagen ilustrativa por producto. Para registrarlos en la base, desde la raíz:
+
+```powershell
+node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js
+node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js --aplicar
+```
+
+El primer comando solo muestra el plan. La importación no duplica productos ni modifica los que ya existen. Si cambian las fuentes, ejecuta node scripts/catalogo/normalizar-catalogo.js y después node scripts/catalogo/generar-imagenes.js. Las categorías usan el formato «Grupo / Subcategoría». Los pendientes de validación están en docs/catalogo-revision.md y el detalle en docs/registro-21-catalogo-profesional.md.
+
 ## Funciones implementadas
 
 **Cliente:** registro y acceso, recuperación y cambio de contraseña, perfil y datos del taller, búsqueda y categorías del catálogo, detalle e imagen HTTPS de productos, favoritos, carrito en memoria, solicitud de recogida o entrega, cotización con impuestos y envío, aceptación con reserva de material, historial y seguimiento, cancelación antes de confirmar, repetición del encargo, compartir detalle, avisos internos y ayuda.

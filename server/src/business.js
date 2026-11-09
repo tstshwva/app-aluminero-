@@ -510,11 +510,14 @@ export function businessRoutes(
       )
         fail("Agrega entre 1 y 50 materiales.");
       const items = body.items.map((item) => {
-        fields(item, ["productId", "quantity", "cutLengthMm"]);
+        fields(item, ["productId", "quantity", "cutLengthMm", "finish"]);
+        const finish = item.finish == null ? null : text(item.finish, 60);
+        if (item.finish != null && !finish) fail("Acabado inválido.");
         return {
           productId: id(item.productId),
           quantity: format(decimal(item.quantity, 3, true, "999999999.999"), 3),
           cutLengthMm: length(item.cutLengthMm),
+          ...(finish ? { finish } : {}),
         };
       });
       if (new Set(items.map((i) => i.productId)).size !== items.length)
@@ -565,7 +568,16 @@ export function businessRoutes(
             (!p.length_mm || item.cutLengthMm > p.length_mm)
           )
             fail("El corte supera la longitud del material.");
-          products.push(p);
+          // products.finish puede listar varios acabados separados por comas.
+          const options = String(p.finish)
+            .split(",")
+            .map((f) => f.trim())
+            .filter(Boolean);
+          if (item.finish && !options.includes(item.finish))
+            fail(`El acabado no está disponible para ${p.code}.`);
+          if (!item.finish && options.length > 1)
+            fail(`Selecciona el acabado de ${p.code}.`);
+          products.push({ ...p, finish: item.finish ?? p.finish });
         }
         const saved = await rows(
           db,

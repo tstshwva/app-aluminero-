@@ -171,6 +171,21 @@ export async function businessChecks({
     ).status === 400,
     "Corte no puede superar longitud de la barra",
   );
+  check(
+    (
+      await post(
+        "/api/orders",
+        {
+          ...payload,
+          items: [
+            { productId, quantity: "1", cutLengthMm: null, finish: "Dorado" },
+          ],
+        },
+        buyer,
+      )
+    ).status === 400,
+    "Acabado no listado en el producto rechazado",
+  );
   const created = await post("/api/orders", payload, buyer);
   check(
     created.status === 201,

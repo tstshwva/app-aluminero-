@@ -11,10 +11,23 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { randomUUID } from "expo-crypto";
 import Scanner from "./Scanner";
 import { registerPush, disablePush } from "./push";
+import { catalogImages } from "./catalogImages";
+import {
+  GROUPS,
+  catalogInfo,
+  classify,
+  filterCatalog,
+  finishesOf,
+  isPricePending,
+  reviewNotes,
+  subcategoriesFor,
+  unitLabel,
+} from "@aluformix/catalog";
 const icons = {
   home: require("../assets/icon-home.png"),
   search: require("../assets/icon-search.png"),
@@ -40,6 +53,8 @@ const statuses = [
   "Cancelado",
 ];
 function estimateCents(price, quantity) {
+  // Un precio pendiente de captura (0) no genera importes estimados.
+  if (isPricePending(price)) return null;
   const unit = String(price).match(/^(\d{1,12})(?:\.(\d{1,2}))?$/);
   const units = String(quantity).match(/^(\d{1,9})(?:\.(\d{1,3}))?$/);
   if (!unit || !units) return null;
@@ -56,6 +71,41 @@ function displayCents(value) {
     (value % 100n).toString().padStart(2, "0")
   );
 }
+
+// Imagen del producto: primero la URL HTTPS registrada, después la imagen
+// ilustrativa incluida en la app y, si ninguna carga, un marcador neutro.
+function ProductImage({ product, style, large = false }) {
+  const [failed, setFailed] = useState(false);
+  const bundled = catalogImages[String(product.code ?? "")];
+  const source =
+    product.image_url && !failed
+      ? { uri: product.image_url }
+      : (bundled?.source ?? null);
+  if (source)
+    return (
+      <Image
+        accessibilityLabel={"Imagen de " + product.name}
+        source={source}
+        onError={() => product.image_url && setFailed(true)}
+        style={[style, s.imageCover]}
+      />
+    );
+  return (
+    <View style={[style, s.placeholder]}>
+      <View style={large ? s.placeholderLarge : s.placeholderIcon} />
+      {large && <Text style={s.subtitle}>Imagen pendiente</Text>}
+    </View>
+  );
+}
+const usesIllustration = (p) =>
+  !p.image_url && Boolean(catalogImages[String(p.code ?? "")]);
+const emptyFilter = {
+  group: "",
+  subcategory: "",
+  glass: false,
+  favoritesOnly: false,
+  order: "nombre",
+};
 
 const help = [
   [
@@ -96,7 +146,11 @@ export default function BusinessApp({
     [data, setData] = useState({}),
     [form, setForm] = useState({}),
     [search, setSearch] = useState(""),
-    [category, setCategory] = useState("");
+    [catalogFilter, setCatalogFilter] = useState(emptyFilter),
+    [favoriteIds, setFavoriteIds] = useState(() => new Set());
+  const { width } = useWindowDimensions();
+  const wide = width >= 720,
+    columns = width >= 1080 ? 3 : 2;
   const [cart, setCart] = useState([]),
     [checkout, setCheckout] = useState({
       fulfillment: "Recoger",
@@ -191,7 +245,10 @@ export default function BusinessApp({
             dashboard: await client.dashboard(),
             recent: (await client.orders()).slice(0, 3),
           }
-        : { products: (await client.products()).slice(0, 4) };
+        : {
+            products: (await client.products()).slice(0, 4),
+            categories: await client.categories(),
+          };
     if (next === "stockbajo") {
       const [dashboard, products] = await Promise.all([
         client.dashboard(),
@@ -208,16 +265,43 @@ export default function BusinessApp({
         ),
       };
     }
-    if (next === "catalogo")
-      result = {
-        products: await client.products(query),
-        categories: await client.categories(),
-      };
-    if (next === "favoritos")
-      result = {
-        products: await client.favorites(),
-        categories: await client.categories(),
-      };
+    if (next === "catalogo") {
+      // El catálogo completo se filtra en el teléfono para que la búsqueda
+      // incluya subcategorías, medidas y códigos alternos. La API devuelve hasta
+      // 100 registros; si se alcanza el límite se agregan sus coincidencias.
+      const [products, categories, favorites] = await Promise.all([
+        client.products(""),
+        client.categories(),
+        loadFavorites(),
+      ]);
+      let list = products;
+      if (query.trim() && products.length >= 100) {
+        const ids = new Set(products.map((p) => String(p.id)));
+        list = [
+          ...products,
+          ...(await client.products(query)).filter(
+            (p) => !ids.has(String(p.id)),
+          ),
+        ];
+      }
+      result = { products: list, categories };
+      setFavoriteIds(new Set(favorites.map((p) => String(p.id))));
+    }
+    if (next === "favoritos") {
+      const [products, categories] = await Promise.all([
+        client.favorites(),
+        client.categories(),
+      ]);
+      result = { products, categories };
+      setFavoriteIds(new Set(products.map((p) => String(p.id))));
+    }
+    if (next === "validacion") {
+      const [products, categories] = await Promise.all([
+        client.products(""),
+        client.categories(),
+      ]);
+      result = { products, categories };
+    }
     if (next === "encargos") result = { orders: await client.orders(query) };
     if (next === "notificaciones")
       result = { notifications: await client.notifications() };
@@ -264,13 +348,40 @@ export default function BusinessApp({
     };
   }, []);
   const go = (next, query = "") => perform(() => load(next, query));
+  // Los favoritos solo existen para compradores; si fallan, el catálogo se muestra igual.
+  async function loadFavorites() {
+    if (company) return [];
+    try {
+      return (await client.favorites()) ?? [];
+    } catch {
+      return [];
+    }
+  }
+  async function toggleFavorite(product) {
+    const key = String(product.id),
+      enabled = !favoriteIds.has(key);
+    await client.favorite(product.id, enabled);
+    setFavoriteIds((current) => {
+      const next = new Set(current);
+      if (enabled) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+    if (screen === "favoritos" && !enabled)
+      setData((d) => ({
+        ...d,
+        products: d.products?.filter((p) => String(p.id) !== key),
+      }));
+  }
   async function openProduct(productId) {
     const p = await client.product(productId);
-    setData({ product: p });
+    setData((d) => ({ product: p, categories: d.categories }));
     const item = cart.find((i) => String(i.productId) === String(productId));
+    const options = finishesOf(p);
     setForm({
       quantity: item?.quantity ?? "1",
       cutLengthMm: item?.cutLengthMm ?? "",
+      finish: item?.finish ?? (options.length === 1 ? options[0] : ""),
     });
     setScreen("producto");
   }
@@ -313,10 +424,14 @@ export default function BusinessApp({
       throw new Error("Revisa la medida del corte en milímetros.");
     if (cart.length >= 50 && !cart.some((i) => i.productId === product.id))
       throw new Error("Puedes solicitar hasta 50 materiales distintos.");
+    const options = finishesOf(product);
+    if (options.length > 1 && !options.includes(form.finish))
+      throw new Error("Selecciona el acabado que necesitas.");
     const item = {
       productId: String(product.id),
       quantity,
       cutLengthMm: cut || null,
+      finish: options.length > 1 ? form.finish : null,
       product,
     };
     cartChange([...cart.filter((i) => i.productId !== item.productId), item]);
@@ -357,10 +472,11 @@ export default function BusinessApp({
       requestKey: cartKey.current,
       ...checkout,
       ...(!company ? { customerId: null } : {}),
-      items: cart.map(({ productId, quantity, cutLengthMm }) => ({
+      items: cart.map(({ productId, quantity, cutLengthMm, finish }) => ({
         productId,
         quantity,
         cutLengthMm,
+        ...(finish ? { finish } : {}),
       })),
     });
     cartChange([]);
@@ -427,9 +543,14 @@ export default function BusinessApp({
       ? "encargos"
       : ["carrito", "checkout"].includes(screen)
         ? ""
-        : ["empresa", "personal", "clientes", "cliente", "actividad"].includes(
-              screen,
-            )
+        : [
+              "empresa",
+              "personal",
+              "clientes",
+              "cliente",
+              "actividad",
+              "validacion",
+            ].includes(screen)
           ? "mas"
           : screen;
   const tabs = [
@@ -481,6 +602,7 @@ export default function BusinessApp({
         "personal",
         "clientes",
         "entregas",
+        "validacion",
         "ayuda",
         "camara",
         "ia",
@@ -534,47 +656,138 @@ export default function BusinessApp({
       <Text style={s.metricLabel}>{label}</Text>
     </Pressable>
   );
-  const productImage = (p, large = false) =>
-    p.image_url ? (
-      <Image
-        accessibilityLabel={p.name}
-        source={{ uri: p.image_url }}
-        style={large ? s.image : s.thumb}
-      />
-    ) : (
-      <View style={[large ? s.image : s.thumb, s.placeholder]}>
-        <View style={large ? s.placeholderLarge : s.placeholderIcon} />
-        {large && <Text style={s.subtitle}>Sin imagen registrada</Text>}
+  const productImage = (p, large = false) => (
+    <ProductImage
+      key={"img" + p.id}
+      product={p}
+      large={large}
+      style={large ? s.image : s.thumb}
+    />
+  );
+  const categoryNameOf = (p) =>
+    data.categories?.find((c) => String(c.id) === String(p.category_id))
+      ?.name ?? "";
+  const priceText = (p) =>
+    isPricePending(p.price)
+      ? "Consultar precio"
+      : "$" + p.price + (company ? " sin IVA" : " estimado");
+  const productRow = (p) => {
+    const { subcategory } = classify(p, categoryNameOf(p));
+    const favorite = favoriteIds.has(String(p.id));
+    const grid = wide && screen !== "inicio";
+    return (
+      <View
+        key={p.id}
+        style={[
+          s.productCard,
+          grid && { width: columns === 3 ? "32.3%" : "49%" },
+        ]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={"Ver " + p.code}
+          disabled={busy}
+          onPress={() => perform(() => openProduct(p.id))}
+          style={[s.productRow, grid && s.productTile]}
+        >
+          <ProductImage
+            key={"img" + p.id + (p.image_url ?? "")}
+            product={p}
+            style={grid ? s.tileImage : s.thumb}
+          />
+          <View
+            style={[
+              s.grow,
+              grid && s.tileBody,
+              !company && !grid && { paddingRight: 30 },
+            ]}
+          >
+            <Text style={s.cardMeta} numberOfLines={1}>
+              {subcategory}
+            </Text>
+            <Text style={s.name} numberOfLines={2}>
+              {p.name}
+            </Text>
+            <Text style={s.subtitle} numberOfLines={2}>
+              Cód. {p.code} · {unitLabel(p)}
+            </Text>
+            {company && <Text style={s.tag}>{p.available} disponibles</Text>}
+            <Text
+              style={[s.priceSmall, isPricePending(p.price) && s.pricePending]}
+            >
+              {priceText(p)}
+            </Text>
+            {!Number(p.active) && <Text style={s.subtitle}>Desactivado</Text>}
+          </View>
+          {!grid && <Text style={s.arrow}>›</Text>}
+          {grid && <Text style={s.tileLink}>Ver detalles ›</Text>}
+        </Pressable>
+        {!company && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              (favorite ? "Quitar de favoritos " : "Agregar a favoritos ") +
+              p.code
+            }
+            accessibilityState={{ selected: favorite }}
+            disabled={busy}
+            hitSlop={8}
+            onPress={() => perform(() => toggleFavorite(p))}
+            style={s.favorite}
+          >
+            <Text style={[s.heart, favorite && s.heartOn]}>
+              {favorite ? "♥" : "♡"}
+            </Text>
+          </Pressable>
+        )}
       </View>
     );
-  const productRow = (p) => (
+  };
+  const searchCatalog = () => {
+    if (screen !== "catalogo") go("catalogo", search);
+  };
+  const updateFilter = (changes) =>
+    setCatalogFilter((current) => ({ ...current, ...changes }));
+  const chip = (label, selected, action, key = label) => (
     <Pressable
-      key={p.id}
+      key={key}
       accessibilityRole="button"
-      accessibilityLabel={"Ver " + p.code}
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
       disabled={busy}
-      onPress={() => perform(() => openProduct(p.id))}
-      style={s.productRow}
+      onPress={action}
+      style={[s.chip, selected && s.chipOn]}
     >
-      {productImage(p)}
-      <View style={s.grow}>
-        <Text style={s.name}>{p.name}</Text>
-        <Text style={s.subtitle}>
-          {p.code} · {p.unit} · {p.finish}
-        </Text>
-        {company && <Text style={s.tag}>{p.available} disponibles</Text>}
-        <Text style={s.priceSmall}>
-          ${p.price} {company ? "sin IVA" : "estimado"}
-        </Text>
-        {!Number(p.active) && <Text style={s.subtitle}>Desactivado</Text>}
-      </View>
-      <Text style={s.arrow}>›</Text>
+      <Text style={[s.chipText, selected && s.chipTextOn]}>{label}</Text>
     </Pressable>
   );
-  const searchCatalog = () => {
-    setCategory("");
-    go("catalogo", search);
-  };
+  const allProducts = data.products ?? [];
+  const groupTabs = [
+    ...GROUPS,
+    ...(allProducts.some(
+      (p) => classify(p, categoryNameOf(p)).group === "Otros",
+    )
+      ? ["Otros"]
+      : []),
+  ];
+  const subcategories = catalogFilter.group
+    ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
+    : [];
+  const catalogList =
+    screen === "catalogo"
+      ? filterCatalog(allProducts, {
+          ...catalogFilter,
+          favorites: favoriteIds,
+          query: search,
+          categoryNameOf,
+        })
+      : allProducts;
+  const specRow = (label, value) => (
+    <View key={label} style={s.specRow}>
+      <Text style={s.specLabel}>{label}</Text>
+      <Text style={s.specValue}>{value}</Text>
+    </View>
+  );
   const searchBar = (placeholder) => (
     <View style={s.search}>
       <Image source={icons.search} style={s.icon} />
@@ -639,7 +852,17 @@ export default function BusinessApp({
       <ScrollView
         key={screen}
         style={s.grow}
-        contentContainerStyle={s.content}
+        contentContainerStyle={[
+          s.content,
+          wide &&
+            [
+              "catalogo",
+              "favoritos",
+              "stockbajo",
+              "producto",
+              "validacion",
+            ].includes(screen) && { maxWidth: columns === 3 ? 1120 : 900 },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {!!message && (
@@ -776,6 +999,11 @@ export default function BusinessApp({
                 {menuRow("Actividad reciente", "Últimos encargos", () =>
                   go("actividad"),
                 )}
+                {menuRow(
+                  "Catálogo por validar",
+                  "Discrepancias de origen y precios pendientes",
+                  () => go("validacion"),
+                )}
                 {admin &&
                   menuRow("Configuración", "Negocio e impuestos", () =>
                     go("empresa"),
@@ -831,48 +1059,158 @@ export default function BusinessApp({
               <>
                 {searchBar(
                   company
-                    ? "Buscar producto o código"
-                    : "Nombre o código del material",
+                    ? "Nombre, código, medida o categoría"
+                    : "Nombre, código, medida o categoría",
+                )}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={s.segment}
+                  contentContainerStyle={s.segmentRow}
+                >
+                  {[["Todos", ""], ...groupTabs.map((g) => [g, g])].map(
+                    ([label, value]) => (
+                      <Pressable
+                        key={label}
+                        accessibilityRole="button"
+                        accessibilityLabel={"Filtrar " + label}
+                        accessibilityState={{
+                          selected: catalogFilter.group === value,
+                        }}
+                        disabled={busy}
+                        onPress={() =>
+                          updateFilter({
+                            group: value,
+                            subcategory: "",
+                            glass: false,
+                          })
+                        }
+                        style={[
+                          s.segmentItem,
+                          catalogFilter.group === value && s.segmentOn,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            s.segmentText,
+                            catalogFilter.group === value && s.segmentTextOn,
+                          ]}
+                        >
+                          {label.toUpperCase()}
+                        </Text>
+                      </Pressable>
+                    ),
+                  )}
+                </ScrollView>
+                {!!catalogFilter.group && subcategories.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={s.chips}
+                  >
+                    {chip(
+                      "Todas",
+                      !catalogFilter.subcategory,
+                      () => updateFilter({ subcategory: "" }),
+                      "sub-todas",
+                    )}
+                    {subcategories.map((name) =>
+                      chip(
+                        name,
+                        catalogFilter.subcategory === name,
+                        () =>
+                          updateFilter({
+                            subcategory:
+                              catalogFilter.subcategory === name ? "" : name,
+                          }),
+                        "sub-" + name,
+                      ),
+                    )}
+                  </ScrollView>
                 )}
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={s.chips}
                 >
-                  {button("Todos", () => setCategory(""), Boolean(category))}
-                  {data.categories?.map((c) =>
-                    button(
-                      c.name,
-                      () => setCategory(String(c.id)),
-                      category !== String(c.id),
+                  {chip("Vidrio", catalogFilter.glass, () =>
+                    updateFilter(
+                      catalogFilter.glass
+                        ? { glass: false }
+                        : { glass: true, group: "", subcategory: "" },
                     ),
                   )}
+                  {!company &&
+                    chip("♥ Favoritos", catalogFilter.favoritesOnly, () =>
+                      updateFilter({
+                        favoritesOnly: !catalogFilter.favoritesOnly,
+                      }),
+                    )}
+                  {chip(
+                    catalogFilter.order === "codigo"
+                      ? "Orden: código"
+                      : "Orden: A–Z",
+                    false,
+                    () =>
+                      updateFilter({
+                        order:
+                          catalogFilter.order === "codigo"
+                            ? "nombre"
+                            : "codigo",
+                      }),
+                    "orden",
+                  )}
                 </ScrollView>
-                {!company && (
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => go("favoritos")}
-                    style={s.link}
-                  >
-                    <Text style={s.secondaryText}>♡ Ver favoritos</Text>
-                  </Pressable>
+                {data.products && (
+                  <Text style={s.resultCount} accessibilityLiveRegion="polite">
+                    {catalogList.length === 1
+                      ? "1 producto"
+                      : catalogList.length + " productos"}
+                    {search.trim() ? " para «" + search.trim() + "»" : ""}
+                  </Text>
                 )}
               </>
             )}
-            {data.products
-              ?.filter(
-                (p) =>
-                  screen !== "catalogo" ||
-                  !category ||
-                  String(p.category_id) === category,
-              )
-              .map(productRow)}
-            {!data.products?.some(
-              (p) =>
-                screen !== "catalogo" ||
-                !category ||
-                String(p.category_id) === category,
-            ) && <Text style={s.body}>No hay materiales para mostrar.</Text>}
+            {!data.products && busy && (
+              <View style={s.loading}>
+                <ActivityIndicator color="#007bff" />
+                <Text style={s.subtitle}>Cargando catálogo…</Text>
+              </View>
+            )}
+            <View style={wide ? s.grid : null}>
+              {catalogList.map(productRow)}
+            </View>
+            {!!data.products && !catalogList.length && (
+              <View style={s.empty}>
+                <Text style={s.name}>
+                  {screen === "catalogo" &&
+                  catalogFilter.group === "Herrajes" &&
+                  !search.trim()
+                    ? "Aún no hay herrajes registrados"
+                    : screen === "favoritos"
+                      ? "Aún no guardas favoritos"
+                      : "No encontramos productos"}
+                </Text>
+                <Text style={s.subtitle}>
+                  {screen === "catalogo" &&
+                  catalogFilter.group === "Herrajes" &&
+                  !search.trim()
+                    ? "La categoría está lista para nuevas incorporaciones."
+                    : screen === "favoritos"
+                      ? "Toca ♡ en un producto para guardarlo."
+                      : "Revisa la búsqueda o cambia los filtros."}
+                </Text>
+                {screen === "catalogo" &&
+                  button(
+                    "Limpiar filtros",
+                    () => {
+                      setSearch("");
+                      setCatalogFilter(emptyFilter);
+                    },
+                    true,
+                  )}
+              </View>
+            )}
             {company &&
               screen === "catalogo" &&
               button("Nuevo producto", () => perform(() => editProduct(null)))}
@@ -880,86 +1218,173 @@ export default function BusinessApp({
               button("Ver inventario", () => go("catalogo"), true)}
           </View>
         )}
-        {screen === "producto" && data.product && (
-          <View style={s.productDetail}>
-            {productImage(data.product, true)}
+        {screen === "validacion" && (
+          <View>
             {heading(
-              data.product.name,
-              data.product.code +
-                " · " +
-                data.product.unit +
-                " · " +
-                data.product.finish,
+              "Catálogo por validar",
+              "Datos que las fuentes no confirman. Corrígelos desde Editar producto.",
             )}
-            {company && (
-              <View style={s.metrics}>
-                {metric("Físicas", data.product.stock ?? "–")}
-                {metric("Reservadas", data.product.reserved ?? "–")}
-                {metric("Disponibles", data.product.available ?? "–")}
-              </View>
+            <Text style={s.sectionTitle}>Discrepancias entre fuentes</Text>
+            {allProducts.filter((p) => reviewNotes(p).length).map(productRow)}
+            {!allProducts.some((p) => reviewNotes(p).length) && (
+              <Text style={s.body}>No hay discrepancias pendientes.</Text>
             )}
-            <Text style={s.price}>${data.product.price}</Text>
-            <Text>{data.product.description ?? ""}</Text>
-            <Text>
-              Presentación: {data.product.unit} · longitud:{" "}
-              {data.product.length_mm ?? "No indicada"} mm
+            <Text style={s.sectionTitle}>
+              Precio pendiente de captura (
+              {allProducts.filter((p) => isPricePending(p.price)).length})
             </Text>
-            {!company && (
-              <Text style={s.notice}>
-                El precio definitivo se revisa en la cotización.
-              </Text>
-            )}
-            {field("quantity", "Cantidad de esta presentación", {
-              decimal: true,
-            })}
-            {field(
-              "cutLengthMm",
-              "Corte opcional en mm (no cambia la unidad vendida)",
-              { decimal: true },
-            )}
-            {button("Agregar al encargo", () =>
-              perform(async () => add(data.product)),
-            )}
-            {!company &&
-              button(
-                "Guardar favorito",
-                () => perform(() => client.favorite(data.product.id, true)),
-                true,
+            <Text style={s.subtitle}>
+              Se muestran como «Consultar precio» hasta registrar un precio
+              mayor que cero.
+            </Text>
+            {allProducts.filter((p) => isPricePending(p.price)).map(productRow)}
+          </View>
+        )}
+        {screen === "producto" && data.product && (
+          <View style={[s.productDetail, wide && s.detailWide]}>
+            <View style={wide ? s.detailMedia : null}>
+              <ProductImage
+                key={"detalle" + data.product.id}
+                product={data.product}
+                large
+                style={[s.image, wide && s.imageWide]}
+              />
+              {usesIllustration(data.product) && (
+                <Text style={s.imageNote}>
+                  Imagen ilustrativa ·{" "}
+                  {catalogImages[String(data.product.code)].note}
+                </Text>
               )}
-            {!company &&
-              button(
-                "Quitar favorito",
-                () =>
-                  perform(async () => {
-                    await client.favorite(data.product.id, false);
-                    await load("favoritos");
-                  }),
-                true,
-              )}
-            {company &&
-              button(
-                "Editar producto",
-                () => perform(() => editProduct(data.product)),
-                true,
-              )}
-            {company && (
-              <>
-                {button("Registrar entrada", () =>
-                  perform(() => openInventory("entrada")),
+            </View>
+            <View style={wide ? s.detailInfo : s.productDetail}>
+              <Text style={s.cardMeta}>
+                {(({ group, subcategory }) => group + " · " + subcategory)(
+                  classify(data.product, categoryNameOf(data.product)),
                 )}
-                {admin &&
-                  button(
-                    "Ajustar existencia física",
-                    () => perform(() => openInventory("ajuste")),
-                    true,
+              </Text>
+              {heading(
+                data.product.name,
+                "Código " +
+                  data.product.code +
+                  (catalogInfo(data.product.code)?.codigos_alternos.length
+                    ? " · alterno " +
+                      catalogInfo(data.product.code).codigos_alternos.join(", ")
+                    : ""),
+              )}
+              {isPricePending(data.product.price) ? (
+                <View>
+                  <Text style={[s.price, s.pricePending]}>
+                    Consultar precio
+                  </Text>
+                  <Text style={s.subtitle}>
+                    Precio pendiente de captura. La distribuidora lo confirma en
+                    la cotización.
+                  </Text>
+                </View>
+              ) : (
+                <Text style={s.price}>${data.product.price}</Text>
+              )}
+              {company && (
+                <View style={s.metrics}>
+                  {metric("Físicas", data.product.stock ?? "–")}
+                  {metric("Reservadas", data.product.reserved ?? "–")}
+                  {metric("Disponibles", data.product.available ?? "–")}
+                </View>
+              )}
+              {company &&
+                reviewNotes(data.product).map((note, i) => (
+                  <Text key={"rev" + i} style={s.notice}>
+                    Requiere validación: {note.detalle}
+                  </Text>
+                ))}
+              {!!data.product.description && (
+                <Text style={s.body}>{data.product.description}</Text>
+              )}
+              <View style={s.specs}>
+                {(({ group, subcategory }) => [
+                  specRow("Categoría", group),
+                  specRow("Subcategoría", subcategory),
+                ])(classify(data.product, categoryNameOf(data.product)))}
+                {specRow("Unidad", data.product.unit)}
+                {/^barra/i.test(data.product.unit) &&
+                  specRow(
+                    "Longitud",
+                    data.product.length_mm
+                      ? data.product.length_mm + " mm"
+                      : "Longitud por confirmar",
                   )}
-                {button(
-                  "Ver movimientos",
-                  () => perform(() => openInventory("movimientos")),
+                {specRow(
+                  "Dimensiones",
+                  catalogInfo(data.product.code)?.dimensiones?.texto ??
+                    "No indicadas en la fuente",
+                )}
+                {specRow(
+                  "Acabados",
+                  finishesOf(data.product).join(", ") || "Por confirmar",
+                )}
+              </View>
+              {finishesOf(data.product).length > 1 && (
+                <>
+                  <Text style={s.label}>Acabado</Text>
+                  <View style={s.quickRow}>
+                    {finishesOf(data.product).map((option) =>
+                      chip(option, form.finish === option, () =>
+                        change("finish", option),
+                      ),
+                    )}
+                  </View>
+                </>
+              )}
+              {field("quantity", "Cantidad de esta presentación", {
+                decimal: true,
+              })}
+              {field(
+                "cutLengthMm",
+                "Corte opcional en mm (no cambia la unidad vendida)",
+                { decimal: true },
+              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Agregar al encargo"
+                disabled={busy}
+                onPress={() => perform(async () => add(data.product))}
+                style={[s.button, busy && { opacity: 0.5 }]}
+              >
+                <Text style={s.buttonText}>AGREGAR A ENCARGO</Text>
+              </Pressable>
+              {!company &&
+                button(
+                  favoriteIds.has(String(data.product.id))
+                    ? "♥ Guardado en favoritos"
+                    : "♡ Guardar en favoritos",
+                  () => perform(() => toggleFavorite(data.product)),
                   true,
                 )}
-              </>
-            )}
+              {company &&
+                button(
+                  "Editar producto",
+                  () => perform(() => editProduct(data.product)),
+                  true,
+                )}
+              {company && (
+                <>
+                  {button("Registrar entrada", () =>
+                    perform(() => openInventory("entrada")),
+                  )}
+                  {admin &&
+                    button(
+                      "Ajustar existencia física",
+                      () => perform(() => openInventory("ajuste")),
+                      true,
+                    )}
+                  {button(
+                    "Ver movimientos",
+                    () => perform(() => openInventory("movimientos")),
+                    true,
+                  )}
+                </>
+              )}
+            </View>
           </View>
         )}
         {screen === "carrito" && (
@@ -978,7 +1403,8 @@ export default function BusinessApp({
                     <View style={s.grow}>
                       <Text style={s.name}>{item.product.name}</Text>
                       <Text style={s.subtitle}>
-                        {item.product.unit} · {item.product.finish}
+                        {item.product.unit} ·{" "}
+                        {item.finish ?? item.product.finish}
                       </Text>
                       <View style={s.stepper}>
                         <Pressable
@@ -1603,7 +2029,11 @@ export default function BusinessApp({
                 form.categoryId !== String(c.id),
               ),
             )}
-            {field("newCategory", "Crear categoría", { max: 80 })}
+            {field(
+              "newCategory",
+              "Crear categoría (formato «Grupo / Subcategoría», p. ej. «Herrajes / Bisagras»)",
+              { max: 80 },
+            )}
             {button(
               "Guardar categoría",
               () =>
@@ -1624,7 +2054,13 @@ export default function BusinessApp({
             {field("unit", "Presentación vendida (barra, pieza, etc.)", {
               max: 30,
             })}
-            {field("finish", "Acabado", { max: 60 })}
+            {field("finish", "Acabados (separa varios con comas)", {
+              max: 60,
+            })}
+            <Text style={s.subtitle}>
+              Precio 0 se muestra como «Consultar precio». Una URL HTTPS de
+              imagen reemplaza la imagen ilustrativa.
+            </Text>
             {field("lengthMm", "Longitud en milímetros (opcional)", {
               decimal: true,
             })}
@@ -2025,7 +2461,7 @@ export default function BusinessApp({
             onManual={() => go("catalogo")}
             onScan={(value) => {
               setSearch(value);
-              setCategory("");
+              setCatalogFilter(emptyFilter);
               go("catalogo", value);
             }}
           />
@@ -2463,10 +2899,144 @@ const s = StyleSheet.create({
   secondary: { backgroundColor: "#e1effc" },
   secondaryText: { color: "#0066cc" },
   image: {
-    height: 180,
+    height: 260,
     width: "100%",
     resizeMode: "contain",
-    borderRadius: 10,
+    borderRadius: 14,
     backgroundColor: "#edf3f7",
+    borderWidth: 1,
+    borderColor: "#e1e9f1",
+  },
+  imageWide: { height: 380 },
+  imageCover: { resizeMode: "cover", overflow: "hidden" },
+  imageNote: { color: "#6a7f92", fontSize: 11, lineHeight: 15, marginTop: 6 },
+  productCard: { position: "relative", marginVertical: 4 },
+  productTile: {
+    flexDirection: "column",
+    alignItems: "stretch",
+    padding: 0,
+    overflow: "hidden",
+    marginVertical: 0,
+    flex: 1,
+  },
+  tileImage: {
+    width: "100%",
+    height: 200,
+    backgroundColor: "#eef1f4",
+  },
+  tileBody: { padding: 12, gap: 2 },
+  tileLink: {
+    color: "#0071d9",
+    fontWeight: "700",
+    fontSize: 13,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 12,
+  },
+  cardMeta: {
+    color: "#0071d9",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
+  },
+  pricePending: { color: "#8a5a00" },
+  favorite: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderWidth: 1,
+    borderColor: "#e1e9f1",
+  },
+  heart: { fontSize: 19, color: "#526b82", lineHeight: 22 },
+  heartOn: { color: "#d6336c" },
+  segment: {
+    backgroundColor: "#e6eff8",
+    borderRadius: 11,
+    marginVertical: 6,
+    flexGrow: 0,
+  },
+  segmentRow: { flexGrow: 1, padding: 3, gap: 3 },
+  segmentItem: {
+    flexGrow: 1,
+    minHeight: 38,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  segmentOn: { backgroundColor: "#007bff" },
+  segmentText: {
+    color: "#405e77",
+    fontSize: 11.5,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  segmentTextOn: { color: "white" },
+  chip: {
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#cfdeec",
+    backgroundColor: "white",
+    paddingHorizontal: 13,
+    minHeight: 36,
+    justifyContent: "center",
+  },
+  chipOn: { backgroundColor: "#0a4579", borderColor: "#0a4579" },
+  chipText: { color: "#334f68", fontSize: 13, fontWeight: "600" },
+  chipTextOn: { color: "white" },
+  resultCount: {
+    color: "#526b82",
+    fontSize: 12,
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  loading: { alignItems: "center", gap: 8, paddingVertical: 30 },
+  empty: {
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 28,
+    paddingHorizontal: 12,
+    backgroundColor: "white",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#e1e9f1",
+    marginVertical: 8,
+  },
+  detailWide: { flexDirection: "row", alignItems: "flex-start", gap: 24 },
+  detailMedia: { flex: 1, minWidth: 0 },
+  detailInfo: { flex: 1.1, minWidth: 0, gap: 7 },
+  specs: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e1e9f1",
+    paddingHorizontal: 12,
+    marginVertical: 6,
+  },
+  specRow: {
+    flexDirection: "row",
+    gap: 12,
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderColor: "#eef3f8",
+  },
+  specLabel: { width: 108, color: "#526b82", fontSize: 13 },
+  specValue: {
+    flex: 1,
+    color: "#102c46",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
