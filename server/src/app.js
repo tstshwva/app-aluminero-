@@ -224,7 +224,7 @@ export function createApp({
       const result = await rows(
         pool,
         `SELECT id,category_id,code,name,description,unit,finish,length_mm,price,stock,reserved,minimum_stock,image_url,active,stock-reserved AS available FROM products
-      WHERE (?=1 OR active=1) AND (?='' OR LOCATE(?,name)>0 OR LOCATE(?,code)>0) ORDER BY name LIMIT 100`,
+      WHERE (?=1 OR active=1) AND (?='' OR LOCATE(?,name)>0 OR LOCATE(?,code)>0) ORDER BY name LIMIT 1000`,
         [
           isStaff(req.user) ? 1 : 0,
           search.trim(),

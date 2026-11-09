@@ -1,8 +1,10 @@
-// Normaliza los catálogos JSON recibidos y genera:
-//   packages/catalog/src/data.js     datos combinados para la app, la API y la importación
-//   docs/catalogo-revision.md        diferencias entre fuentes para revisión administrativa
+// Normaliza el catálogo maestro de ALUFORMIX y genera:
+//   packages/catalog/src/data.js     datos para la app, la API y la importación
+//   docs/catalogo-revision.md        conflictos, pendientes y conteos para revisión
+// Fuente única: database/catalogo/fuentes/catalogo_maestro_ALUFORMIX.json.
+// Los JSON de database/catalogo/historicos ya están conciliados dentro del
+// maestro y no se vuelven a importar.
 // Ejecutar desde la raíz: node scripts/catalogo/normalizar-catalogo.js
-// El resultado es determinista: repetirlo con las mismas fuentes produce los mismos archivos.
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,43 +13,13 @@ const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../..",
 );
-const fuentes = path.join(root, "database/catalogo/fuentes");
-const PRINCIPAL = "catalogo_principal_aluminio.json";
-const ADICIONAL = "catalogo_adicional_aluminio.json";
-
-// Decisiones de curación explícitas. Cualquier criterio que no venga de las
-// fuentes queda aquí, documentado y marcado para validación.
-const ALIAS = [
-  {
-    codigo: "92046",
-    alternos: ["9204"],
-    detalle:
-      "El catálogo adicional registra «Cerco Puerta de 1750» con el código #9204 y el catálogo principal con #92046. " +
-      "Se registra una sola ficha con #92046 (catálogo principal) y #9204 queda como código alterno buscable hasta confirmar el código del fabricante.",
-  },
-];
+const MAESTRO = "database/catalogo/fuentes/catalogo_maestro_ALUFORMIX.json";
 const GRUPOS = ["Perfiles", "Accesorios", "Herrajes"];
 const STOP = new Set(["de", "del", "la", "el", "para", "y", "con", "en"]);
 
-const limpiarCodigo = (codigo) => {
-  const valor = String(codigo ?? "")
-    .trim()
-    .replace(/^#/, "");
-  if (!/^[0-9A-Za-z-]{1,40}$/.test(valor))
-    throw new Error(`Código no válido en la fuente: ${codigo}`);
-  return valor;
-};
-const sinAcentos = (texto) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "");
-const comparable = (texto) =>
-  sinAcentos(String(texto ?? ""))
-    .toLowerCase()
-    .replace(/["”″]/g, " pulgadas")
-    .replace(/\bpulgada\b/g, "pulgadas")
-    .replace(/[×x]/g, " x ")
-    .replace(/\s+/g, " ")
-    .trim();
+const sinAcentos = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "");
 export const slug = (texto) =>
-  sinAcentos(texto)
+  sinAcentos(String(texto))
     .toLowerCase()
     .replace(/×/g, "x")
     .replace(/[^a-z0-9]+/g, " ")
@@ -55,282 +27,151 @@ export const slug = (texto) =>
     .split(" ")
     .filter((w) => w && !STOP.has(w))
     .join("-");
+// Nombre de archivo seguro; el código original se conserva en los datos.
+const archivoSeguro = (codigo) =>
+  String(codigo)
+    .replace(/[^0-9A-Za-z]+/g, "-")
+    .replace(/^-|-$/g, "");
 
-// Texto de medidas copiado literalmente de la descripción original.
-function dimensiones(descripcion) {
-  const texto = String(descripcion ?? "");
-  const tras = texto.includes(";") ? texto.slice(texto.indexOf(";") + 1) : "";
-  if (tras.trim()) {
-    const valor = tras.trim().replace(/\.$/, "");
-    return {
-      texto: valor.charAt(0).toUpperCase() + valor.slice(1),
-      aproximadas: /aproximad/i.test(valor),
-    };
-  }
-  const espesor = texto.match(/espesor indicado de [\d.]+ mm/i);
-  if (espesor)
-    return {
-      texto: espesor[0].charAt(0).toUpperCase() + espesor[0].slice(1),
-      aproximadas: false,
-    };
-  return null;
-}
-
-// Unidad corta compatible con products.unit (30 caracteres) sin inventar longitudes.
-function unidad(principal, adicional) {
-  const textos = [adicional?.unidad_medida, principal?.unidad_medida].filter(
-    Boolean,
-  );
-  if (textos.some((t) => /^barra de 6 m$/i.test(t.trim())))
+// Unidad corta para products.unit (30 caracteres) sin suponer barras de 6 m.
+function unidad(texto) {
+  const t = String(texto ?? "");
+  if (/^barra de 6(\.00)? m/i.test(t))
     return { unidad: "Barra de 6 m", longitud_mm: 6000 };
-  const base = textos[0] ?? "";
-  if (/^barra/i.test(base)) return { unidad: "Barra", longitud_mm: null };
-  if (/pieza/i.test(base))
+  if (/^pieza; cantidad por armado/i.test(t))
+    return { unidad: "Pieza", longitud_mm: null };
+  if (/^pieza/i.test(t))
     return { unidad: "Pieza (por confirmar)", longitud_mm: null };
-  return { unidad: base.slice(0, 30), longitud_mm: null };
-}
-
-async function leer(nombre) {
-  return JSON.parse(await readFile(path.join(fuentes, nombre), "utf8"));
+  return { unidad: "Por confirmar", longitud_mm: null };
 }
 
 export async function normalizar() {
-  const principal = await leer(PRINCIPAL);
-  const adicional = await leer(ADICIONAL);
-  const aliasDe = new Map();
-  for (const a of ALIAS)
-    for (const alt of a.alternos) aliasDe.set(alt, a.codigo);
-
-  // Catálogo principal: grupo → subcategoría → productos.
-  const registros = new Map();
-  const orden = [];
-  for (const [grupo, subcategorias] of Object.entries(principal)) {
-    if (!GRUPOS.includes(grupo)) throw new Error(`Grupo desconocido: ${grupo}`);
-    for (const [subcategoria, productos] of Object.entries(subcategorias)) {
-      for (const original of productos) {
-        const codigo = limpiarCodigo(original.codigo);
-        if (registros.has(codigo))
-          throw new Error(
-            `Código duplicado en el catálogo principal: ${codigo}`,
-          );
-        registros.set(codigo, {
-          codigo,
-          grupo,
-          subcategoria,
-          principal: original,
-          adicional: null,
-          seccionAdicional: null,
-        });
-        orden.push(codigo);
-      }
+  const maestro = JSON.parse(await readFile(path.join(root, MAESTRO), "utf8"));
+  const vistos = new Set();
+  const productos = maestro.productos.map((p, indice) => {
+    if (!GRUPOS.includes(p.categoria))
+      throw new Error(`Categoría desconocida: ${p.categoria}`);
+    if (p.codigo != null && typeof p.codigo !== "string")
+      throw new Error(`El código debe ser texto: ${p.codigo}`);
+    const codigo = p.codigo == null ? null : p.codigo.trim();
+    for (const c of [codigo, ...p.alias_o_lecturas_alternativas].filter(
+      Boolean,
+    )) {
+      if (vistos.has(c)) throw new Error(`Código o alias repetido: ${c}`);
+      vistos.add(c);
     }
-  }
-  // Catálogo adicional: sección → productos. Se asocia por código (o alias).
-  const soloAdicional = [];
-  for (const [seccion, productos] of Object.entries(adicional)) {
-    for (const original of productos) {
-      const codigoFuente = limpiarCodigo(original.codigo);
-      const codigo = aliasDe.get(codigoFuente) ?? codigoFuente;
-      const registro = registros.get(codigo);
-      if (!registro) {
-        soloAdicional.push({ seccion, original });
-        continue;
-      }
-      if (registro.adicional)
-        throw new Error(
-          `Código duplicado en el catálogo adicional: ${codigoFuente}`,
-        );
-      registro.adicional = original;
-      registro.seccionAdicional = seccion;
-    }
-  }
-  // Productos que solo existen en el catálogo adicional: se conservan con su
-  // clasificación original y se marcan para validar.
-  for (const { seccion, original } of soloAdicional) {
-    const codigo = limpiarCodigo(original.codigo);
-    const grupo = GRUPOS.includes(original.categoria)
-      ? original.categoria
-      : "Perfiles";
-    registros.set(codigo, {
-      codigo,
-      grupo,
-      subcategoria: seccion,
-      principal: null,
-      adicional: original,
-      seccionAdicional: seccion,
-    });
-    orden.push(codigo);
-  }
-
-  const productos = [];
-  const diferencias = [];
-  for (const codigo of orden) {
-    const r = registros.get(codigo);
-    const base = r.principal ?? r.adicional;
-    const revision = [];
-    const alias = ALIAS.find((a) => a.codigo === codigo);
-    if (alias) revision.push({ tipo: "codigo", detalle: alias.detalle });
-    if (r.principal && r.adicional) {
-      if (r.principal.categoria !== r.adicional.categoria)
-        revision.push({
-          tipo: "clasificacion",
-          detalle:
-            `Catálogo principal: ${r.principal.categoria} / ${r.subcategoria}. ` +
-            `Catálogo adicional: ${r.adicional.categoria} / ${r.seccionAdicional}. ` +
-            `Se muestra con la clasificación del catálogo principal hasta validarla.`,
-        });
-      if (comparable(r.principal.nombre) !== comparable(r.adicional.nombre))
-        diferencias.push({
-          codigo,
-          campo: "Nombre",
-          principal: r.principal.nombre,
-          adicional: r.adicional.nombre,
-          criterio:
-            "Se usa el nombre del catálogo principal; el otro se conserva y es buscable.",
-        });
-      if (r.principal.unidad_medida !== r.adicional.unidad_medida)
-        diferencias.push({
-          codigo,
-          campo: "Unidad",
-          principal: r.principal.unidad_medida,
-          adicional: r.adicional.unidad_medida,
-          criterio:
-            "Se conserva la barra de 6 m indicada expresamente en el catálogo adicional.",
-        });
-      if (
-        JSON.stringify(r.principal.acabados_variantes) !==
-        JSON.stringify(r.adicional.acabados_variantes)
-      )
-        diferencias.push({
-          codigo,
-          campo: "Acabados",
-          principal: r.principal.acabados_variantes.join(", ") || "(sin dato)",
-          adicional: r.adicional.acabados_variantes.join(", ") || "(sin dato)",
-          criterio:
-            "Se usan los acabados listados en la fuente que los indica.",
-        });
-      if (comparable(r.subcategoria) !== comparable(r.seccionAdicional))
-        diferencias.push({
-          codigo,
-          campo: "Sección",
-          principal: r.subcategoria,
-          adicional: r.seccionAdicional,
-          criterio: "Se usa la subcategoría del catálogo principal.",
-        });
-    } else if (!r.principal) {
-      revision.push({
-        tipo: "fuente",
-        detalle:
-          "Solo aparece en el catálogo adicional; confirma su clasificación.",
-      });
-    }
-    const acabados = [
+    const { unidad: u, longitud_mm } = unidad(p.unidad_medida);
+    const sistemas = [
       ...new Set([
-        ...(r.adicional?.acabados_variantes ?? []),
-        ...(r.principal?.acabados_variantes ?? []),
+        ...(maestro.sistemas_y_familias.some(
+          (s) => s.nombre === p.familia_sistema && s.tipo.startsWith("sistema"),
+        )
+          ? [p.familia_sistema]
+          : []),
+        ...p.usado_en,
       ]),
     ];
-    const precios = [
-      r.principal?.precio_estimado,
-      r.adicional?.precio_estimado,
-    ].filter((p) => typeof p === "number");
-    const precio = precios.find((p) => p > 0) ?? null;
-    if (
-      precios.filter((p) => p > 0).length > 1 &&
-      new Set(precios.filter((p) => p > 0)).size > 1
-    )
-      revision.push({
-        tipo: "precio",
-        detalle: `Las fuentes indican precios distintos: ${precios.join(" y ")}.`,
-      });
-    const { unidad: u, longitud_mm } = unidad(r.principal, r.adicional);
-    const ruta = `${r.grupo.toLowerCase()}/${codigo}-${slug(base.nombre)}.webp`;
-    productos.push({
+    const base = codigo ? archivoSeguro(codigo) : `sin-codigo-${indice + 1}`;
+    return {
       codigo,
-      codigos_alternos: alias ? alias.alternos : [],
-      nombre: base.nombre,
-      nombres_alternos:
-        r.principal &&
-        r.adicional &&
-        comparable(r.principal.nombre) !== comparable(r.adicional.nombre)
-          ? [r.adicional.nombre]
-          : [],
-      grupo: r.grupo,
-      subcategoria: r.subcategoria,
-      categoria_bd: `${r.grupo} / ${r.subcategoria}`,
+      codigos_alternos: p.alias_o_lecturas_alternativas,
+      nombre: p.nombre,
+      grupo: p.categoria,
+      subcategoria: p.subcategoria,
+      familia: p.familia_sistema,
+      sistemas,
+      categoria_bd: `${p.categoria} / ${p.subcategoria}`,
       unidad: u,
+      unidad_fuente: p.unidad_medida,
       longitud_mm,
-      acabados,
-      precio,
-      descripcion: base.descripcion_breve,
-      dimensiones: dimensiones(
-        r.principal?.descripcion_breve ?? r.adicional?.descripcion_breve,
-      ),
-      imagen: ruta,
-      revision,
-      fuentes: {
-        principal: r.principal,
-        adicional: r.adicional
-          ? { seccion: r.seccionAdicional, ...r.adicional }
-          : null,
-      },
-    });
-  }
-  const herrajes = Object.keys(principal.Herrajes ?? {});
-  return { productos, diferencias, notasFuente: { Herrajes: herrajes } };
+      acabados: p.acabados_variantes,
+      precio: p.precio_mxn,
+      descripcion: p.descripcion_breve,
+      dimensiones: p.dimensiones_texto_fuente
+        ? { texto: p.dimensiones_texto_fuente, mm: p.dimensiones_mm }
+        : null,
+      estado: p.estado_validacion,
+      revision: p.notas_validacion.map((detalle) => ({
+        tipo: p.estado_validacion,
+        detalle,
+      })),
+      fuentes: p.fuente,
+      imagen: `${p.categoria.toLowerCase()}/${base}-${slug(p.nombre)}.webp`,
+    };
+  });
+  const sistemas = maestro.sistemas_y_familias.map((s) => ({
+    nombre: s.nombre,
+    tipo: s.tipo,
+    fuentes: s.fuentes,
+    componentes: productos.filter(
+      (p) => p.familia === s.nombre || p.sistemas.includes(s.nombre),
+    ).length,
+  }));
+  return {
+    version: 2,
+    fuente: path.basename(MAESTRO),
+    productos,
+    sistemas,
+    fuentes_pdf: maestro.fuentes_pdf,
+    conflictos: maestro.conflictos_y_validaciones_pendientes,
+    guia_c100: maestro.guia_tecnica_C100_MID,
+    metadatos: {
+      total: maestro.metadata.total_registros,
+      marca_fuente: maestro.metadata.marca_que_aparece_en_las_fuentes,
+    },
+  };
 }
 
-function informe({ productos, diferencias }) {
-  const validar = productos.filter((p) => p.revision.length);
-  const lineas = [
-    "# Revisión del catálogo importado",
+function informe(d) {
+  const cuenta = (f) =>
+    Object.entries(
+      d.productos.reduce((m, p) => ({ ...m, [f(p)]: (m[f(p)] ?? 0) + 1 }), {}),
+    )
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(" · ");
+  const pendientes = d.productos.filter(
+    (p) => p.estado !== "verificado" || p.revision.length,
+  );
+  return [
+    "# Revisión del catálogo maestro",
     "",
-    "Archivo generado por scripts/catalogo/normalizar-catalogo.js a partir de database/catalogo/fuentes. No editar a mano.",
+    "Archivo generado por scripts/catalogo/normalizar-catalogo.js a partir de database/catalogo/fuentes/catalogo_maestro_ALUFORMIX.json. No editar a mano.",
     "",
-    `- Productos únicos: ${productos.length}`,
-    `- Perfiles: ${productos.filter((p) => p.grupo === "Perfiles").length} · Accesorios: ${productos.filter((p) => p.grupo === "Accesorios").length} · Herrajes: ${productos.filter((p) => p.grupo === "Herrajes").length}`,
-    `- Con precio pendiente de captura (precio_estimado = 0.0): ${productos.filter((p) => p.precio === null).length}`,
-    `- Con longitud de barra por confirmar: ${productos.filter((p) => p.unidad === "Barra").length}`,
-    `- Sin acabados indicados en las fuentes: ${productos.filter((p) => !p.acabados.length).length}`,
-    `- Marcados para validación administrativa: ${validar.length}`,
+    `- Registros: ${d.productos.length} (el maestro declara ${d.metadatos.total}).`,
+    `- Por categoría: ${cuenta((p) => p.grupo)}.`,
+    `- Por estado: ${cuenta((p) => p.estado)}.`,
+    `- Sin código: ${d.productos.filter((p) => !p.codigo).length}. Con alias o lectura alternativa: ${d.productos.filter((p) => p.codigos_alternos.length).length}.`,
+    `- Precio pendiente: ${d.productos.filter((p) => p.precio == null).length}. Barra de 6 m respaldada por la fuente: ${d.productos.filter((p) => p.longitud_mm === 6000).length}. Unidad por confirmar: ${d.productos.filter((p) => p.unidad === "Por confirmar").length}.`,
     "",
-    "## Registros que requieren validación",
+    "## Conflictos documentados en el maestro",
     "",
-    "| Código | Producto | Motivo |",
+    "| Tema | Referencias | Acción |",
     "| --- | --- | --- |",
-    ...validar.flatMap((p) =>
-      p.revision.map((r) => `| ${p.codigo} | ${p.nombre} | ${r.detalle} |`),
+    ...d.conflictos.map(
+      (c) => `| ${c.tema} | ${c.referencias.join("<br>")} | ${c.accion} |`,
     ),
     "",
-    "## Diferencias de detalle entre fuentes",
+    "## Registros con estado distinto de verificado o con notas",
     "",
-    "Estas diferencias no bloquean el registro. Se indica el criterio aplicado y ambos valores se conservan en data.js (campo fuentes).",
-    "",
-    "| Código | Campo | Catálogo principal | Catálogo adicional | Criterio |",
+    "| Código | Producto | Estado | Notas | Fuente |",
     "| --- | --- | --- | --- | --- |",
-    ...diferencias.map(
-      (d) =>
-        `| ${d.codigo} | ${d.campo} | ${d.principal} | ${d.adicional} | ${d.criterio} |`,
+    ...pendientes.map(
+      (p) =>
+        `| ${p.codigo ?? "(sin código)"}${p.codigos_alternos.length ? " · alias " + p.codigos_alternos.join(", ") : ""} | ${p.nombre} | ${p.estado} | ${p.revision.map((r) => r.detalle).join("<br>") || "—"} | ${p.fuentes.map((f) => `${f.archivo} pág. ${f.paginas_pdf.join(", ")}`).join("<br>")} |`,
     ),
     "",
-    "## Herrajes",
-    "",
-    "Las fuentes no identifican herrajes. La categoría está preparada: crea categorías con el formato «Herrajes / Subcategoría» desde la app Empresa.",
-    "",
-  ];
-  return lineas.join("\n");
+  ].join("\n");
 }
 
 if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const resultado = await normalizar();
-  const datos = {
-    version: 1,
-    fuentes: [PRINCIPAL, ADICIONAL],
-    productos: resultado.productos,
-  };
+  const datos = await normalizar();
+  if (datos.productos.length !== datos.metadatos.total)
+    throw new Error(
+      `Se esperaban ${datos.metadatos.total} registros y hay ${datos.productos.length}.`,
+    );
   await writeFile(
     path.join(root, "packages/catalog/src/data.js"),
     "// Generado por scripts/catalogo/normalizar-catalogo.js. No editar a mano.\n" +
@@ -338,11 +179,8 @@ if (
       JSON.stringify(datos, null, 2) +
       ";\n",
   );
-  await writeFile(
-    path.join(root, "docs/catalogo-revision.md"),
-    informe(resultado),
-  );
+  await writeFile(path.join(root, "docs/catalogo-revision.md"), informe(datos));
   console.log(
-    `Productos: ${resultado.productos.length}. Diferencias de detalle: ${resultado.diferencias.length}. Para validar: ${resultado.productos.filter((p) => p.revision.length).length}.`,
+    `Registros: ${datos.productos.length}. Sistemas y familias: ${datos.sistemas.length}. Con revisión: ${datos.productos.filter((p) => p.estado !== "verificado").length}.`,
   );
 }

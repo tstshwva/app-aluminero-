@@ -16,41 +16,45 @@ const LIMITS = {
 
 export function catalogRows(productos) {
   const seen = new Set();
-  return productos.map((p) => {
-    const row = {
-      category: p.categoria_bd,
-      code: p.codigo,
-      alternates: p.codigos_alternos ?? [],
-      name: p.nombre,
-      description: p.descripcion ?? null,
-      unit: p.unidad,
-      finish: p.acabados?.length ? p.acabados.join(", ") : "Por confirmar",
-      lengthMm: p.longitud_mm ?? null,
-      // products.price es obligatorio: 0.00 significa «Consultar precio».
-      price: p.precio == null ? "0.00" : Number(p.precio).toFixed(2),
-    };
-    for (const [field, max] of Object.entries(LIMITS)) {
-      const value = field === "category" ? row.category : row[field];
-      if (field !== "description" && !value)
-        throw new Error(`Falta ${field} en ${p.codigo}.`);
-      if (value && String(value).length > max)
-        throw new Error(`${field} de ${p.codigo} supera ${max} caracteres.`);
-    }
-    if (!/^\d{1,10}\.\d{2}$/.test(row.price))
-      throw new Error(`Precio inválido en ${p.codigo}.`);
-    for (const code of [row.code, ...row.alternates]) {
-      if (seen.has(code))
-        throw new Error(`Código repetido en el catálogo: ${code}.`);
-      seen.add(code);
-    }
-    return row;
-  });
+  // Un registro sin código no se puede identificar ni importar sin inventarlo.
+  return productos
+    .filter((p) => p.codigo)
+    .map((p) => {
+      const row = {
+        category: p.categoria_bd,
+        code: p.codigo,
+        alternates: p.codigos_alternos ?? [],
+        name: p.nombre,
+        description: p.descripcion ?? null,
+        unit: p.unidad,
+        finish: p.acabados?.length ? p.acabados.join(", ") : "Por confirmar",
+        lengthMm: p.longitud_mm ?? null,
+        // products.price es obligatorio: 0.00 significa «Consultar precio».
+        price: p.precio == null ? "0.00" : Number(p.precio).toFixed(2),
+      };
+      for (const [field, max] of Object.entries(LIMITS)) {
+        const value = field === "category" ? row.category : row[field];
+        if (field !== "description" && !value)
+          throw new Error(`Falta ${field} en ${p.codigo}.`);
+        if (value && String(value).length > max)
+          throw new Error(`${field} de ${p.codigo} supera ${max} caracteres.`);
+      }
+      if (!/^\d{1,10}\.\d{2}$/.test(row.price))
+        throw new Error(`Precio inválido en ${p.codigo}.`);
+      for (const code of [row.code, ...row.alternates]) {
+        if (seen.has(code))
+          throw new Error(`Código repetido en el catálogo: ${code}.`);
+        seen.add(code);
+      }
+      return row;
+    });
 }
 
 // apply=false solo consulta y devuelve el plan. apply=true lo ejecuta en una
 // transacción; ante cualquier error no queda ningún cambio parcial.
 export async function importCatalog(pool, productos, { apply = false } = {}) {
   const items = catalogRows(productos);
+  const withoutCode = productos.filter((p) => !p.codigo).map((p) => p.nombre);
   const work = async (db) => {
     const categories = new Map(
       (await rows(db, "SELECT id,name FROM categories")).map((c) => [
@@ -58,7 +62,12 @@ export async function importCatalog(pool, productos, { apply = false } = {}) {
         String(c.id),
       ]),
     );
-    const report = { created: [], existing: [], newCategories: [] };
+    const report = {
+      created: [],
+      existing: [],
+      newCategories: [],
+      withoutCode,
+    };
     for (const item of items) {
       let found = null;
       for (const code of [item.code, ...item.alternates]) {

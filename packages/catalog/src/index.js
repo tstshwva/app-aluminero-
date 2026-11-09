@@ -11,7 +11,7 @@ export const GLASS_SUBCATEGORY = "Accesorios para vidrio";
 export const catalogProducts = data.productos;
 const byCode = new Map();
 for (const p of catalogProducts) {
-  byCode.set(p.codigo, p);
+  if (p.codigo) byCode.set(p.codigo, p);
   for (const alt of p.codigos_alternos) byCode.set(alt, p);
 }
 
@@ -31,7 +31,14 @@ export const cleanCode = (code) =>
   String(code ?? "")
     .trim()
     .replace(/^#/, "");
-export const catalogInfo = (code) => byCode.get(cleanCode(code)) ?? null;
+const byCodeLower = new Map();
+for (const p of catalogProducts)
+  for (const c of [p.codigo, ...p.codigos_alternos].filter(Boolean))
+    byCodeLower.set(c.toLowerCase(), p);
+export const catalogInfo = (code) =>
+  byCode.get(cleanCode(code)) ??
+  byCodeLower.get(cleanCode(code).toLowerCase()) ??
+  null;
 
 // Clasifica cualquier producto: primero por su categoría («Grupo / Subcategoría»),
 // después por los datos importados y, si no coincide, como «Otros».
@@ -133,9 +140,9 @@ export function searchText(product, categoryName = "") {
       group,
       subcategory,
       info?.codigos_alternos.join(" "),
-      info?.nombres_alternos.join(" "),
+      info?.familia,
+      info?.sistemas.join(" "),
       info?.dimensiones?.texto,
-      info?.fuentes?.adicional?.seccion,
     ]
       .filter(Boolean)
       .join(" "),
@@ -282,5 +289,144 @@ export function genericTypeOf(name) {
   return GENERIC_RULES.find(([, rule]) => rule.test(text))?.[0] ?? null;
 }
 
-export const reviewNotes = (product) =>
-  catalogInfo(product?.code)?.revision ?? [];
+// Notas de los registros que no están verificados contra el plano.
+export function reviewNotes(product) {
+  const info = catalogInfo(product?.code);
+  if (!info || info.estado === "verificado") return [];
+  return info.revision.length
+    ? info.revision
+    : [
+        {
+          tipo: info.estado,
+          detalle: "Revisar cotas y datos contra el plano de origen.",
+        },
+      ];
+}
+
+// ---------- Sistemas ----------
+export const catalogSystems = data.sistemas;
+export const technicalSources = data.fuentes_pdf;
+export const catalogConflicts = data.conflictos;
+export const c100Guide = data.guia_c100;
+export const VALIDATION_LABELS = {
+  verificado: "Verificado con el plano",
+  requiere_validacion: "Requiere validación",
+  requiere_revision_dimensional: "Cotas por revisar",
+  requiere_codigo: "Código pendiente",
+};
+// Sistemas de cancelería (no familias de perfiles sueltos).
+export const systemsOnly = () =>
+  catalogSystems.filter((s) => s.tipo.startsWith("sistema"));
+// Componentes registrados en el maestro para un sistema o familia.
+export const systemComponents = (name) =>
+  catalogProducts.filter(
+    (p) => p.familia === name || p.sistemas.includes(name),
+  );
+
+// Tabla de descuentos C-100 MID, 2 hojas corredizas con mosquitero (guía,
+// PDF pág. 8). Se transcribe tal como aparece; no se extrapola a otros sistemas.
+export const C100_CUTS = [
+  {
+    pda: 1,
+    clave: "72054",
+    seccion: "A",
+    descripcion: "Riel triple cabezal",
+    cantidad: 2,
+    regla: "L",
+    corte: null,
+    calc: (L) => L,
+  },
+  {
+    pda: 2,
+    clave: "72054",
+    seccion: "B",
+    descripcion: "Riel triple jamba",
+    cantidad: 2,
+    regla: "H",
+    corte: null,
+    calc: (L, H) => H,
+  },
+  {
+    pda: 3,
+    clave: "72056",
+    seccion: "C",
+    descripcion: "Cerco 24 mm horizontal",
+    cantidad: 2,
+    regla: "L / 2 + 3",
+    corte: "45°",
+    calc: (L) => L / 2 + 3,
+  },
+  {
+    pda: 4,
+    clave: "72056",
+    seccion: "D",
+    descripcion: "Cerco 24 mm vertical",
+    cantidad: 2,
+    regla: "H − 78",
+    corte: "45°",
+    calc: (L, H) => H - 78,
+  },
+  {
+    pda: 5,
+    clave: "72059",
+    seccion: "E",
+    descripcion: "Adaptador 12 mm",
+    cantidad: null,
+    regla: "Ensambla con la 72056 al corte",
+    corte: "45°",
+    calc: null,
+  },
+  {
+    pda: 6,
+    clave: "72058",
+    seccion: "F",
+    descripcion: "Aleta",
+    cantidad: 2,
+    regla: "H − 78",
+    corte: "90°",
+    calc: (L, H) => H - 78,
+  },
+  {
+    pda: 7,
+    clave: "72015",
+    seccion: "G",
+    descripcion: "Adaptador mosquitero",
+    cantidad: null,
+    regla: "Ensambla con la 72056 al corte",
+    corte: "45°",
+    calc: null,
+  },
+  {
+    pda: 8,
+    clave: "72016",
+    seccion: "H",
+    descripcion: "Porta felpas",
+    cantidad: 2,
+    regla: "H − 94",
+    corte: "90°",
+    calc: (L, H) => H - 94,
+  },
+];
+// Calcula cortes y vidrio en milímetros. Solo admite medidas positivas.
+export function c100Cuts(L, H) {
+  const ancho = Number(L),
+    alto = Number(H);
+  if (
+    !Number.isFinite(ancho) ||
+    !Number.isFinite(alto) ||
+    ancho <= 0 ||
+    alto <= 0
+  )
+    throw new Error("Indica ancho y alto totales en milímetros.");
+  const round = (n) => Math.round(n * 10) / 10;
+  const vidrio = { LF: round(ancho / 2 - 138), HF: round(alto - 212) };
+  if (vidrio.LF <= 0 || vidrio.HF <= 0)
+    throw new Error("Las medidas no producen un vidrio válido con esta tabla.");
+  return {
+    cortes: C100_CUTS.map((c) => ({
+      ...c,
+      medida: c.calc ? round(c.calc(ancho, alto)) : null,
+    })),
+    vidrio,
+  };
+}

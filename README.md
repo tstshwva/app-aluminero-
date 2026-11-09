@@ -42,14 +42,14 @@ Para avisos push, configura proyectos Expo, FCM y el identificador de proyecto d
 
 ## Catálogo de aluminio
 
-37 perfiles y accesorios provenientes de database/catalogo/fuentes, con una imagen ilustrativa por producto. Para registrarlos en la base, desde la raíz:
+Fuente única: database/catalogo/fuentes/catalogo_maestro_ALUFORMIX.json (125 registros conciliados de 18 PDF del cliente). Los JSON anteriores están en database/catalogo/historicos y no se importan. Para registrar los productos en la base, desde la raíz:
 
 ```powershell
 node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js
 node --env-file-if-exists=.env scripts/catalogo/importar-catalogo.js --aplicar
 ```
 
-El primer comando solo muestra el plan. La importación no duplica productos ni modifica los que ya existen. Si cambian las fuentes, ejecuta node scripts/catalogo/normalizar-catalogo.js y después node scripts/catalogo/generar-imagenes.js. Las categorías usan el formato «Grupo / Subcategoría». Los pendientes de validación están en docs/catalogo-revision.md y el detalle en docs/registro-21-catalogo-profesional.md.
+El primer comando solo muestra el plan. La importación no duplica ni modifica productos existentes y omite el registro sin código. Si cambia el maestro, ejecuta node scripts/catalogo/normalizar-catalogo.js y node scripts/catalogo/generar-imagenes.js. Conflictos y pendientes: docs/catalogo-revision.md; estado de imágenes: database/catalogo/image-manifest.json; detalle: docs/registro-22-catalogo-maestro.md.
 
 ## Funciones implementadas
 

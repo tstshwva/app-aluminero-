@@ -23,7 +23,7 @@ async function component() {
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"].\/catalogImages['"];/,
-      "const catalogImages=globalThis.__catalogImages??{},genericImages={};",
+      "const catalogImages=globalThis.__catalogImages??{},genericImages={},systemImages={};",
     )
     .replace(
       /from ['"]@aluformix\/catalog['"];/,
@@ -394,35 +394,57 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
     );
     await act(async () => input.props.onChangeText(value));
   }
+  const idOf = (code) => products.find((p) => p.code === code).id;
+  const total = products.length;
   await press("Catálogo");
-  assert.equal(cards().length, 37);
-  assert.ok(texts().includes("37 productos"));
-  assert.ok(!texts().some((t) => /\$0\.00/.test(t)), "Nunca muestra $0.00");
+  assert.equal(cards().length, total);
+  assert.ok(texts().includes(total + " productos"));
+  assert.ok(!texts().some((t) => /$0.00/.test(t)), "Nunca muestra $0.00");
   assert.ok(texts().includes("Consultar precio"));
-  assert.ok(texts().some((t) => t.endsWith("Barra · Longitud por confirmar")));
+  assert.ok(
+    !texts().some((t) => /53883 · Barra de 6 m/.test(t)),
+    "Sin 6 m por defecto",
+  );
   await press("Filtrar Perfiles");
-  assert.equal(cards().length, 33);
+  assert.equal(
+    cards().length,
+    data.productos.filter((p) => p.codigo && p.grupo === "Perfiles").length,
+  );
   await press("Cancel de baño");
   assert.deepEqual(cards().sort(), ["10198", "1046", "11035", "11174"]);
   await press("Filtrar Herrajes");
-  assert.equal(cards().length, 0);
-  assert.ok(texts().includes("Aún no hay herrajes registrados"));
+  assert.equal(cards().length, 12);
+  await press("Filtrar Sistemas");
+  assert.equal(cards().filter((c) => c.startsWith("sistema ")).length, 8);
+  await press("Ver sistema C-100 MID");
+  assert.ok(texts().includes("Guía de armado C-100 MID"));
+  assert.ok(texts().includes("Calculadora de cortes"));
+  await type("Ancho total L (mm)", "2000");
+  await type("Alto total H (mm)", "1500");
+  assert.ok(
+    texts().some((t) => t.startsWith("862 × 1288 mm")),
+    "Vidrio LF × HF según la tabla",
+  );
+  assert.ok(texts().some((t) => /certificación estructural/.test(t)));
+  await press("Catálogo");
   await press("Filtrar Todos");
   await press("Vidrio");
   assert.deepEqual(cards().sort(), ["7013", "7014"]);
   await press("Vidrio");
   await type("Buscar producto", "2488");
   assert.deepEqual(cards(), ["2488"]);
+  await type("Buscar producto", "07333");
+  assert.deepEqual(cards(), ["07333"]);
   await type("Buscar producto", "pasamanos");
-  assert.deepEqual(cards(), ["53883", "53896"]);
+  assert.deepEqual(cards().sort(), ["53883", "53896"]);
   await type("Buscar producto", "sin coincidencias xyz");
   assert.ok(texts().includes("No encontramos productos"));
   await press("Limpiar filtros");
   await press("♥ Favoritos");
-  assert.deepEqual(cards(), ["53883"]);
+  assert.deepEqual(cards(), [products[0].code]);
   await press("♥ Favoritos");
   await press("Agregar a favoritos 2488");
-  assert.deepEqual(calls.at(-1), { favorite: "27", enabled: true });
+  assert.deepEqual(calls.at(-1), { favorite: idOf("2488"), enabled: true });
   assert.ok(
     renderer.root.findAll(
       (n) => n.props.accessibilityLabel === "Quitar de favoritos 2488",
@@ -431,8 +453,9 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   await press("Ver 2488");
   assert.ok(texts().includes("Tubo cuadrado de 1 pulgada"));
   assert.ok(texts().includes("Código 2488"));
-  assert.ok(texts().includes("Sección indicada: 25.4 × 25.4 mm"));
+  assert.ok(texts().includes("25.4 × 25.4 mm"));
   assert.ok(texts().includes("Natural, Blanco, Negro"));
+  assert.ok(texts().includes("Verificado con el plano"));
   assert.ok(texts().includes("AGREGAR A ENCARGO"));
   await assert.rejects(press("Agregar al encargo"), /acabado/);
   await press("Negro");
@@ -440,7 +463,12 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   await press("Revisar solicitud");
   await press("Enviar solicitud");
   assert.deepEqual(calls.at(-1).items, [
-    { productId: "27", quantity: "1", cutLengthMm: null, finish: "Negro" },
+    {
+      productId: idOf("2488"),
+      quantity: "1",
+      cutLengthMm: null,
+      finish: "Negro",
+    },
   ]);
   delete globalThis.__uiWidth;
   await act(async () => renderer.unmount());

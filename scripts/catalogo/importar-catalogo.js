@@ -29,6 +29,10 @@ try {
     console.log(
       `Categorías ${apply ? "creadas" : "por crear"}: ${report.newCategories.join(", ")}`,
     );
+  if (report.withoutCode.length)
+    console.log(
+      `Sin código (no se importan hasta confirmarlo): ${report.withoutCode.join(", ")}`,
+    );
   console.log("Pendientes de validación: docs/catalogo-revision.md");
 } catch (error) {
   console.error("No se pudo importar el catálogo: " + error.message);

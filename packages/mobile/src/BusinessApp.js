@@ -16,7 +16,7 @@ import {
 import { randomUUID } from "expo-crypto";
 import Scanner from "./Scanner";
 import { registerPush, disablePush } from "./push";
-import { catalogImages, genericImages } from "./catalogImages";
+import { catalogImages, genericImages, systemImages } from "./catalogImages";
 import {
   GROUPS,
   catalogInfo,
@@ -28,6 +28,11 @@ import {
   reviewNotes,
   subcategoriesFor,
   unitLabel,
+  VALIDATION_LABELS,
+  c100Cuts,
+  c100Guide,
+  systemComponents,
+  systemsOnly,
 } from "@aluformix/catalog";
 const icons = {
   home: require("../assets/icon-home.png"),
@@ -106,7 +111,9 @@ function ProductImage({ product, style, large = false }) {
         style={large ? s.placeholderLogoLarge : s.placeholderLogo}
       />
       <Text style={large ? s.placeholderText : s.placeholderTextSmall}>
-        Imagen pendiente
+        {catalogInfo(product.code)
+          ? "Imagen técnica pendiente de validar"
+          : "Imagen pendiente"}
       </Text>
     </View>
   );
@@ -114,11 +121,11 @@ function ProductImage({ product, style, large = false }) {
 const usesIllustration = (p) => !p.image_url && Boolean(bundledImageOf(p));
 // Render propio del producto o, si no existe, imagen genérica según su tipo.
 function bundledImageOf(p) {
-  return (
-    catalogImages[String(p.code ?? "")] ??
-    genericImages[genericTypeOf(p.name)] ??
-    null
-  );
+  const own = catalogImages[String(p.code ?? "")];
+  if (own) return own;
+  // Un producto del catálogo maestro nunca recibe una imagen genérica.
+  if (catalogInfo(p.code)) return null;
+  return genericImages[genericTypeOf(p.name)] ?? null;
 }
 const emptyFilter = {
   group: "",
@@ -305,7 +312,7 @@ export default function BusinessApp({
         loadFavorites(),
       ]);
       let list = products;
-      if (query.trim() && products.length >= 100) {
+      if (query.trim() && products.length >= 1000) {
         const ids = new Set(products.map((p) => String(p.id)));
         list = [
           ...products,
@@ -563,6 +570,7 @@ export default function BusinessApp({
     quote = data.quote;
   const activeTab = [
     "producto",
+    "sistema",
     "favoritos",
     "stockbajo",
     "editarproducto",
@@ -618,6 +626,7 @@ export default function BusinessApp({
     if (
       [
         "producto",
+        "sistema",
         "favoritos",
         "stockbajo",
         "editarproducto",
@@ -703,6 +712,7 @@ export default function BusinessApp({
       : "$" + p.price + (company ? " sin IVA" : " estimado");
   const productRow = (p) => {
     const { subcategory } = classify(p, categoryNameOf(p));
+    const info = catalogInfo(p.code);
     const favorite = favoriteIds.has(String(p.id));
     const grid = wide && screen !== "inicio";
     return (
@@ -733,7 +743,7 @@ export default function BusinessApp({
             ]}
           >
             <Text style={s.cardMeta} numberOfLines={1}>
-              {subcategory}
+              {info?.familia ?? subcategory}
             </Text>
             <Text style={s.name} numberOfLines={2}>
               {p.name}
@@ -741,6 +751,11 @@ export default function BusinessApp({
             <Text style={s.subtitle} numberOfLines={2}>
               Cód. {p.code} · {unitLabel(p)}
             </Text>
+            {!!info?.dimensiones && (
+              <Text style={s.cardDims} numberOfLines={1}>
+                {info.dimensiones.texto}
+              </Text>
+            )}
             {company && <Text style={s.tag}>{p.available} disponibles</Text>}
             <Text
               style={[s.priceSmall, isPricePending(p.price) && s.pricePending]}
@@ -750,7 +765,7 @@ export default function BusinessApp({
             {!Number(p.active) && <Text style={s.subtitle}>Desactivado</Text>}
           </View>
           {!grid && <Text style={s.arrow}>›</Text>}
-          {grid && <Text style={s.tileLink}>Ver detalles ›</Text>}
+          {grid && <Text style={s.tileLink}>Ver ficha ›</Text>}
         </Pressable>
         {!company && (
           <Pressable
@@ -794,15 +809,18 @@ export default function BusinessApp({
   const allProducts = data.products ?? [];
   const groupTabs = [
     ...GROUPS,
+    "Sistemas",
     ...(allProducts.some(
       (p) => classify(p, categoryNameOf(p)).group === "Otros",
     )
       ? ["Otros"]
       : []),
   ];
-  const subcategories = catalogFilter.group
-    ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
-    : [];
+  const showingSystems = catalogFilter.group === "Sistemas";
+  const subcategories =
+    catalogFilter.group && !showingSystems
+      ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
+      : [];
   const catalogList =
     screen === "catalogo"
       ? filterCatalog(allProducts, {
@@ -812,6 +830,65 @@ export default function BusinessApp({
           categoryNameOf,
         })
       : allProducts;
+  const productByCode = (codigo, alternos = []) =>
+    allProducts.find((p) =>
+      [codigo, ...alternos].filter(Boolean).includes(String(p.code)),
+    );
+  const openSystem = (name) => {
+    setData((d) => ({ ...d, system: name }));
+    setForm({ calcL: "", calcH: "" });
+    setScreen("sistema");
+  };
+  const systemCard = (sys) => {
+    const cover = systemImages[sys.nombre];
+    const grid = wide;
+    return (
+      <View
+        key={sys.nombre}
+        style={[
+          s.productCard,
+          grid && { width: columns === 3 ? "32.3%" : "49%" },
+        ]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={"Ver sistema " + sys.nombre}
+          disabled={busy}
+          onPress={() => openSystem(sys.nombre)}
+          style={[s.productRow, grid && s.productTile]}
+        >
+          {cover ? (
+            <View style={[grid ? s.tileImage : s.thumb, s.imageFrame]}>
+              <Image
+                accessibilityLabel={"Ilustración del sistema " + sys.nombre}
+                source={cover.source}
+                resizeMode="contain"
+                style={s.imageFill}
+              />
+            </View>
+          ) : (
+            <View
+              style={[
+                grid ? s.tileImage : s.thumb,
+                s.imageFrame,
+                s.placeholder,
+              ]}
+            />
+          )}
+          <View style={[s.grow, grid && s.tileBody]}>
+            <Text style={s.cardMeta}>Sistema</Text>
+            <Text style={s.name}>{sys.nombre}</Text>
+            <Text style={s.subtitle}>
+              {sys.componentes} componentes
+              {sys.nombre === "C-100 MID" ? " · guía de armado" : ""}
+            </Text>
+          </View>
+          {!grid && <Text style={s.arrow}>›</Text>}
+          {grid && <Text style={s.tileLink}>Ver sistema ›</Text>}
+        </Pressable>
+      </View>
+    );
+  };
   const specRow = (label, value) => (
     <View key={label} style={s.specRow}>
       <Text style={s.specLabel}>{label}</Text>
@@ -1158,40 +1235,42 @@ export default function BusinessApp({
                     )}
                   </ScrollView>
                 )}
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={s.chips}
-                >
-                  {chip("Vidrio", catalogFilter.glass, () =>
-                    updateFilter(
-                      catalogFilter.glass
-                        ? { glass: false }
-                        : { glass: true, group: "", subcategory: "" },
-                    ),
-                  )}
-                  {!company &&
-                    chip("♥ Favoritos", catalogFilter.favoritesOnly, () =>
-                      updateFilter({
-                        favoritesOnly: !catalogFilter.favoritesOnly,
-                      }),
+                {!showingSystems && (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={s.chips}
+                  >
+                    {chip("Vidrio", catalogFilter.glass, () =>
+                      updateFilter(
+                        catalogFilter.glass
+                          ? { glass: false }
+                          : { glass: true, group: "", subcategory: "" },
+                      ),
                     )}
-                  {chip(
-                    catalogFilter.order === "codigo"
-                      ? "Orden: código"
-                      : "Orden: A–Z",
-                    false,
-                    () =>
-                      updateFilter({
-                        order:
-                          catalogFilter.order === "codigo"
-                            ? "nombre"
-                            : "codigo",
-                      }),
-                    "orden",
-                  )}
-                </ScrollView>
-                {data.products && (
+                    {!company &&
+                      chip("♥ Favoritos", catalogFilter.favoritesOnly, () =>
+                        updateFilter({
+                          favoritesOnly: !catalogFilter.favoritesOnly,
+                        }),
+                      )}
+                    {chip(
+                      catalogFilter.order === "codigo"
+                        ? "Orden: código"
+                        : "Orden: A–Z",
+                      false,
+                      () =>
+                        updateFilter({
+                          order:
+                            catalogFilter.order === "codigo"
+                              ? "nombre"
+                              : "codigo",
+                        }),
+                      "orden",
+                    )}
+                  </ScrollView>
+                )}
+                {data.products && !showingSystems && (
                   <Text style={s.resultCount} accessibilityLiveRegion="polite">
                     {catalogList.length === 1
                       ? "1 producto"
@@ -1207,10 +1286,17 @@ export default function BusinessApp({
                 <Text style={s.subtitle}>Cargando catálogo…</Text>
               </View>
             )}
-            <View style={wide ? s.grid : null}>
-              {catalogList.map(productRow)}
-            </View>
-            {!!data.products && !catalogList.length && (
+            {showingSystems && screen === "catalogo" && (
+              <View style={wide ? s.grid : null}>
+                {systemsOnly().map((sys) => systemCard(sys))}
+              </View>
+            )}
+            {!(showingSystems && screen === "catalogo") && (
+              <View style={wide ? s.grid : null}>
+                {catalogList.map(productRow)}
+              </View>
+            )}
+            {!!data.products && !catalogList.length && !showingSystems && (
               <View style={s.empty}>
                 <Text style={s.name}>
                   {screen === "catalogo" &&
@@ -1248,6 +1334,152 @@ export default function BusinessApp({
               button("Ver inventario", () => go("catalogo"), true)}
           </View>
         )}
+        {screen === "sistema" &&
+          data.system &&
+          (() => {
+            const name = data.system;
+            const components = systemComponents(name);
+            const cover = systemImages[name];
+            const files = [
+              ...new Set(
+                components.flatMap((c) => c.fuentes.map((f) => f.archivo)),
+              ),
+            ];
+            const c100 = name === "C-100 MID";
+            let calc = null,
+              calcError = "";
+            if (c100 && form.calcL && form.calcH)
+              try {
+                calc = c100Cuts(form.calcL, form.calcH);
+              } catch (error) {
+                calcError = error.message;
+              }
+            return (
+              <View>
+                {heading(name, components.length + " componentes registrados")}
+                {cover ? (
+                  <View style={[s.image, wide && s.imageWide, s.imageFrame]}>
+                    <Image
+                      accessibilityLabel={"Ilustración del sistema " + name}
+                      source={cover.source}
+                      resizeMode="contain"
+                      style={s.imageFill}
+                    />
+                  </View>
+                ) : null}
+                {cover && <Text style={s.imageNote}>{cover.note}</Text>}
+                <Text style={s.sectionTitle}>Componentes</Text>
+                {components.map((c, i) => {
+                  const product = c.codigo
+                    ? productByCode(c.codigo, c.codigos_alternos)
+                    : null;
+                  if (product) return productRow(product);
+                  return (
+                    <View key={"comp" + i} style={s.menuRow}>
+                      <View style={s.grow}>
+                        <Text style={s.name}>{c.nombre}</Text>
+                        <Text style={s.subtitle}>
+                          {c.codigo ? "Cód. " + c.codigo : "Sin código"} ·{" "}
+                          {VALIDATION_LABELS[c.estado] ?? c.estado}
+                        </Text>
+                        <Text style={s.subtitle}>
+                          {c.codigo
+                            ? "Aún no se registra en la base de esta sucursal."
+                            : "Se registrará cuando el proveedor confirme su código."}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+                <Text style={s.sectionTitle}>Documentos técnicos</Text>
+                {files.map((file) => (
+                  <Text key={file} style={s.body}>
+                    • {file}
+                  </Text>
+                ))}
+                <Text style={s.notice}>
+                  Los documentos del proveedor no se reproducen en la app hasta
+                  confirmar la autorización del titular de los diseños. Consulta
+                  el archivo original con la distribuidora.
+                </Text>
+                {name === "Corrediza C-80" && (
+                  <Text style={s.body}>
+                    Para este sistema se entregaron fichas de componentes, sin
+                    guía de armado.
+                  </Text>
+                )}
+                {c100 && (
+                  <>
+                    <Text style={s.sectionTitle}>Guía de armado C-100 MID</Text>
+                    <View style={s.specs}>
+                      {Object.entries(c100Guide.contenido_por_pagina)
+                        .map(([k, v]) => [
+                          k.includes("_") ? k.replace("_", "–") : k,
+                          v,
+                        ])
+                        .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10))
+                        .map(([page, text]) => specRow("Pág. " + page, text))}
+                    </View>
+                    <Text style={s.sectionTitle}>Datos técnicos</Text>
+                    <View style={s.specs}>
+                      {specRow("Longitud de perfiles", "6.00 m")}
+                      {specRow("Aleación", "6063-T5")}
+                      {specRow(
+                        "Acabados",
+                        "Gris titanium, Negro anodizado, Madera texturizada",
+                      )}
+                      {specRow("Unidades", "Milímetros")}
+                    </View>
+                    <Text style={s.sectionTitle}>Calculadora de cortes</Text>
+                    <Text style={s.subtitle}>
+                      Solo para C-100 MID de 2 hojas corredizas con mosquitero,
+                      según la tabla de descuentos de la guía (pág. 8). L =
+                      ancho total, H = alto total.
+                    </Text>
+                    {field("calcL", "Ancho total L (mm)", { decimal: true })}
+                    {field("calcH", "Alto total H (mm)", { decimal: true })}
+                    {!!calcError && <Text style={s.notice}>{calcError}</Text>}
+                    {calc && (
+                      <View style={s.specs}>
+                        {calc.cortes.map((c) =>
+                          specRow(
+                            c.clave + " · " + c.descripcion,
+                            (c.medida != null
+                              ? c.medida + " mm (" + c.regla + ")"
+                              : c.regla) +
+                              (c.cantidad ? " × " + c.cantidad : "") +
+                              (c.corte ? " · corte " + c.corte : ""),
+                          ),
+                        )}
+                        {specRow(
+                          "Vidrio LF × HF",
+                          calc.vidrio.LF +
+                            " × " +
+                            calc.vidrio.HF +
+                            " mm (LF = L/2 − 138, HF = H − 212)",
+                        )}
+                      </View>
+                    )}
+                    <Text style={s.notice}>
+                      Verifica medidas en obra.{" "}
+                      {c100Guide.formulas_y_datos_expresos.advertencias} Las
+                      gráficas de dimensionamiento de la guía (viento de 90,
+                      120, 160 y 200 km/h, deflexión máxima H/75) no son una
+                      certificación estructural.
+                    </Text>
+                    <Text style={s.sectionTitle}>Herramientas de armado</Text>
+                    <Text style={s.body}>
+                      {c100Guide.herramientas_mencionadas.join(" · ")}
+                    </Text>
+                    <Text style={s.subtitle}>
+                      Las herramientas forman parte de la guía; no son productos
+                      del inventario.
+                    </Text>
+                  </>
+                )}
+              </View>
+            );
+          })()}
         {screen === "validacion" && (
           <View>
             {heading(
@@ -1323,7 +1555,8 @@ export default function BusinessApp({
               {company &&
                 reviewNotes(data.product).map((note, i) => (
                   <Text key={"rev" + i} style={s.notice}>
-                    Requiere validación: {note.detalle}
+                    {VALIDATION_LABELS[note.tipo] ?? "Requiere validación"}:{" "}
+                    {note.detalle}
                   </Text>
                 ))}
               {!!data.product.description && (
@@ -1334,8 +1567,24 @@ export default function BusinessApp({
                   specRow("Categoría", group),
                   specRow("Subcategoría", subcategory),
                 ])(classify(data.product, categoryNameOf(data.product)))}
-                {specRow("Unidad", data.product.unit)}
-                {/^barra/i.test(data.product.unit) &&
+                {!!catalogInfo(data.product.code)?.familia &&
+                  specRow("Familia", catalogInfo(data.product.code).familia)}
+                {!!catalogInfo(data.product.code)?.sistemas.length &&
+                  specRow(
+                    "Sistemas",
+                    catalogInfo(data.product.code).sistemas.join(", "),
+                  )}
+                {specRow(
+                  "Unidad",
+                  data.product.unit +
+                    (catalogInfo(data.product.code)?.unidad_fuente
+                      ? " (fuente: " +
+                        catalogInfo(data.product.code).unidad_fuente +
+                        ")"
+                      : ""),
+                )}
+                {(/^barra/i.test(data.product.unit) ||
+                  /^por confirmar/i.test(data.product.unit)) &&
                   specRow(
                     "Longitud",
                     data.product.length_mm
@@ -1351,6 +1600,22 @@ export default function BusinessApp({
                   "Acabados",
                   finishesOf(data.product).join(", ") || "Por confirmar",
                 )}
+                {!!catalogInfo(data.product.code) &&
+                  specRow(
+                    "Validación",
+                    VALIDATION_LABELS[catalogInfo(data.product.code).estado] ??
+                      catalogInfo(data.product.code).estado,
+                  )}
+                {company &&
+                  !!catalogInfo(data.product.code) &&
+                  specRow(
+                    "Fuente",
+                    catalogInfo(data.product.code)
+                      .fuentes.map(
+                        (f) => f.archivo + ", pág. " + f.paginas_pdf.join(", "),
+                      )
+                      .join(" · "),
+                  )}
               </View>
               {finishesOf(data.product).length > 1 && (
                 <>
@@ -3003,6 +3268,8 @@ const s = StyleSheet.create({
     letterSpacing: 0.3,
     textTransform: "uppercase",
   },
+  cardDims: { color: "#405e77", fontSize: 12, marginTop: 1 },
+  systemCard: { marginVertical: 4 },
   pricePending: { color: "#8a5a00" },
   favorite: {
     position: "absolute",

@@ -76,7 +76,7 @@ test("La importación es idempotente, conserva registros existentes y reconoce e
   const existente = {
     id: 1,
     category_id: 7,
-    code: "9204",
+    code: "92046",
     name: "Cerco registrado por la empresa",
     price: "350.00",
   };
@@ -86,20 +86,21 @@ test("La importación es idempotente, conserva registros existentes y reconoce e
   });
   const simulacion = await importCatalog(pool, data.productos);
   assert.equal(state.products.length, 1, "La simulación no escribe");
-  assert.equal(simulacion.created.length, 36);
+  assert.equal(simulacion.created.length, 123);
+  assert.equal(simulacion.withoutCode.length, 1);
   assert.deepEqual(simulacion.existing, [
-    { code: "92046", registeredAs: "9204", id: "1" },
+    { code: "9204", registeredAs: "92046", id: "1" },
   ]);
 
   const primera = await importCatalog(pool, data.productos, { apply: true });
-  assert.equal(primera.created.length, 36);
-  assert.equal(state.products.length, 37);
+  assert.equal(primera.created.length, 123);
+  assert.equal(state.products.length, 124);
   assert.deepEqual(
     state.products[0],
     existente,
     "El registro previo no cambia",
   );
-  assert.equal(state.products.filter((p) => p.code === "92046").length, 0);
+  assert.equal(state.products.filter((p) => p.code === "9204").length, 0);
   const tubo = state.products.find((p) => p.code === "2488");
   assert.equal(tubo.price, "0.00");
   assert.equal(tubo.unit, "Barra de 6 m");
@@ -107,7 +108,7 @@ test("La importación es idempotente, conserva registros existentes y reconoce e
   assert.equal(tubo.finish, "Natural, Blanco, Negro");
   assert.equal(tubo.image_url, null);
   const pasamanos = state.products.find((p) => p.code === "53883");
-  assert.equal(pasamanos.unit, "Barra");
+  assert.equal(pasamanos.unit, "Por confirmar");
   assert.equal(pasamanos.length_mm, null);
   assert.equal(pasamanos.finish, "Por confirmar");
   assert.equal(
@@ -122,8 +123,8 @@ test("La importación es idempotente, conserva registros existentes y reconoce e
 
   const segunda = await importCatalog(pool, data.productos, { apply: true });
   assert.equal(segunda.created.length, 0);
-  assert.equal(segunda.existing.length, 37);
-  assert.equal(state.products.length, 37);
+  assert.equal(segunda.existing.length, 124);
+  assert.equal(state.products.length, 124);
   assert.equal(state.rollbacks, 0);
 });
 
