@@ -17,6 +17,7 @@ import { createClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
 import { createDemoClient } from "./demoClient";
+import "./dialogs";
 
 // Modo demostración: solo con EXPO_PUBLIC_DEMO=1 en el .env de la app.
 // Usa datos de ejemplo en memoria y no se conecta a la API.
@@ -318,7 +319,8 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 48,
     width: "100%",
-    maxWidth: 600,
+    // En el navegador de la PC se limita al ancho de un teléfono.
+    maxWidth: Platform.OS === "web" ? 430 : 600,
     alignSelf: "center",
     gap: 14,
   },

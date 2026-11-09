@@ -20,6 +20,21 @@ El propietario necesita ver las dos apps en su teléfono para revisar el diseño
 2. Ejecutar `./iniciar.ps1 -Accion cliente` (o `empresa`) y escanear el código QR con Expo Go, con el teléfono y la computadora en la misma red Wi-Fi.
 3. En la pantalla de acceso, escribir cualquier correo y contraseña.
 
+## Vista en el navegador de la PC
+
+Para programar viendo la app en la computadora, sin teléfono:
+
+1. Solo la primera vez: `./iniciar.ps1 -Accion preparar-web`. Instala `react-dom`, `react-native-web` y `@expo/metro-runtime` con `expo install`, que elige las versiones compatibles con el SDK 58, y actualiza los `package.json` y el `package-lock.json`. Hay que subir esos archivos a Git.
+2. `./iniciar.ps1 -Accion cliente-web` o `./iniciar.ps1 -Accion empresa-web`. Se abre el navegador y la app se recarga al guardar cambios en el código.
+
+Archivos para web (Metro usa los `.web.js` solo en el navegador; en Android e iOS no cambia nada):
+- `storage.web.js`: la sesión se guarda solo en memoria, nunca en localStorage.
+- `push.web.js`: las notificaciones del teléfono responden «no disponible».
+- `dialogs.web.js`: `Alert.alert` de react-native-web no muestra nada, así que se sustituye por los diálogos del navegador para que funcionen las confirmaciones (cotizar, aceptar, pagos, etc.). `dialogs.js` queda vacío para Android e iOS.
+- `App.js`: en el navegador limita el ancho a 430 px, como un teléfono.
+
+Sin `EXPO_PUBLIC_DEMO=1`, la vista web intenta conectar con `EXPO_PUBLIC_API_URL`, con las mismas reglas HTTPS de siempre.
+
 ## Límites
 
 - Los datos viven en memoria. Se reinician al recargar la app y no se comparten entre Cliente y Empresa, porque son apps separadas.
@@ -32,4 +47,5 @@ El propietario necesita ver las dos apps en su teléfono para revisar el diseño
 - `node --test tests/javascript/demo-client.test.js`: 2 de 2 correctas.
 - `npm test` en un entorno sin dependencias instaladas: 19 de 22 correctas. Las 3 que fallan (`business-ui`, `sqlserver` y `syntax`) no encuentran módulos que no están instalados y fallaban igual antes de este cambio. Falta correrlas con `npm ci` en la computadora del proyecto.
 - Revisión de sintaxis JSX de `App.js` y `demoClient.js` con el compilador de TypeScript: sin errores.
-- No se probó todavía en un teléfono físico desde este entorno.
+- No se probó todavía en un teléfono físico ni en el navegador desde este entorno, porque aquí no se pueden instalar las dependencias de Expo.
+- La lectura de códigos con cámara depende del soporte de `expo-camera` en el navegador; se revisa en el teléfono.

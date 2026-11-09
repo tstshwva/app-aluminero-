@@ -50,6 +50,8 @@ Cada app necesita su propio proceso de Metro. En otra computadora con Node.js co
 
 Escribe `EXPO_PUBLIC_DEMO=1` en `apps/cliente/.env` y en `apps/empresa/.env`. Ejecuta `./iniciar.ps1 -Accion cliente` o `empresa` y abre el código QR con Expo Go. En la pantalla de acceso sirve cualquier correo y contraseña. La app usa datos de ejemplo en memoria y muestra un aviso de «Modo demostración». Para uso real deja la variable vacía; `npm run config:check` lo comprueba. Detalles en docs/registro-19-modo-demostracion.md.
 
+**En el navegador de la PC:** ejecuta `./iniciar.ps1 -Accion preparar-web` una sola vez. Después usa `./iniciar.ps1 -Accion cliente-web` o `empresa-web`. La app se abre en el navegador con ancho de teléfono y se recarga al guardar.
+
 ## Base de datos
 
 **La API nueva exige esquema versión 4.** La base local real todavía no se migró durante este avance: falta ejecutar la migración con acceso autorizado a MySQL. No ejecutar 001_schema.sql sobre una base existente.

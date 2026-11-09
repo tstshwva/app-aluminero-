@@ -12,6 +12,8 @@
     "test": "node --test tests/javascript/*.test.js",
     "cliente": "npm run start --workspace=@aluformix/cliente",
     "empresa": "npm run start --workspace=@aluformix/empresa",
+    "cliente:web": "npm run web --workspace=@aluformix/cliente",
+    "empresa:web": "npm run web --workspace=@aluformix/empresa",
     "config:check": "node scripts/revisar-configuracion.js"
   },
   "devDependencies": {
