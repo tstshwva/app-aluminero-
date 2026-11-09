@@ -67,9 +67,9 @@ const iconos = {
   bell: linea(
     `<path d="M6.2 16.8V11a5.8 5.8 0 0 1 11.6 0v5.8l1.5 1.6H4.7Z"/><path d="M10.1 20.6a2 2 0 0 0 3.8 0"/>`,
   ),
-  // Lector de códigos: marco de escaneo con línea central.
+  // Cámara (lector de códigos).
   camera: linea(
-    `<path d="M4 8.2V6.1C4 5 5 4 6.1 4h2.1M15.8 4h2.1C19 4 20 5 20 6.1v2.1M20 15.8v2.1c0 1.1-1 2.1-2.1 2.1h-2.1M8.2 20H6.1C5 20 4 19 4 17.9v-2.1"/><path d="M7.5 12h9"/>`,
+    `<path d="M4.6 7.6h3l1.5-2.2c.2-.3.6-.5 1-.5h3.8c.4 0 .8.2 1 .5l1.5 2.2h3c1 0 1.8.8 1.8 1.8v8.7c0 1-.8 1.8-1.8 1.8H4.6c-1 0-1.8-.8-1.8-1.8V9.4c0-1 .8-1.8 1.8-1.8Z"/><circle cx="12" cy="13.3" r="3.4"/>`,
   ),
 };
 
