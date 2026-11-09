@@ -16,7 +16,12 @@ test("IA requiere configuración externa y no entrega secretos al cliente", asyn
         json: async () => ({
           candidates: [
             {
-              content: { parts: [{ text: "Revisa el perfil del catálogo." }] },
+              content: {
+                parts: [
+                  { text: "Procesamiento interno", thought: true },
+                  { text: "Revisa el perfil del catálogo." },
+                ],
+              },
             },
           ],
         }),

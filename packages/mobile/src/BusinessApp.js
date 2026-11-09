@@ -1238,6 +1238,7 @@ export default function BusinessApp({
       {screen === "camara" && (
         <Scanner
           onClose={() => go("inicio")}
+          onManual={() => go("catalogo")}
           onScan={(value) => {
             setSearch(value);
             setCategory("");

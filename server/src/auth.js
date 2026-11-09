@@ -13,7 +13,12 @@ import {
   tokenHash,
   validToken,
 } from "./crypto.js";
-import { rows, transaction } from "./database.js";
+import {
+  acquireAppLock,
+  releaseAppLock,
+  rows,
+  transaction,
+} from "./database.js";
 const accessError = () =>
   new ApiError(
     401,
@@ -68,6 +73,32 @@ export class AuthService {
       };
     };
     return existing ? action(existing) : transaction(this.pool, action);
+  }
+  async createFirstAdmin(body) {
+    const db = await this.pool.getConnection();
+    let locked = false;
+    try {
+      locked = await acquireAppLock(db, "aluformix_first_admin", 5);
+      if (!locked) throw new ApiError(409, "Inténtalo nuevamente.");
+      const [count] = await rows(
+        db,
+        "SELECT COUNT(*) AS total FROM users WHERE role_id=1",
+      );
+      if (Number(count.total) !== 0)
+        throw new ApiError(409, "Ya existe administrador.");
+      await db.beginTransaction();
+      try {
+        const user = await this.create(body, 1, db);
+        await db.commit();
+        return user;
+      } catch (error) {
+        await db.rollback();
+        throw error;
+      }
+    } finally {
+      if (locked) await releaseAppLock(db, "aluformix_first_admin");
+      await db.release();
+    }
   }
   async login(body) {
     const address = email(body.email);

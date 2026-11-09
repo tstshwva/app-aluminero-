@@ -1,9 +1,14 @@
-import React, { useRef } from "react";
-import { Pressable, Text, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Linking, Pressable, Text, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-export default function Scanner({ onScan, onClose }) {
+export default function Scanner({ onScan, onClose, onManual }) {
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
+  const [message, setMessage] = useState("");
+  const openSettings = () =>
+    Linking.openSettings().catch(() =>
+      setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
+    );
   const button = (label, action) => (
     <Pressable
       onPress={action}
@@ -35,8 +40,13 @@ export default function Scanner({ onScan, onClose }) {
             Necesitamos permiso de cámara. También puedes buscar el código
             manualmente.
           </Text>
-          {permission.canAskAgain &&
-            button("Permitir cámara", requestPermission)}
+          {permission.canAskAgain
+            ? button("Permitir cámara", () =>
+                requestPermission().catch(() =>
+                  setMessage("No se pudo solicitar el permiso de cámara."),
+                ),
+              )
+            : button("Abrir ajustes de cámara", openSettings)}
         </View>
       ) : (
         <CameraView
@@ -54,13 +64,24 @@ export default function Scanner({ onScan, onClose }) {
             ],
           }}
           onBarcodeScanned={({ data }) => {
+            const code = typeof data === "string" ? data.trim() : "";
+            if (
+              !code ||
+              code.length > 40 ||
+              /[\u0000-\u001f\u007f]/.test(code)
+            ) {
+              setMessage("Enfoca un código de catálogo válido.");
+              return;
+            }
             if (!scanned.current) {
               scanned.current = true;
-              onScan(String(data).slice(0, 150));
+              onScan(code);
             }
           }}
         />
       )}
+      {!!message && <Text accessibilityLiveRegion="polite">{message}</Text>}
+      {button("Buscar manualmente", onManual)}
       {button("Volver sin escanear", onClose)}
     </View>
   );
