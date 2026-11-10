@@ -6,6 +6,7 @@ import http from "node:http";
 import { readFileSync } from "node:fs";
 import { createDatabase, rows } from "../../server/src/database.js";
 import { createApp } from "../../server/src/app.js";
+import { createClient } from "../../packages/client/src/index.js";
 import { token, tokenHash } from "../../server/src/crypto.js";
 import { pbkdf2Sync, randomBytes } from "node:crypto";
 const pool = createDatabase();
@@ -77,6 +78,33 @@ async function request(
 }
 const post = (route, body, session, headers) =>
   request(route, { method: "POST", body, session, headers });
+
+function testAppSession() {
+  let savedToken = null;
+  const storage = {
+    get: async () => savedToken,
+    save: async (token) => {
+      savedToken = token;
+    },
+    clear: async () => {
+      savedToken = null;
+    },
+  };
+  const open = () =>
+    createClient({
+      baseUrl: origin + "/",
+      storage,
+      fetchImpl: async (url, { method, body, headers }) => {
+        const result = await request(url, { method, body, headers });
+        return {
+          ok: result.status >= 200 && result.status < 300,
+          status: result.status,
+          json: async () => result.body,
+        };
+      },
+    });
+  return { open, storage };
+}
 const password = "Integration-" + token(),
   buyerEmail = "buyer@integration.invalid";
 try {
@@ -147,12 +175,19 @@ try {
     ).status === 409,
     "No repite el primer administrador",
   );
-  const adminToken = (
-    await post("/api/auth/login", {
-      email: "admin@integration.invalid",
-      password,
-    })
-  ).body.accessToken;
+  const companySession = testAppSession();
+  const adminUser = await companySession
+    .open()
+    .login("admin@integration.invalid", password, "empresa");
+  check(
+    adminUser.role === "Administrador",
+    "La app Empresa inicia sesión con un administrador real de prueba",
+  );
+  check(
+    (await companySession.open().current("empresa")).id === adminUser.id,
+    "Empresa recupera la sesión con otra instancia del cliente",
+  );
+  const adminToken = await companySession.storage.get();
   check(
     (await request("/health/db", { session: adminToken })).body
       .schemaVersion === 4,
@@ -228,13 +263,19 @@ try {
     ).status === 401,
     "Contraseña incorrecta rechazada",
   );
-  let session = (
-    await post("/api/auth/login", {
-      email: " BUYER@integration.invalid ",
-      password,
-    })
-  ).body.accessToken;
-  check(Boolean(session), "Login normaliza correo");
+  const buyerSession = testAppSession();
+  const buyerUser = await buyerSession
+    .open()
+    .login(" BUYER@integration.invalid ", password, "cliente");
+  let session = await buyerSession.storage.get();
+  check(
+    buyerUser.id === registration.body.id && Boolean(session),
+    "La app Cliente inicia sesión y la API normaliza el correo",
+  );
+  check(
+    (await buyerSession.open().current("cliente")).id === buyerUser.id,
+    "Cliente recupera la sesión con otra instancia del cliente",
+  );
   check(
     (await request("/api/auth/me", { session })).body.id ===
       registration.body.id,
@@ -452,6 +493,11 @@ try {
   check(
     (await request("/api/auth/me", { session })).status === 401,
     "Recuperación revoca sesión existente",
+  );
+  check(
+    (await buyerSession.open().current("cliente")) === null &&
+      (await buyerSession.storage.get()) === null,
+    "Cliente borra su sesión guardada después de que la API la revoca",
   );
   session = (
     await post("/api/auth/login", {
