@@ -72,7 +72,7 @@ test("Pantallas del comprador conectan catÃ¡logo, carrito, solicitud y aceptaciÃ
     code: "P-10",
     name: "Perfil de prueba UI",
     unit: "barra",
-    finish: "Natural",
+    finish: "Natural, Negro",
     price: "400.00",
     length_mm: 6000,
     active: 1,
@@ -93,6 +93,8 @@ test("Pantallas del comprador conectan catÃ¡logo, carrito, solicitud y aceptaciÃ
         product_code: product.code,
         product_name: product.name,
         quantity: "1.000",
+        finish: "Negro",
+        cut_length_mm: 1255,
         unit_price: "400.00",
       },
     ],
@@ -185,6 +187,7 @@ test("Pantallas del comprador conectan catÃ¡logo, carrito, solicitud y aceptaciÃ
     (e) => e.field === "cutLengthMm" && /6 m/.test(e.message),
   );
   await act(async () => lengthInput("cm").props.onChangeText("125,5"));
+  await press("Negro");
   await press("Longitud del corte (opcional) en m");
   assert.equal(lengthInput("m").props.value, "1.255");
   await press("Agregar al encargo");
@@ -200,6 +203,7 @@ test("Pantallas del comprador conectan catÃ¡logo, carrito, solicitud y aceptaciÃ
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
   assert.equal(calls[0].items[0].cutLengthMm, 1255);
+  assert.equal(calls[0].items[0].finish, "Negro");
   assert.match(calls[0].requestKey, /^[a-f0-9-]{36}$/i);
   await press("Ver seguimiento");
   await press("Ver cotizaciÃ³n");
@@ -210,6 +214,17 @@ test("Pantallas del comprador conectan catÃ¡logo, carrito, solicitud y aceptaciÃ
       (n) => n.type === "Text" && n.children.join("") === "Confirmado",
     ).length,
   );
+  await press("Repetir como nuevo encargo");
+  await press("Revisar solicitud");
+  assert.ok(
+    renderer.root.findAll(
+      (n) => n.type === "Text" && n.children.join("") === "Negro Â· 1.255 m",
+    ).length,
+  );
+  await press("Enviar solicitud");
+  assert.equal(calls[2].items[0].finish, "Negro");
+  assert.equal(calls[2].items[0].cutLengthMm, 1255);
+  assert.notEqual(calls[2].requestKey, calls[0].requestKey);
   await act(async () => renderer.unmount());
 });
 test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve creaciÃ³n de personal", async () => {

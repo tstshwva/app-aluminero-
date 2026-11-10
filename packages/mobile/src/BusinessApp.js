@@ -616,8 +616,14 @@ export default function BusinessApp({
   }
   async function checkoutScreen() {
     if (!cart.length) throw new Error("Agrega al menos un material.");
-    for (const item of cart)
+    for (const item of cart) {
       orderQuantity(item.quantity, "quantity-" + item.productId);
+      const options = finishesOf(item.product);
+      if (options.length > 1 && !options.includes(item.finish))
+        throw new Error(
+          "Edita " + item.product.name + " y selecciona un acabado disponible.",
+        );
+    }
     const settings = await client.company();
     setData({
       company: settings,
@@ -2110,7 +2116,7 @@ export default function BusinessApp({
                         {i.quantity} × {i.product.name}
                       </Text>
                       <Text style={s.subtitle}>
-                        {i.product.finish}
+                        {i.finish ?? i.product.finish}
                         {i.cutLengthMm
                           ? " · " + displayLength(i.cutLengthMm)
                           : ""}
@@ -2526,6 +2532,9 @@ export default function BusinessApp({
                       productId: String(p.id),
                       quantity: i.quantity,
                       cutLengthMm: i.cut_length_mm,
+                      finish: finishesOf(p).includes(i.finish)
+                        ? i.finish
+                        : null,
                       product: p,
                     });
                   }
