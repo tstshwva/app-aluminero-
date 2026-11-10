@@ -130,6 +130,7 @@ test("Imágenes: cada render existe y el manifiesto cubre todos los registros", 
     (i) => i.tipo !== "ilustracion_de_sistema",
   );
   assert.equal(deProductos.length, 125);
+  assert.equal(manifest.resumen.pendiente ?? 0, 0);
   const rutas = new Set();
   for (const item of deProductos) {
     assert.ok(
@@ -142,8 +143,9 @@ test("Imágenes: cada render existe y el manifiesto cubre todos los registros", 
       continue;
     }
     await access(item.ruta);
+    const key = item.codigo ?? item.ruta.split("/catalogo/")[1];
     assert.ok(
-      mapa.includes(`"${item.codigo}": { source: require("../assets/catalogo/`),
+      mapa.includes(`"${key}": { source: require("../assets/catalogo/`),
     );
     rutas.add(item.ruta);
   }

@@ -881,10 +881,38 @@ const SISTEMAS_TIPO = {
   "Puerta y ventana fija 3000": "fija",
 };
 
+function materialSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#f4f8fd"/><stop offset="1" stop-color="#dfebf6"/></linearGradient></defs>
+<rect width="${W}" height="${H}" fill="url(#bg)"/>
+<ellipse cx="600" cy="671" rx="262" ry="24" fill="#183c61" opacity=".10"/>
+<path d="M600 208 820 322 600 437 380 322Z" fill="#c4e0f6" stroke="#285e8a" stroke-width="14" stroke-linejoin="round"/>
+<path d="M380 322 600 437 600 653 380 531Z" fill="#93bfe0" stroke="#285e8a" stroke-width="14" stroke-linejoin="round"/>
+<path d="M600 437 820 322 820 531 600 653Z" fill="#6ea1ca" stroke="#285e8a" stroke-width="14" stroke-linejoin="round"/>
+<path d="M487 267 709 382 709 454" fill="none" stroke="#eaf5ff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+}
+
 // ---------- Genéricas (solo para productos fuera del catálogo maestro) ----------
 const GENERICA =
   "Imagen genérica según el tipo de producto; no corresponde a un modelo específico.";
 const GENERICAS = {
+  calza: {
+    cuerpos: [
+      { outer: rect(0, 0, 70, 34), holes: [], z0: 0, z1: 5, mat: "nylon" },
+    ],
+  },
+  solera: { piezas: [solid(rect(0, 0, 45, 4))] },
+  empaque: {
+    piezas: [ring(12, 2)],
+    opciones: {
+      largo: 0.8,
+      color: [68, 76, 85],
+      corte:
+        '<stop offset="0" stop-color="#59646e"/><stop offset="1" stop-color="#26323d"/>',
+    },
+  },
+  material: { svg: materialSvg() },
   angulo: { piezas: [angle(25.4, 25.4, 1.6)] },
   "tubo-cuadrado": { piezas: [box(0, 0, 30, 30, 1.4)] },
   "tubo-rectangular": { piezas: [box(0, 0, 60, 30, 1.5)] },
@@ -970,7 +998,14 @@ let bytes = 0;
 const lineas = [],
   manifiesto = [];
 for (const p of data.productos) {
-  const s = p.codigo ? (SECCIONES[p.codigo] ?? PIEZAS[p.codigo]) : null;
+  const s = p.codigo
+    ? (SECCIONES[p.codigo] ?? PIEZAS[p.codigo])
+    : p.nombre === "Calza de neopreno"
+      ? {
+          ...GENERICAS.calza,
+          nota: "Ilustración de una calza de neopreno; proporciones orientativas. Código comercial pendiente de confirmar.",
+        }
+      : null;
   const fuente = p.fuentes
     .map((f) => `${f.archivo} pág. ${f.paginas_pdf.join(", ")}`)
     .join("; ");
@@ -982,7 +1017,7 @@ for (const p of data.productos) {
       )
     ).size;
     lineas.push(
-      `  ${JSON.stringify(p.codigo)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,
+      `  ${JSON.stringify(p.codigo ?? p.imagen)}: { source: require("../assets/catalogo/${p.imagen}"), illustrative: true, note: ${JSON.stringify(s.nota)} },`,
     );
   }
   manifiesto.push({
@@ -1025,12 +1060,13 @@ const genericas = [];
 for (const [tipo, g] of Object.entries(GENERICAS)) {
   bytes += (
     await webp(
-      render(g.piezas, g.opciones),
+      g.svg ??
+        (g.cuerpos ? renderPieza(g.cuerpos) : render(g.piezas, g.opciones)),
       path.join(assets, "genericas", tipo + ".webp"),
     )
   ).size;
   genericas.push(
-    `  ${JSON.stringify(tipo)}: { source: require("../assets/catalogo/genericas/${tipo}.webp"), illustrative: true, generic: true, note: ${JSON.stringify(GENERICA)} },`,
+    `  ${JSON.stringify(tipo)}: { source: require("../assets/catalogo/genericas/${tipo}.webp"), illustrative: true, generic: true, note: ${JSON.stringify(tipo === "material" ? "Ilustración de categoría. Pide una foto a la distribuidora para confirmar la forma del producto." : GENERICA)} },`,
   );
 }
 await writeFile(

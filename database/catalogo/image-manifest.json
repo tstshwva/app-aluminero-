@@ -2,8 +2,7 @@
   "generado_por": "scripts/catalogo/generar-imagenes.js",
   "aviso": "Renders e ilustraciones generados por código; no son fotografías ni reproducciones del arte del proveedor. Estado 'validada' solo tras revisión del cliente.",
   "resumen": {
-    "ilustrativa": 132,
-    "pendiente": 1
+    "ilustrativa": 133
   },
   "imagenes": [
     {
@@ -1059,12 +1058,12 @@
     {
       "codigo": null,
       "nombre": "Calza de neopreno",
-      "ruta": null,
+      "ruta": "packages/mobile/assets/catalogo/accesorios/sin-codigo-106-calza-neopreno.webp",
       "ruta_prevista": "packages/mobile/assets/catalogo/accesorios/sin-codigo-106-calza-neopreno.webp",
-      "tipo": "pendiente",
+      "tipo": "render_3d_generado_por_codigo",
       "fuente_tecnica": "SerieC-100MID15Dec.pdf pág. 6",
-      "estado": "pendiente",
-      "nota": "Pieza no extruida: requiere render o fotografía de la pieza real."
+      "estado": "ilustrativa",
+      "nota": "Ilustración de una calza de neopreno; proporciones orientativas. Código comercial pendiente de confirmar."
     },
     {
       "codigo": "FN-110",

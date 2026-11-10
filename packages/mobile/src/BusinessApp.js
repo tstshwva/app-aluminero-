@@ -151,7 +151,7 @@ function bundledImageOf(p) {
   if (own) return own;
   // Un producto del catálogo maestro nunca recibe una imagen genérica.
   if (catalogInfo(p.code)) return null;
-  return genericImages[genericTypeOf(p.name)] ?? null;
+  return genericImages[genericTypeOf(p.name)] ?? genericImages.material ?? null;
 }
 const emptyFilter = {
   group: "",
@@ -408,7 +408,7 @@ export default function BusinessApp({
               .map((p, i) => ({
                 p,
                 i,
-                img: p.image_url || catalogImages[String(p.code)] ? 0 : 1,
+                img: p.image_url || bundledImageOf(p) ? 0 : 1,
               }))
               .sort((a, b) => a.img - b.img || a.i - b.i)
               .slice(0, 4)
@@ -1513,6 +1513,14 @@ export default function BusinessApp({
                   if (product) return productRow(product);
                   return (
                     <View key={"comp" + i} style={s.menuRow}>
+                      {catalogImages[c.codigo ?? c.imagen] && (
+                        <Image
+                          accessibilityLabel={"Ilustración de " + c.nombre}
+                          source={catalogImages[c.codigo ?? c.imagen].source}
+                          resizeMode="contain"
+                          style={s.componentImage}
+                        />
+                      )}
                       <View style={s.grow}>
                         <Text style={s.name}>{c.nombre}</Text>
                         <Text style={s.subtitle}>
@@ -3635,6 +3643,7 @@ const baseStyles = {
     borderColor: "#e6edf4",
   },
   imageWide: { maxHeight: 460 },
+  componentImage: { width: 64, height: 48, borderRadius: 6, marginRight: 10 },
   imageFrame: { overflow: "hidden", backgroundColor: "#ffffff" },
   imageFill: {
     position: "absolute",

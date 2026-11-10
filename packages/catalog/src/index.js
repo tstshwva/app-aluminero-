@@ -269,6 +269,9 @@ export function subcategoriesFor(group, products, categoryNameOf = () => "") {
 // Tipo genérico de imagen para productos sin imagen propia, según su nombre.
 // El orden importa: las reglas más específicas van primero.
 const GENERIC_RULES = [
+  ["calza", /\b(calza|separador).*\b(neopreno|vidrio)|\bneopreno/],
+  ["solera", /\b(solera|pletina)/],
+  ["empaque", /\b(empaque|junta de goma|burlete)/],
   ["vidrio", /\b(vidrio|cristal|espejo)/],
   ["rueda", /\b(rueda|carretilla|rodaja|balero)/],
   ["chapa", /\b(chapa|cerradura|jaladera|manija|pasador)/],

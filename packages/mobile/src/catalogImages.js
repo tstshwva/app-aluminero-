@@ -107,6 +107,7 @@ export const catalogImages = {
   "74206": { source: require("../assets/catalogo/perfiles/74206-oxxo-central.webp"), illustrative: true, note: "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos." },
   "72013": { source: require("../assets/catalogo/perfiles/72013-refuerzo.webp"), illustrative: true, note: "Silueta simplificada a partir del plano de origen; detalles finos (dentados, radios y ranuras menores) omitidos." },
   "GN-608": { source: require("../assets/catalogo/herrajes/GN-608-escuadra-alineacion.webp"), illustrative: true, note: "Pieza plana representada según el dibujo del manual; sin cotas en la fuente, proporciones ilustrativas." },
+  "accesorios/sin-codigo-106-calza-neopreno.webp": { source: require("../assets/catalogo/accesorios/sin-codigo-106-calza-neopreno.webp"), illustrative: true, note: "Ilustración de una calza de neopreno; proporciones orientativas. Código comercial pendiente de confirmar." },
   "FN-110": { source: require("../assets/catalogo/accesorios/FN-110-felpa-plastico.webp"), illustrative: true, note: "Representación ilustrativa según el dibujo del manual; el material y las medidas exactas no están acotados." },
   "F-306E": { source: require("../assets/catalogo/herrajes/F-306E-cierre-embutido-s-t.webp"), illustrative: true, note: "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6); no reproduce el mecanismo interno ni medidas exactas." },
   "GYC-100MID": { source: require("../assets/catalogo/herrajes/GYC-100MID-contra-gancho.webp"), illustrative: true, note: "Representación ilustrativa de la pieza a partir del dibujo del manual (pág. 6, 15, 16); no reproduce el mecanismo interno ni medidas exactas." },
@@ -140,6 +141,10 @@ export const systemImages = {
 };
 // Solo para productos que no pertenecen al catálogo maestro.
 export const genericImages = {
+  "calza": { source: require("../assets/catalogo/genericas/calza.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "solera": { source: require("../assets/catalogo/genericas/solera.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "empaque": { source: require("../assets/catalogo/genericas/empaque.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
+  "material": { source: require("../assets/catalogo/genericas/material.webp"), illustrative: true, generic: true, note: "Ilustración de categoría. Pide una foto a la distribuidora para confirmar la forma del producto." },
   "angulo": { source: require("../assets/catalogo/genericas/angulo.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
   "tubo-cuadrado": { source: require("../assets/catalogo/genericas/tubo-cuadrado.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
   "tubo-rectangular": { source: require("../assets/catalogo/genericas/tubo-rectangular.webp"), illustrative: true, generic: true, note: "Imagen genérica según el tipo de producto; no corresponde a un modelo específico." },
