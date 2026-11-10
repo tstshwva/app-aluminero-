@@ -11,3 +11,7 @@ La vista de demostración respondía como si hubiera creado una cuenta de compra
 - La aplicación real mantiene el guardado en SQL Server. La vista web local se usa para demostración y el APK real puede conectarse por USB a la API HTTPS de la computadora.
 
 Pasaron 40 pruebas de código y 134 comprobaciones de integración HTTPS con SQL Server. Las comprobaciones crearon sus cuentas exclusivamente en una base aislada.
+
+## APK actualizados
+
+La revisión previa a publicar detectó que Gradle reutilizaba el bundle al cambiar únicamente el código compartido. El generador ahora ejecuta nuevamente la tarea del bundle en cada compilación firmada. Se verificaron en ambos APK la corrección de registro, el modo oscuro, la URL HTTPS local y la firma.

@@ -130,7 +130,8 @@ if (project.hasProperty("aluformixNativeDir")) {
             }
             Push-Location android
             try {
-                & .\gradlew.bat :app:assembleRelease --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64' "-PaluformixNativeDir=$nativeDir"
+                # Fuerza el bundle porque incluye código compartido fuera del directorio de la app.
+                & .\gradlew.bat :app:createBundleReleaseJsAndAssets --rerun :app:assembleRelease --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64' "-PaluformixNativeDir=$nativeDir"
                 Confirmar-Codigo "Compilación de $app"
                 $source = (Resolve-Path 'app/build/outputs/apk/release/app-release.apk').Path
             } finally { Pop-Location }
