@@ -1009,7 +1009,7 @@ export function businessRoutes(
       const question = text(req.body.question, 1000);
       if (!question) fail("Escribe una consulta de hasta 1000 caracteres.");
       if (!assistant)
-        fail("El asistente de IA todavía no está configurado.", 503);
+        fail("El asistente de materiales todavía no está disponible.", 503);
       const products = await rows(
         pool,
         "SELECT code,name,unit,finish,length_mm,stock-reserved AS available FROM products WHERE active=1 ORDER BY id LIMIT 50",

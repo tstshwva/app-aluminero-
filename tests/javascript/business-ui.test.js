@@ -14,6 +14,16 @@ async function component() {
   source = source
     .replace(/require\("\.\.\/assets\/[^"\n]+\.png"\)/g, "0")
     .replace(
+      'import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";',
+      "const FieldIssue=({message})=>message,Notice=({issue})=>issue?.message??null,validationStyles={invalid:{borderColor:'red'}},formError=(field,message)=>Object.assign(new Error(message),{field});",
+    )
+    .replace(
+      '"./measure.js"',
+      JSON.stringify(
+        pathToFileURL(path.resolve("packages/mobile/src/measure.js")).href,
+      ),
+    )
+    .replace(
       /from ['"]react['"];/,
       `from '${pathToFileURL(require.resolve("react")).href}';`,
     )
@@ -165,6 +175,18 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     "Catálogo",
   );
   await press("Ver P-10");
+  const lengthInput = (unit) =>
+    renderer.root.findByProps({
+      accessibilityLabel: "Longitud del corte (opcional) (" + unit + ")",
+    });
+  await act(async () => lengthInput("cm").props.onChangeText("601"));
+  await assert.rejects(
+    () => press("Agregar al encargo"),
+    (e) => e.field === "cutLengthMm" && /6 m/.test(e.message),
+  );
+  await act(async () => lengthInput("cm").props.onChangeText("125,5"));
+  await press("Longitud del corte (opcional) en m");
+  assert.equal(lengthInput("m").props.value, "1.255");
   await press("Agregar al encargo");
   await press("Aumentar Perfil de prueba UI");
   assert.ok(
@@ -177,6 +199,7 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
   await press("Enviar solicitud");
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
+  assert.equal(calls[0].items[0].cutLengthMm, 1255);
   assert.match(calls[0].requestKey, /^[a-f0-9-]{36}$/i);
   await press("Ver seguimiento");
   await press("Ver cotización");
@@ -419,8 +442,10 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   await press("Ver sistema C-100 MID");
   assert.ok(texts().includes("Guía de armado C-100 MID"));
   assert.ok(texts().includes("Calculadora de cortes"));
-  await type("Ancho total L (mm)", "2000");
-  await type("Alto total H (mm)", "1500");
+  await type("Ancho total L (cm)", "200");
+  await press("Alto total H en m");
+  await type("Alto total H (m)", "1,5");
+  await press("Calcular cortes");
   assert.ok(
     texts().some((t) => t.startsWith("862 × 1288 mm")),
     "Vidrio LF × HF según la tabla",

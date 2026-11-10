@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   AppState,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -21,6 +22,7 @@ import BusinessApp from "./BusinessApp";
 import { loadDarkMode, saveDarkMode } from "./preferences";
 import { createDemoClient } from "./demoClient";
 import "./dialogs";
+import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 
 // Modo demostración: solo con EXPO_PUBLIC_DEMO=1 en el .env de la app.
 // Usa datos de ejemplo en memoria y no se conecta a la API.
@@ -68,30 +70,39 @@ function AppContent({ audience }) {
   const [user, setUser] = useState(null),
     [mode, setMode] = useState("login"),
     [busy, setBusy] = useState(false),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [issue, setIssue] = useState(null);
   const [values, setValues] = useState({}),
     [show, setShow] = useState(false);
   const working = useRef(false),
     mounted = useRef(true);
-  const change = (name, value) =>
+  const change = (name, value) => {
     setValues((previous) => ({ ...previous, [name]: value }));
+    setIssue((previous) => (previous?.field === name ? null : previous));
+  };
   function switchMode(next) {
     setMode(next);
     setValues({});
     setShow(false);
     setMessage("");
+    setIssue(null);
   }
-  async function run(action) {
+  async function run(action, { resetFeedback = true } = {}) {
     if (working.current) return;
     working.current = true;
     setBusy(true);
-    setMessage("");
+    if (resetFeedback) {
+      setMessage("");
+      setIssue(null);
+    }
     try {
       await action();
     } catch (error) {
       if (mounted.current) {
-        setMessage(error.message ?? "No fue posible continuar.");
-        if (error.status === 401) {
+        const message = error.message ?? "No fue posible continuar.";
+        setIssue({ message, field: error.field ?? null });
+        if (resetFeedback) Keyboard.dismiss();
+        if (error.status === 401 && user) {
           setUser(null);
           setMode("login");
         }
@@ -116,12 +127,15 @@ function AppContent({ audience }) {
         setShow(false);
         return;
       }
-      run(async () => {
-        const current = await client.current(audience);
-        setUser(current);
-        if (!current)
-          setMode((previous) => (previous === "change" ? "login" : previous));
-      });
+      run(
+        async () => {
+          const current = await client.current(audience);
+          setUser(current);
+          if (!current)
+            setMode((previous) => (previous === "change" ? "login" : previous));
+        },
+        { resetFeedback: false },
+      );
     });
     return () => {
       mounted.current = false;
@@ -131,15 +145,45 @@ function AppContent({ audience }) {
   async function submit() {
     await run(async () => {
       const password = values.password ?? "";
+      if (mode === "register") {
+        if (!values.name?.trim())
+          throw formError("name", "Escribe tu nombre completo.");
+        const phone = values.phone?.trim() ?? "";
+        if (
+          !/^[0-9 +()\-]+$/.test(phone) ||
+          !/^\d{10,15}$/.test(phone.replace(/\D/g, ""))
+        )
+          throw formError("phone", "Escribe un teléfono de 10 a 15 dígitos.");
+      }
+      if (
+        ["login", "register", "forgot"].includes(mode) &&
+        !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/u.test(values.email?.trim() ?? "")
+      )
+        throw formError(
+          "email",
+          "Escribe un correo válido, como nombre@ejemplo.com.",
+        );
+      if (mode === "change" && !values.currentPassword)
+        throw formError("currentPassword", "Escribe tu contraseña actual.");
+      if (
+        mode === "reset" &&
+        !/^[a-f0-9]{64}$/i.test(values.token?.trim() ?? "")
+      )
+        throw formError(
+          "token",
+          "Copia el código completo del correo de recuperación.",
+        );
       if (["register", "reset", "change"].includes(mode)) {
         if (password.length < 12 || password.length > 128)
-          throw new Error("Usa una contraseña de 12 a 128 caracteres.");
+          throw formError(
+            "password",
+            "Usa una contraseña de 12 a 128 caracteres.",
+          );
         if (password !== values.confirmation)
-          throw new Error("Las contraseñas no coinciden.");
+          throw formError("confirmation", "Las contraseñas no coinciden.");
       }
       if (mode === "login") {
-        if (!values.email || !password)
-          throw new Error("Escribe correo y contraseña.");
+        if (!password) throw formError("password", "Escribe tu contraseña.");
         const account = await client.login(values.email, password, audience);
         setValues({});
         setUser(account);
@@ -159,7 +203,7 @@ function AppContent({ audience }) {
           "Si la cuenta existe y el servicio está disponible, recibirás instrucciones por correo.",
         );
       } else if (mode === "reset") {
-        await client.reset(values.token ?? "", password);
+        await client.reset(values.token.trim(), password);
         switchMode("login");
         setMessage("Contraseña actualizada. Inicia sesión.");
       } else if (mode === "change") {
@@ -178,23 +222,28 @@ function AppContent({ audience }) {
     { secret = false, keyboard = "default", maxLength = 128 } = {},
   ) {
     return (
-      <TextInput
-        key={name}
-        accessibilityLabel={placeholder}
-        placeholder={placeholder}
-        placeholderTextColor="#657b91"
-        value={values[name] ?? ""}
-        onChangeText={(value) => change(name, value)}
-        secureTextEntry={secret && !show}
-        autoCapitalize={
-          secret || keyboard === "email-address" ? "none" : "sentences"
-        }
-        autoCorrect={!secret && keyboard === "default"}
-        keyboardType={keyboard}
-        maxLength={maxLength}
-        editable={!busy}
-        style={styles.input}
-      />
+      <View key={name}>
+        <TextInput
+          accessibilityLabel={placeholder}
+          placeholder={placeholder}
+          placeholderTextColor="#657b91"
+          value={values[name] ?? ""}
+          onChangeText={(value) => change(name, value)}
+          secureTextEntry={secret && !show}
+          autoCapitalize={
+            secret || keyboard === "email-address" ? "none" : "sentences"
+          }
+          autoCorrect={!secret && keyboard === "default"}
+          keyboardType={keyboard}
+          maxLength={maxLength}
+          editable={!busy}
+          style={[
+            styles.input,
+            issue?.field === name && validationStyles.invalid,
+          ]}
+        />
+        <FieldIssue message={issue?.field === name ? issue.message : null} />
+      </View>
     );
   }
   function button(label, action, secondary = false) {
@@ -251,6 +300,8 @@ function AppContent({ audience }) {
           busy={busy}
           run={run}
           message={message}
+          issue={issue}
+          onDismissIssue={() => setIssue(null)}
           onPassword={demo ? undefined : () => switchMode("change")}
           onLogout={logout}
           onUser={setUser}
@@ -372,6 +423,7 @@ function AppContent({ audience }) {
             </Text>
           )}
         </ScrollView>
+        <Notice issue={issue} onDismiss={() => setIssue(null)} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

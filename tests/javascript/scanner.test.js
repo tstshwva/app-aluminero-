@@ -25,6 +25,10 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
     .replace(
       /import \{[^}]*\} from "expo-camera";/,
       'const CameraView="CameraView"; const useCameraPermissions=()=>[{granted:true}];',
+    )
+    .replace(
+      'import { Notice } from "./Feedback";',
+      'const Notice=({issue})=>issue ? React.createElement("Text",null,issue.message) : null;',
     );
   const code = transformSync(source, {
     babelrc: false,
@@ -46,6 +50,16 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
       }),
     );
   });
+  await act(async () =>
+    screen.root.findByType("CameraView").props.onMountError(),
+  );
+  assert.equal(screen.root.findAllByType("CameraView").length, 0);
+  const retry = screen.root
+    .findAllByType("Pressable")
+    .find(
+      (node) => node.findByType("Text").props.children === "Reintentar cámara",
+    );
+  await act(async () => retry.props.onPress());
   const scan = screen.root.findByType("CameraView").props.onBarcodeScanned;
   await act(async () => scan({ data: "X".repeat(41) }));
   assert.deepEqual(results, []);

@@ -479,7 +479,7 @@ export function createDemoClient(audience) {
         !String(body.unit ?? "").trim()
       )
         fail("Completa código, nombre y presentación.");
-      if (!MONEY.test(String(body.price)) || Number(body.price) <= 0)
+      if (!MONEY.test(String(body.price)))
         fail("Revisa el precio.");
       if (body.imageUrl && !/^https:\/\//.test(body.imageUrl))
         fail("La imagen debe usar una dirección HTTPS.");

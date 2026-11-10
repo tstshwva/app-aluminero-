@@ -15,6 +15,8 @@ import {
 } from "react-native";
 import { randomUUID } from "expo-crypto";
 import Scanner from "./Scanner";
+import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
+import { displayLength, lengthUnits, toMillimeters } from "./measure.js";
 import { registerPush, disablePush } from "./push";
 import { catalogImages, genericImages, systemImages } from "./catalogImages";
 import {
@@ -69,6 +71,19 @@ const statuses = [
   "Entregado",
   "Cancelado",
 ];
+function orderQuantity(value, field) {
+  const quantity = String(value).trim().replace(",", ".");
+  if (
+    !/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,3})?$/.test(quantity) ||
+    Number(quantity) <= 0
+  )
+    throw formError(
+      field,
+      "Indica una cantidad mayor que cero, con hasta tres decimales.",
+    );
+  return quantity;
+}
+
 function estimateCents(price, quantity) {
   // Un precio pendiente de captura (0) no genera importes estimados.
   if (isPricePending(price)) return null;
@@ -149,7 +164,7 @@ const emptyFilter = {
 const help = [
   [
     "¿Cómo encargar?",
-    "Busca un material, revisa su presentación y agrega la cantidad al carrito. Revisa las medidas en milímetros y envía la solicitud. La empresa confirma el precio con una cotización.",
+    "Elige una presentación y cantidad. Si necesitas un corte, puedes indicar su longitud en cm, m o mm. Deja el campo vacío para solicitar el material completo. La empresa confirma el precio con una cotización.",
   ],
   [
     "¿Cuándo se reserva el material?",
@@ -164,7 +179,7 @@ const help = [
     "Busca un producto leyendo su código de barras o QR. No mide ventanas ni interpreta fotografías.",
   ],
   [
-    "¿Para qué sirve la IA?",
+    "¿Cómo encuentro el material adecuado?",
     "Orienta sobre materiales del catálogo. No modifica encargos ni confirma medidas o precios. Revisa su sugerencia con la empresa.",
   ],
 ];
@@ -180,6 +195,8 @@ export default function BusinessApp({
   onLogout,
   onUser,
   message,
+  issue,
+  onDismissIssue,
 }) {
   s = dark ? darkStyles : lightStyles;
   const company = audience === "empresa",
@@ -206,29 +223,37 @@ export default function BusinessApp({
     [profileEditing, setProfileEditing] = useState(false),
     [customerSearch, setCustomerSearch] = useState(""),
     [customerAdding, setCustomerAdding] = useState(false),
-    [inventoryMode, setInventoryMode] = useState("movimientos");
+    [inventoryMode, setInventoryMode] = useState("movimientos"),
+    [units, setUnits] = useState({});
   const cartKey = useRef(randomUUID()),
     payKey = useRef(randomUUID()),
     alive = useRef(true);
   const lineEstimates = cart.map(({ product, quantity }) =>
-    estimateCents(product.price, quantity),
+    estimateCents(product.price, String(quantity).replace(",", ".")),
   );
   const estimate = lineEstimates.every((value) => value !== null)
     ? lineEstimates.reduce((total, value) => total + value, 0n)
     : null;
-  const change = (name, value) => setForm((f) => ({ ...f, [name]: value }));
+  const change = (name, value) => {
+    setForm((f) => ({ ...f, [name]: value }));
+    if (name === "calcL" || name === "calcH")
+      setData((d) => ({ ...d, calculation: null }));
+    if (issue?.field === name) onDismissIssue();
+  };
   const cartChange = (items) => {
     setCart(items);
     cartKey.current = randomUUID();
   };
-  const changeQuantity = (productId, quantity) =>
+  const changeQuantity = (productId, quantity) => {
+    if (issue?.field === "quantity-" + productId) onDismissIssue();
     cartChange(
       cart.map((item) =>
         item.productId === productId ? { ...item, quantity } : item,
       ),
     );
+  };
   const nudgeQuantity = (item, step) => {
-    const current = Number(item.quantity);
+    const current = Number(String(item.quantity).replace(",", "."));
     const scaled = Number.isFinite(current) ? Math.round(current * 1000) : 1000;
     const next = Math.min(999999999999, Math.max(1, scaled + step * 1000));
     changeQuantity(item.productId, String(next / 1000));
@@ -250,10 +275,46 @@ export default function BusinessApp({
         multiline={multiline}
         maxLength={max}
         editable={!busy}
-        style={s.input}
+        style={[s.input, issue?.field === name && validationStyles.invalid]}
       />
+      <FieldIssue message={issue?.field === name ? issue.message : null} />
     </View>
   );
+  const required = (name, message) => {
+    const value = String(form[name] ?? "").trim();
+    if (!value) throw formError(name, message);
+    return value;
+  };
+  const validPhone = (name) => {
+    const value = required(name, "Escribe el teléfono.");
+    if (
+      !/^[0-9 +()\-]+$/.test(value) ||
+      !/^\d{10,15}$/.test(value.replace(/\D/g, ""))
+    )
+      throw formError(name, "Escribe un teléfono de 10 a 15 dígitos.");
+    return value;
+  };
+  const numberField = (
+    name,
+    { scale = 2, max = 9999999999.99, positive = false } = {},
+  ) => {
+    const value = String(form[name] ?? "")
+      .trim()
+      .replace(",", ".");
+    if (
+      !new RegExp("^(0|[1-9]\\d{0,11})(\\.\\d{1," + scale + "})?$").test(value)
+    )
+      throw formError(
+        name,
+        "Escribe un número con hasta " + scale + " decimales.",
+      );
+    if (Number(value) > max)
+      throw formError(name, "El valor máximo es " + max + ".");
+    if (positive && Number(value) === 0)
+      throw formError(name, "El valor debe ser mayor que cero.");
+    return value;
+  };
+  const taxRate = () => numberField("taxRate", { scale: 4, max: 1 });
   const button = (label, action, secondary = false, layout) => (
     <Pressable
       key={label}
@@ -270,6 +331,60 @@ export default function BusinessApp({
       <Text style={[s.buttonText, secondary && s.secondaryText]}>{label}</Text>
     </Pressable>
   );
+  const lengthUnit = (name) => units[name] ?? "cm";
+  const measureField = (name, label) => (
+    <View>
+      <View style={s.quickRow}>
+        {lengthUnits.map((unit) => (
+          <Pressable
+            key={unit}
+            accessibilityRole="button"
+            accessibilityLabel={label + " en " + unit}
+            accessibilityState={{ selected: lengthUnit(name) === unit }}
+            disabled={busy}
+            onPress={() => {
+              if (lengthUnit(name) === unit) return;
+              let nextValue = form[name] ?? "";
+              try {
+                const mm = toMillimeters(nextValue, lengthUnit(name), {
+                  optional: true,
+                });
+                if (mm !== null)
+                  nextValue = String(
+                    mm / (unit === "m" ? 1000 : unit === "cm" ? 10 : 1),
+                  );
+              } catch {
+                // Conserva el texto para que se pueda corregir.
+              }
+              change(name, nextValue);
+              setUnits((previous) => ({ ...previous, [name]: unit }));
+            }}
+            style={[s.button, lengthUnit(name) !== unit && s.secondary, s.grow]}
+          >
+            <Text
+              style={[
+                s.buttonText,
+                lengthUnit(name) !== unit && s.secondaryText,
+              ]}
+            >
+              {unit}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      {field(name, label + " (" + lengthUnit(name) + ")", {
+        decimal: true,
+        max: 12,
+      })}
+    </View>
+  );
+  const measureValue = (name, options) => {
+    try {
+      return toMillimeters(form[name], lengthUnit(name), options);
+    } catch (error) {
+      throw formError(name, error.message);
+    }
+  };
   const card = (key, content) => (
     <View key={key} style={s.card}>
       {content}
@@ -431,9 +546,10 @@ export default function BusinessApp({
     const options = finishesOf(p);
     setForm({
       quantity: item?.quantity ?? "1",
-      cutLengthMm: item?.cutLengthMm ?? "",
+      cutLengthMm: item?.cutLengthMm ? String(item.cutLengthMm / 10) : "",
       finish: item?.finish ?? (options.length === 1 ? options[0] : ""),
     });
+    setUnits({});
     setScreen("producto");
   }
   async function openOrder(
@@ -455,33 +571,24 @@ export default function BusinessApp({
     setScreen("encargo");
   }
   function add(product) {
-    const quantity = String(form.quantity ?? "1");
-    if (
-      !/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,3})?$/.test(quantity) ||
-      Number(quantity) <= 0
-    )
-      throw new Error(
-        "Indica una cantidad mayor que cero, con hasta tres decimales.",
-      );
+    const quantity = orderQuantity(form.quantity ?? "1", "quantity");
     if (!Number(product.active))
       throw new Error("Este producto está desactivado.");
-    const cut = form.cutLengthMm ?? "";
-    if (
-      cut &&
-      (!/^[1-9][0-9]{0,6}$/.test(cut) ||
-        !product.length_mm ||
-        Number(cut) > product.length_mm)
-    )
-      throw new Error("Revisa la medida del corte en milímetros.");
+    const cut = product.length_mm
+      ? measureValue("cutLengthMm", {
+          max: Number(product.length_mm),
+          optional: true,
+        })
+      : null;
     if (cart.length >= 50 && !cart.some((i) => i.productId === product.id))
       throw new Error("Puedes solicitar hasta 50 materiales distintos.");
     const options = finishesOf(product);
     if (options.length > 1 && !options.includes(form.finish))
-      throw new Error("Selecciona el acabado que necesitas.");
+      throw formError("finish", "Selecciona el acabado que necesitas.");
     const item = {
       productId: String(product.id),
       quantity,
-      cutLengthMm: cut || null,
+      cutLengthMm: cut,
       finish: options.length > 1 ? form.finish : null,
       product,
     };
@@ -509,6 +616,8 @@ export default function BusinessApp({
   }
   async function checkoutScreen() {
     if (!cart.length) throw new Error("Agrega al menos un material.");
+    for (const item of cart)
+      orderQuantity(item.quantity, "quantity-" + item.productId);
     const settings = await client.company();
     setData({
       company: settings,
@@ -519,13 +628,20 @@ export default function BusinessApp({
     setScreen("checkout");
   }
   async function submitOrder() {
+    if (company && !checkout.customerId)
+      throw formError("customerId", "Selecciona al cliente de este encargo.");
+    if (checkout.fulfillment === "Entrega" && !checkout.deliveryAddress.trim())
+      throw formError(
+        "deliveryAddress",
+        "Escribe la dirección completa para la entrega.",
+      );
     const result = await client.createOrder({
       requestKey: cartKey.current,
       ...checkout,
       ...(!company ? { customerId: null } : {}),
       items: cart.map(({ productId, quantity, cutLengthMm, finish }) => ({
         productId,
-        quantity,
+        quantity: orderQuantity(quantity, "quantity-" + productId),
         cutLengthMm,
         ...(finish ? { finish } : {}),
       })),
@@ -558,7 +674,7 @@ export default function BusinessApp({
             description: p.description ?? "",
             unit: p.unit,
             finish: p.finish,
-            lengthMm: p.length_mm ?? "",
+            lengthMm: p.length_mm ? String(p.length_mm / 10) : "",
             price: p.price,
             minimumStock: p.minimum_stock,
             imageUrl: p.image_url ?? "",
@@ -578,6 +694,7 @@ export default function BusinessApp({
             active: true,
           },
     );
+    setUnits({});
     setScreen("editarproducto");
   }
   const order = data.order,
@@ -620,16 +737,22 @@ export default function BusinessApp({
     ],
   ];
   const openCart = () => {
+    onDismissIssue?.();
     setForm({});
     setScreen("carrito");
   };
   const openAssistant = () => {
+    onDismissIssue?.();
     setForm({ question: "" });
     setAnswer("");
     setScreen("ia");
   };
-  const openCamera = () => setScreen("camara");
+  const openCamera = () => {
+    onDismissIssue?.();
+    setScreen("camara");
+  };
   const back = () => {
+    onDismissIssue?.();
     if (screen === "checkout") return setScreen("carrito");
     if (screen === "cliente") return go("clientes");
     if (screen === "encargo" && orderView === "cotizacion")
@@ -849,8 +972,9 @@ export default function BusinessApp({
       [codigo, ...alternos].filter(Boolean).includes(String(p.code)),
     );
   const openSystem = (name) => {
-    setData((d) => ({ ...d, system: name }));
+    setData((d) => ({ ...d, system: name, calculation: null }));
     setForm({ calcL: "", calcH: "" });
+    setUnits({});
     setScreen("sistema");
   };
   const systemCard = (sys) => {
@@ -965,7 +1089,7 @@ export default function BusinessApp({
         </View>
         <View style={[s.headerSide, s.headerActions]}>
           {iconButton("Notificaciones", "bell", () => go("notificaciones"))}
-          {!company && iconButton("Escanear código", "camera", openCamera)}
+          {iconButton("Escanear código", "camera", openCamera)}
           {!company && iconButton("Mi encargo", "cart", openCart, cart.length)}
         </View>
       </View>
@@ -1366,14 +1490,7 @@ export default function BusinessApp({
               ),
             ];
             const c100 = name === "C-100 MID";
-            let calc = null,
-              calcError = "";
-            if (c100 && form.calcL && form.calcH)
-              try {
-                calc = c100Cuts(form.calcL, form.calcH);
-              } catch (error) {
-                calcError = error.message;
-              }
+            const calc = data.calculation;
             return (
               <View>
                 {heading(name, components.length + " componentes registrados")}
@@ -1456,9 +1573,30 @@ export default function BusinessApp({
                       según la tabla de descuentos de la guía (pág. 8). L =
                       ancho total, H = alto total.
                     </Text>
-                    {field("calcL", "Ancho total L (mm)", { decimal: true })}
-                    {field("calcH", "Alto total H (mm)", { decimal: true })}
-                    {!!calcError && <Text style={s.notice}>{calcError}</Text>}
+                    {measureField("calcL", "Ancho total L")}
+                    {measureField("calcH", "Alto total H")}
+                    {button("Calcular cortes", () =>
+                      perform(async () => {
+                        setData((current) => ({
+                          ...current,
+                          calculation: null,
+                        }));
+                        const width = measureValue("calcL");
+                        const height = measureValue("calcH");
+                        if (width <= 276)
+                          throw formError(
+                            "calcL",
+                            "El ancho debe superar 27.6 cm para este sistema.",
+                          );
+                        if (height <= 212)
+                          throw formError(
+                            "calcH",
+                            "El alto debe superar 21.2 cm para este sistema.",
+                          );
+                        const calculation = c100Cuts(width, height);
+                        setData((current) => ({ ...current, calculation }));
+                      }),
+                    )}
                     {calc && (
                       <View style={s.specs}>
                         {calc.cortes.map((c) =>
@@ -1608,7 +1746,7 @@ export default function BusinessApp({
                   specRow(
                     "Longitud",
                     data.product.length_mm
-                      ? data.product.length_mm + " mm"
+                      ? displayLength(data.product.length_mm)
                       : "Longitud por confirmar",
                   )}
                 {specRow(
@@ -1640,7 +1778,15 @@ export default function BusinessApp({
               {finishesOf(data.product).length > 1 && (
                 <>
                   <Text style={s.label}>Acabado</Text>
-                  <View style={s.quickRow}>
+                  <FieldIssue
+                    message={issue?.field === "finish" ? issue.message : null}
+                  />
+                  <View
+                    style={[
+                      s.quickRow,
+                      issue?.field === "finish" && validationStyles.invalid,
+                    ]}
+                  >
                     {finishesOf(data.product).map((option) =>
                       chip(option, form.finish === option, () =>
                         change("finish", option),
@@ -1652,10 +1798,19 @@ export default function BusinessApp({
               {field("quantity", "Cantidad de esta presentación", {
                 decimal: true,
               })}
-              {field(
-                "cutLengthMm",
-                "Corte opcional en mm (no cambia la unidad vendida)",
-                { decimal: true },
+              {data.product.length_mm ? (
+                <>
+                  <Text style={s.subtitle}>
+                    Deja el corte vacío para pedir la presentación completa.
+                    Largo disponible: {displayLength(data.product.length_mm)}.
+                  </Text>
+                  {measureField("cutLengthMm", "Longitud del corte (opcional)")}
+                </>
+              ) : (
+                <Text style={s.subtitle}>
+                  Solicita la presentación completa. Confirma con la empresa si
+                  admite cortes.
+                </Text>
               )}
               <Pressable
                 accessibilityRole="button"
@@ -1736,7 +1891,11 @@ export default function BusinessApp({
                           accessibilityLabel={
                             "Cantidad de " + item.product.name
                           }
-                          style={s.stepInput}
+                          style={[
+                            s.stepInput,
+                            issue?.field === "quantity-" + item.productId &&
+                              validationStyles.invalid,
+                          ]}
                           keyboardType="decimal-pad"
                           maxLength={13}
                           editable={!busy}
@@ -1772,6 +1931,13 @@ export default function BusinessApp({
                       <Text style={s.name}>×</Text>
                     </Pressable>
                   </View>
+                  <FieldIssue
+                    message={
+                      issue?.field === "quantity-" + item.productId
+                        ? issue.message
+                        : null
+                    }
+                  />
                   <View style={s.amountRow}>
                     <Pressable
                       accessibilityRole="button"
@@ -1780,7 +1946,7 @@ export default function BusinessApp({
                     >
                       <Text style={s.secondaryText}>
                         {item.cutLengthMm
-                          ? "Corte: " + item.cutLengthMm + " mm"
+                          ? "Corte: " + displayLength(item.cutLengthMm)
                           : "Editar medida o cantidad"}
                       </Text>
                     </Pressable>
@@ -1820,6 +1986,7 @@ export default function BusinessApp({
                     ? "Recoger en sucursal"
                     : "Solicitar entrega",
                   () => {
+                    if (issue?.field === "deliveryAddress") onDismissIssue();
                     setCheckout((x) => ({ ...x, fulfillment: value }));
                     cartKey.current = randomUUID();
                   },
@@ -1829,12 +1996,20 @@ export default function BusinessApp({
               )}
             </View>
             {company && (
-              <View>
+              <View
+                style={
+                  issue?.field === "customerId" && validationStyles.invalid
+                }
+              >
                 <Text style={s.name}>Selecciona al cliente</Text>
+                <FieldIssue
+                  message={issue?.field === "customerId" ? issue.message : null}
+                />
                 {data.customers?.map((c) =>
                   button(
                     c.name,
                     () => {
+                      if (issue?.field === "customerId") onDismissIssue();
                       setCheckout((x) => ({ ...x, customerId: String(c.id) }));
                       cartKey.current = randomUUID();
                     },
@@ -1868,18 +2043,30 @@ export default function BusinessApp({
                 </>,
               )}
             {checkout.fulfillment === "Entrega" && (
-              <TextInput
-                accessibilityLabel="Dirección de entrega"
-                placeholder="Dirección completa"
-                style={s.input}
-                maxLength={500}
-                multiline
-                value={checkout.deliveryAddress}
-                onChangeText={(value) => {
-                  setCheckout((x) => ({ ...x, deliveryAddress: value }));
-                  cartKey.current = randomUUID();
-                }}
-              />
+              <View>
+                <TextInput
+                  accessibilityLabel="Dirección de entrega"
+                  placeholder="Dirección completa"
+                  style={[
+                    s.input,
+                    issue?.field === "deliveryAddress" &&
+                      validationStyles.invalid,
+                  ]}
+                  maxLength={500}
+                  multiline
+                  value={checkout.deliveryAddress}
+                  onChangeText={(value) => {
+                    if (issue?.field === "deliveryAddress") onDismissIssue();
+                    setCheckout((x) => ({ ...x, deliveryAddress: value }));
+                    cartKey.current = randomUUID();
+                  }}
+                />
+                <FieldIssue
+                  message={
+                    issue?.field === "deliveryAddress" ? issue.message : null
+                  }
+                />
+              </View>
             )}
             <TextInput
               accessibilityLabel="Notas del encargo"
@@ -1916,7 +2103,9 @@ export default function BusinessApp({
                       </Text>
                       <Text style={s.subtitle}>
                         {i.product.finish}
-                        {i.cutLengthMm ? " · " + i.cutLengthMm + " mm" : ""}
+                        {i.cutLengthMm
+                          ? " · " + displayLength(i.cutLengthMm)
+                          : ""}
                       </Text>
                     </View>
                   </View>
@@ -2124,7 +2313,9 @@ export default function BusinessApp({
                     </Text>
                     <Text style={s.plain}>
                       {i.quantity} × ${i.unit_price} · corte:{" "}
-                      {i.cut_length_mm ?? "Sin corte"} mm
+                      {i.cut_length_mm
+                        ? displayLength(i.cut_length_mm)
+                        : "Sin corte"}
                     </Text>
                     {company &&
                       ["Solicitado", "Cotizado"].includes(order.status) &&
@@ -2188,11 +2379,11 @@ export default function BusinessApp({
                   {button("Enviar cotización", () =>
                     confirm("Enviar cotización", async () => {
                       await client.quote(order.id, {
-                        taxRate: form.taxRate,
-                        shipping: form.shipping,
+                        taxRate: taxRate(),
+                        shipping: numberField("shipping"),
                         prices: data.items.map((i) => ({
                           itemId: String(i.id),
-                          unitPrice: form["price" + i.id],
+                          unitPrice: numberField("price" + i.id),
                         })),
                       });
                       await openOrder(order.id);
@@ -2273,8 +2464,11 @@ export default function BusinessApp({
                     confirm("Registrar pago", async () => {
                       await client.payment(order.id, {
                         requestKey: payKey.current,
-                        amount: form.amount ?? "",
-                        reference: form.reference ?? "",
+                        amount: numberField("amount", { positive: true }),
+                        reference: required(
+                          "reference",
+                          "Escribe la referencia del pago.",
+                        ),
                       });
                       await openOrder(order.id);
                     }),
@@ -2356,7 +2550,12 @@ export default function BusinessApp({
               "Guardar categoría",
               () =>
                 perform(async () => {
-                  await client.createCategory(form.newCategory ?? "");
+                  await client.createCategory(
+                    required(
+                      "newCategory",
+                      "Escribe el nombre de la categoría.",
+                    ),
+                  );
                   const categories = await client.categories();
                   setData((d) => ({ ...d, categories }));
                   change("newCategory", "");
@@ -2379,9 +2578,7 @@ export default function BusinessApp({
               Precio 0 se muestra como «Consultar precio». Una URL HTTPS de
               imagen reemplaza la imagen ilustrativa.
             </Text>
-            {field("lengthMm", "Longitud en milímetros (opcional)", {
-              decimal: true,
-            })}
+            {measureField("lengthMm", "Longitud de la presentación (opcional)")}
             {field("price", "Precio por presentación", { decimal: true })}
             {field("minimumStock", "Existencia mínima", { decimal: true })}
             {field("imageUrl", "URL HTTPS de la imagen", { max: 1000 })}
@@ -2393,7 +2590,48 @@ export default function BusinessApp({
             {button("Guardar producto", () =>
               perform(async () => {
                 const { newCategory, ...body } = form;
-                await client.saveProduct(data.productId, body);
+                for (const [name, label] of [
+                  ["code", "el código"],
+                  ["name", "el nombre"],
+                  ["unit", "la presentación"],
+                  ["finish", "el acabado"],
+                ]) {
+                  if (!body[name]?.trim())
+                    throw formError(
+                      name,
+                      "Escribe " + label + " del producto.",
+                    );
+                }
+                const price = numberField("price");
+                const minimumStock = numberField("minimumStock", {
+                  scale: 3,
+                  max: 999999999.999,
+                });
+                const imageUrl = body.imageUrl?.trim() ?? "";
+                if (imageUrl) {
+                  try {
+                    const url = new URL(imageUrl);
+                    if (
+                      url.protocol !== "https:" ||
+                      url.username ||
+                      url.password ||
+                      url.hash
+                    )
+                      throw new Error();
+                  } catch {
+                    throw formError(
+                      "imageUrl",
+                      "Escribe una URL HTTPS de imagen válida.",
+                    );
+                  }
+                }
+                await client.saveProduct(data.productId, {
+                  ...body,
+                  price,
+                  minimumStock,
+                  imageUrl,
+                  lengthMm: measureValue("lengthMm", { optional: true }),
+                });
                 await load("catalogo");
               }),
             )}
@@ -2423,8 +2661,8 @@ export default function BusinessApp({
                     confirm("Entrada de inventario", async () => {
                       await client.inventory(
                         data.product.id,
-                        form.quantity ?? "",
-                        form.reason ?? "",
+                        orderQuantity(form.quantity ?? "", "quantity"),
+                        required("reason", "Escribe el motivo de la entrada."),
                       );
                       await openProduct(data.product.id);
                     }),
@@ -2443,8 +2681,8 @@ export default function BusinessApp({
                     confirm("Ajuste de inventario", async () => {
                       await client.adjustment(
                         data.product.id,
-                        form.stock ?? "",
-                        form.reason ?? "",
+                        numberField("stock", { scale: 3, max: 999999999.999 }),
+                        required("reason", "Escribe el motivo del ajuste."),
                       );
                       await openProduct(data.product.id);
                     }),
@@ -2515,8 +2753,11 @@ export default function BusinessApp({
                   {button("Guardar cliente", () =>
                     perform(async () => {
                       await client.createCustomer(
-                        form.customerName ?? "",
-                        form.customerPhone ?? "",
+                        required(
+                          "customerName",
+                          "Escribe el nombre del cliente.",
+                        ),
+                        validPhone("customerPhone"),
                       );
                       await load("clientes");
                     }),
@@ -2712,8 +2953,26 @@ export default function BusinessApp({
                   )}
                   {button("Guardar perfil", () =>
                     perform(async () => {
-                      await client.saveProfile(form);
-                      onUser({ ...user, name: form.name });
+                      const name = required("name", "Escribe tu nombre.");
+                      const profile = { ...form, name };
+                      if (!company) {
+                        profile.phone = validPhone("phone");
+                        profile.taxId = (profile.taxId ?? "")
+                          .trim()
+                          .toUpperCase();
+                        if (
+                          profile.taxId &&
+                          !/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/u.test(
+                            profile.taxId,
+                          )
+                        )
+                          throw formError(
+                            "taxId",
+                            "Escribe un RFC válido o deja el campo vacío.",
+                          );
+                      }
+                      await client.saveProfile(profile);
+                      onUser({ ...user, name });
                       await load("perfil");
                     }),
                   )}
@@ -2773,7 +3032,11 @@ export default function BusinessApp({
             })}
             {button("Guardar configuración", () =>
               perform(async () => {
-                await client.saveCompany(form);
+                await client.saveCompany({
+                  ...form,
+                  name: required("name", "Escribe el nombre comercial."),
+                  taxRate: taxRate(),
+                });
                 await load("inicio");
               }),
             )}
@@ -2796,7 +3059,22 @@ export default function BusinessApp({
             )}
             {button("Crear cuenta", () =>
               perform(async () => {
-                await client.createStaff(form);
+                const name = required(
+                  "name",
+                  "Escribe el nombre de la persona.",
+                );
+                const email = required("email", "Escribe el correo de acceso.");
+                if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/u.test(email))
+                  throw formError(
+                    "email",
+                    "Escribe un correo válido, como nombre@ejemplo.com.",
+                  );
+                if ((form.password?.length ?? 0) < 12)
+                  throw formError(
+                    "password",
+                    "Usa una contraseña de 12 a 128 caracteres.",
+                  );
+                await client.createStaff({ ...form, name, email });
                 setForm({});
                 await load("inicio");
               }),
@@ -2805,7 +3083,8 @@ export default function BusinessApp({
         )}
         {screen === "camara" && (
           <Scanner
-            onClose={() => go("inicio")}
+            dark={dark}
+            onClose={back}
             onManual={() => go("catalogo")}
             onScan={(value) => {
               setSearch(value);
@@ -2816,28 +3095,55 @@ export default function BusinessApp({
         )}
         {screen === "ia" && (
           <View>
-            <Text style={s.title}>Asistente de materiales</Text>
-            <Text style={s.plain}>
-              Tu pregunta y hasta 50 materiales del catálogo se envían a Gemini.
-              Evita incluir datos personales. La IA solo da orientación; no
-              cambia encargos.
-            </Text>
+            {heading(
+              "Asistente de materiales",
+              "Describe qué quieres fabricar o reparar.",
+            )}
+            {card(
+              "asistente",
+              <>
+                <Text style={s.name}>Encuentra el material adecuado</Text>
+                <Text style={s.body}>
+                  Ejemplo: «Busco un perfil para una ventana corrediza de 1.2
+                  m».
+                </Text>
+                <Text style={s.subtitle}>
+                  La consulta se procesa en un servicio externo. Evita incluir
+                  datos personales.
+                </Text>
+              </>,
+            )}
             {field("question", "¿Qué material necesitas?", {
               multiline: true,
               max: 1000,
             })}
-            {button("Consultar IA", () =>
+            {button("Buscar sugerencias", () =>
               perform(async () => {
-                const result = await client.assistant(form.question ?? "");
-                setAnswer(result.answer + "\n\n" + result.warning);
+                const question = form.question?.trim();
+                if (!question)
+                  throw formError(
+                    "question",
+                    "Describe el material o trabajo que necesitas.",
+                  );
+                setAnswer("");
+                const result = await client.assistant(question);
+                setAnswer(result.answer);
               }),
             )}
+            {button("Explorar catálogo", () => go("catalogo"), true)}
             {!!answer &&
               card(
                 "respuesta",
-                <Text selectable style={s.body}>
-                  {answer}
-                </Text>,
+                <>
+                  <Text style={s.name}>Sugerencias para tu proyecto</Text>
+                  <Text selectable style={s.body}>
+                    {answer}
+                  </Text>
+                  <Text style={s.subtitle}>
+                    Confirma las medidas y existencias con la distribuidora
+                    antes de encargar.
+                  </Text>
+                </>,
               )}
           </View>
         )}
@@ -2879,6 +3185,7 @@ export default function BusinessApp({
             </>,
           )}
       </ScrollView>
+      <Notice issue={issue} onDismiss={onDismissIssue} dark={dark} />
       <View style={s.footer}>
         {tabs.map(([label, next, icon]) => (
           <Pressable

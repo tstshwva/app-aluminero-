@@ -1,10 +1,13 @@
 import React, { useRef, useState } from "react";
 import { Linking, Pressable, Text, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-export default function Scanner({ onScan, onClose, onManual }) {
+import { Notice } from "./Feedback";
+export default function Scanner({ onScan, onClose, onManual, dark }) {
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
   const [message, setMessage] = useState("");
+  const [cameraFailed, setCameraFailed] = useState(false);
+  const ink = dark ? "#e0edf8" : "#102c46";
   const openSettings = () =>
     Linking.openSettings().catch(() =>
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
@@ -37,13 +40,13 @@ export default function Scanner({ onScan, onClose, onManual }) {
         style={{
           fontSize: 27,
           fontWeight: "800",
-          color: "#102c46",
+          color: ink,
           marginTop: 12,
         }}
       >
         Escanear material
       </Text>
-      <Text style={{ color: "#526b82", marginVertical: 6 }}>
+      <Text style={{ color: dark ? "#afc4d8" : "#526b82", marginVertical: 6 }}>
         Lectura de códigos del catálogo.
       </Text>
       <Text
@@ -75,10 +78,10 @@ export default function Scanner({ onScan, onClose, onManual }) {
         </View>
       )}
       {!permission ? (
-        <Text>Consultando permiso…</Text>
+        <Text style={{ color: ink }}>Consultando permiso…</Text>
       ) : !permission.granted ? (
         <View>
-          <Text>
+          <Text style={{ color: ink }}>
             Necesitamos permiso de cámara. También puedes buscar el código
             manualmente.
           </Text>
@@ -90,6 +93,15 @@ export default function Scanner({ onScan, onClose, onManual }) {
               )
             : button("Abrir ajustes de cámara", openSettings)}
         </View>
+      ) : cameraFailed ? (
+        button(
+          "Reintentar cámara",
+          () => {
+            setMessage("");
+            setCameraFailed(false);
+          },
+          true,
+        )
       ) : (
         <CameraView
           style={{
@@ -99,6 +111,12 @@ export default function Scanner({ onScan, onClose, onManual }) {
             overflow: "hidden",
           }}
           facing="back"
+          onMountError={() => {
+            setCameraFailed(true);
+            setMessage(
+              "La cámara no pudo iniciarse. Reintenta o busca el código manualmente.",
+            );
+          }}
           barcodeScannerSettings={{
             barcodeTypes: [
               "qr",
@@ -127,7 +145,11 @@ export default function Scanner({ onScan, onClose, onManual }) {
           }}
         />
       )}
-      {!!message && <Text accessibilityLiveRegion="polite">{message}</Text>}
+      <Notice
+        issue={message ? { message } : null}
+        onDismiss={() => setMessage("")}
+        dark={dark}
+      />
       {button("Buscar manualmente", onManual)}
       {button("Volver sin escanear", onClose, true)}
     </View>
