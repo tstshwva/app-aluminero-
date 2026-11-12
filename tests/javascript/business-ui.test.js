@@ -563,6 +563,6 @@ test("Perfil: el interruptor de modo oscuro cambia el tema", async () => {
     renderer.update(React.createElement(BusinessApp, props(true))),
   );
   assert.equal(toggle().props.accessibilityState.checked, true);
-  assert.equal(shellColor(), "#0e1621");
+  assert.equal(shellColor(), "#000000");
   await act(async () => renderer.unmount());
 });

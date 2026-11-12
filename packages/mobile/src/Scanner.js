@@ -7,7 +7,7 @@ export default function Scanner({ onScan, onClose, onManual, dark }) {
     scanned = useRef(false);
   const [message, setMessage] = useState("");
   const [cameraFailed, setCameraFailed] = useState(false);
-  const ink = dark ? "#e0edf8" : "#102c46";
+  const ink = dark ? "#f2f2f2" : "#102c46";
   const openSettings = () =>
     Linking.openSettings().catch(() =>
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
@@ -46,7 +46,7 @@ export default function Scanner({ onScan, onClose, onManual, dark }) {
       >
         Escanear material
       </Text>
-      <Text style={{ color: dark ? "#afc4d8" : "#526b82", marginVertical: 6 }}>
+      <Text style={{ color: dark ? "#a6a6a6" : "#526b82", marginVertical: 6 }}>
         Lectura de códigos del catálogo.
       </Text>
       <Text

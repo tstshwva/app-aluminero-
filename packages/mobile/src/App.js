@@ -455,7 +455,7 @@ function AppContent({ audience }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#f2f6fb" },
   businessScreen: { flex: 1, backgroundColor: "#f2f6fb" },
-  businessScreenDark: { backgroundColor: "#0e1621" },
+  businessScreenDark: { backgroundColor: "#000000" },
   brand: {
     flexDirection: "row",
     alignItems: "center",

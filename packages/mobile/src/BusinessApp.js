@@ -1045,7 +1045,7 @@ export default function BusinessApp({
       <TextInput
         accessibilityLabel="Buscar producto"
         placeholder={placeholder}
-        placeholderTextColor={dark ? "#7f93a6" : "#526b82"}
+        placeholderTextColor={dark ? "#8c8c8c" : "#526b82"}
         value={search}
         onChangeText={setSearch}
         onSubmitEditing={searchCatalog}
@@ -3802,41 +3802,43 @@ const baseStyles = {
 // fondo/borde se traducen por separado (el texto blanco de los botones azules
 // se conserva). Las zonas de imagen siguen blancas porque los renders tienen
 // fondo blanco, como una fotografía de catálogo.
+// Paleta neutra (negro y grises, sin tinte azul); el azul queda solo como
+// acento en botones, enlaces y precios.
 const DARK_TEXT = {
-  "#102c46": "#e8eef5",
-  "#526b82": "#9fb2c4",
-  "#405e77": "#b3c4d4",
-  "#334f68": "#c3d1de",
-  "#5d7489": "#8fa4b8",
+  "#102c46": "#f2f2f2",
+  "#526b82": "#a6a6a6",
+  "#405e77": "#b8b8b8",
+  "#334f68": "#cccccc",
+  "#5d7489": "#8c8c8c",
   "#0071d9": "#5aa9ff",
   "#0066cc": "#6cb2ff",
-  "#6a7f92": "#8fa4b8",
-  "#8a9bab": "#8fa4b8",
+  "#6a7f92": "#8c8c8c",
+  "#8a9bab": "#8c8c8c",
   "#674b18": "#f0d9a8",
   "#8a5a00": "#f2b84b",
 };
 const DARK_BACKGROUND = {
-  white: "#16212e",
-  "#fff": "#1c2a3a",
-  "#f2f6fb": "#0e1621",
-  "#e6eff8": "#1b2836",
-  "#e1effc": "#1d3049",
-  "#e7f1fb": "#1d3049",
-  "#e9f2fb": "#1d3049",
-  "#e3eefb": "#1f3550",
+  white: "#121212",
+  "#fff": "#262626",
+  "#f2f6fb": "#000000",
+  "#e6eff8": "#1e1e1e",
+  "#e1effc": "#242424",
+  "#e7f1fb": "#242424",
+  "#e9f2fb": "#242424",
+  "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
-  "#0a4579": "#2f6fb5",
-  "rgba(255,255,255,0.92)": "rgba(22,33,46,0.92)",
-  "#e1e9f1": "#26364a",
-  "#dce7f2": "#26364a",
-  "#cfdeec": "#2c3e54",
-  "#bdcee0": "#34485f",
-  "#e5ebf2": "#223144",
-  "#e6edf4": "#26364a",
-  "#eef2f6": "#223144",
-  "#eef3f8": "#223144",
-  "#edf1f5": "#223144",
-  "#ccd9e5": "#34485f",
+  "#0a4579": "#3a3a3a",
+  "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
+  "#e1e9f1": "#2a2a2a",
+  "#dce7f2": "#2a2a2a",
+  "#cfdeec": "#333333",
+  "#bdcee0": "#3d3d3d",
+  "#e5ebf2": "#1f1f1f",
+  "#e6edf4": "#2a2a2a",
+  "#eef2f6": "#1f1f1f",
+  "#eef3f8": "#1f1f1f",
+  "#edf1f5": "#1f1f1f",
+  "#ccd9e5": "#3d3d3d",
 };
 const TEXT_KEYS = new Set(["color", "tintColor"]);
 function darkVariant(styles) {
@@ -3858,6 +3860,11 @@ function darkVariant(styles) {
   );
 }
 const lightStyles = StyleSheet.create(baseStyles);
-const darkStyles = StyleSheet.create(darkVariant(baseStyles));
+const darkStyles = StyleSheet.create({
+  ...darkVariant(baseStyles),
+  // El degradado azul del banner no encaja en el tema negro: se oculta y queda
+  // el fondo gris oscuro del bloque.
+  heroBackground: { ...baseStyles.heroBackground, display: "none" },
+});
 // Hoja activa; BusinessApp la fija en cada render según el tema elegido.
 let s = lightStyles;
