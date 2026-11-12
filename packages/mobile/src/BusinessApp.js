@@ -3803,7 +3803,8 @@ const baseStyles = {
 // se conserva). Las zonas de imagen siguen blancas porque los renders tienen
 // fondo blanco, como una fotografía de catálogo.
 // Paleta neutra (negro y grises, sin tinte azul); el azul queda solo como
-// acento en botones, enlaces y precios.
+// acento en botones, enlaces, precios y el banner de inicio (#0a4579 y su
+// degradado se conservan para que resalte sobre el negro).
 const DARK_TEXT = {
   "#102c46": "#f2f2f2",
   "#526b82": "#a6a6a6",
@@ -3827,7 +3828,6 @@ const DARK_BACKGROUND = {
   "#e9f2fb": "#242424",
   "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
-  "#0a4579": "#3a3a3a",
   "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
   "#e1e9f1": "#2a2a2a",
   "#dce7f2": "#2a2a2a",
@@ -3860,11 +3860,6 @@ function darkVariant(styles) {
   );
 }
 const lightStyles = StyleSheet.create(baseStyles);
-const darkStyles = StyleSheet.create({
-  ...darkVariant(baseStyles),
-  // El degradado azul del banner no encaja en el tema negro: se oculta y queda
-  // el fondo gris oscuro del bloque.
-  heroBackground: { ...baseStyles.heroBackground, display: "none" },
-});
+const darkStyles = StyleSheet.create(darkVariant(baseStyles));
 // Hoja activa; BusinessApp la fija en cada render según el tema elegido.
 let s = lightStyles;
