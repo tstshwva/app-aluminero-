@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cliente-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start", "--web", "--port", "8090"],
+      "cwd": "apps/cliente",
+      "port": 8090
+    },
+    {
+      "name": "empresa-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start", "--web", "--port", "8091"],
+      "cwd": "apps/empresa",
+      "port": 8091
+    }
+  ]
+}
