@@ -2,6 +2,8 @@
 param(
     [Parameter(Mandatory, ParameterSetName = 'Usb')][switch]$Usb,
     [Parameter(Mandatory, ParameterSetName = 'Publica')][uri]$ApiUrl,
+    # Modo demostración: datos de ejemplo en memoria, sin API ni certificado.
+    [Parameter(Mandatory, ParameterSetName = 'Demo')][switch]$Demo,
     [ValidateSet('cliente','empresa')][string[]]$Apps = @('cliente','empresa'),
     [string]$Output = (Join-Path $PSScriptRoot '../.local/apk'),
     [string]$BuildToolsVersion = '37.0.0'
@@ -36,6 +38,9 @@ if ($Usb) {
     Confirmar-Codigo 'Lectura del puerto local'
     $url = "https://localhost:$port/"
     $suffix = 'usb'
+} elseif ($Demo) {
+    $url = ''
+    $suffix = 'demo'
 } else {
     if (!$ApiUrl.IsAbsoluteUri -or $ApiUrl.Scheme -ne 'https' -or $ApiUrl.UserInfo -or $ApiUrl.Query -or $ApiUrl.Fragment -or $ApiUrl.IsLoopback) {
         throw 'La URL de la API debe ser HTTPS pública, sin credenciales, consulta ni fragmento.'
@@ -74,7 +79,7 @@ try {
     $signingPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
     Remove-Item Env:ALUFORMIX_APK_SIGNING_PASSWORD
     $env:EXPO_PUBLIC_API_URL = $url
-    $env:EXPO_PUBLIC_DEMO = '0'
+    $env:EXPO_PUBLIC_DEMO = if ($Demo) { '1' } else { '0' }
     $env:CI = '1'
     $expo = Join-Path $root 'node_modules/expo/bin/cli'
     foreach ($app in $Apps) {
