@@ -10,8 +10,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_DEMO": "1",
-        "EXPO_PUBLIC_API_URL": ""
+        "EXPO_PUBLIC_DEMO": "1"
       }
     }
   }
