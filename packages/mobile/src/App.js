@@ -123,6 +123,7 @@ function AppContent({ audience }) {
           confirmation: "",
           currentPassword: "",
           token: "",
+          setupKey: "",
         }));
         setShow(false);
         return;
@@ -156,12 +157,12 @@ function AppContent({ audience }) {
           throw formError("phone", "Escribe un teléfono de 10 a 15 dígitos.");
       }
       if (
-        ["login", "register", "forgot"].includes(mode) &&
+        ["login", "register", "setup", "forgot"].includes(mode) &&
         !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/u.test(values.email?.trim() ?? "")
       )
         throw formError(
           "email",
-          "Escribe un correo válido, como nombre@ejemplo.com.",
+          "Escribe un correo válido, como nombre@gmail.com.",
         );
       if (mode === "change" && !values.currentPassword)
         throw formError("currentPassword", "Escribe tu contraseña actual.");
@@ -173,7 +174,7 @@ function AppContent({ audience }) {
           "token",
           "Copia el código completo del correo de recuperación.",
         );
-      if (["register", "reset", "change"].includes(mode)) {
+      if (["register", "setup", "reset", "change"].includes(mode)) {
         if (password.length < 12 || password.length > 128)
           throw formError(
             "password",
@@ -196,6 +197,16 @@ function AppContent({ audience }) {
         });
         switchMode("login");
         setMessage("Cuenta creada. Inicia sesión.");
+      } else if (mode === "setup") {
+        const key = values.setupKey?.trim() ?? "";
+        if (key.length < 32)
+          throw formError(
+            "setupKey",
+            "Ingresa el código de activación de Empresa.",
+          );
+        await client.setupAdmin({ email: values.email, password }, key);
+        switchMode("login");
+        setMessage("Cuenta administradora creada. Inicia sesión.");
       } else if (mode === "forgot") {
         await client.recovery(values.email ?? "");
         switchMode("reset");
@@ -280,6 +291,7 @@ function AppContent({ audience }) {
   const title = {
     login: "Inicia sesión",
     register: "Crea tu cuenta",
+    setup: "Crea el primer administrador",
     forgot: "Recupera tu acceso",
     reset: "Nueva contraseña",
     change: "Cambia tu contraseña",
@@ -355,10 +367,15 @@ function AppContent({ audience }) {
                   keyboard: "phone-pad",
                   maxLength: 25,
                 })}
-              {["login", "register", "forgot"].includes(mode) &&
+              {["login", "register", "setup", "forgot"].includes(mode) &&
                 field("email", "Correo electrónico", {
                   keyboard: "email-address",
                   maxLength: 254,
+                })}
+              {mode === "setup" &&
+                field("setupKey", "Código de activación de Empresa", {
+                  secret: true,
+                  maxLength: 256,
                 })}
               {mode === "reset" &&
                 field("token", "Código de recuperación", {
@@ -373,7 +390,7 @@ function AppContent({ audience }) {
                   mode === "login" ? "Contraseña" : "Nueva contraseña",
                   { secret: true },
                 )}
-              {["register", "reset", "change"].includes(mode) &&
+              {["register", "setup", "reset", "change"].includes(mode) &&
                 field("confirmation", "Confirma la contraseña", {
                   secret: true,
                 })}
@@ -386,7 +403,7 @@ function AppContent({ audience }) {
               {button(
                 mode === "forgot"
                   ? "Enviar instrucciones"
-                  : mode === "register"
+                  : mode === "register" || mode === "setup"
                     ? "Crear cuenta"
                     : mode === "login"
                       ? "Iniciar sesión"
@@ -398,6 +415,13 @@ function AppContent({ audience }) {
                 button(
                   "Crear cuenta de comprador",
                   () => switchMode("register"),
+                  true,
+                )}
+              {mode === "login" &&
+                audience === "empresa" &&
+                button(
+                  "Crear primer administrador",
+                  () => switchMode("setup"),
                   true,
                 )}
               {mode === "login" &&

@@ -50,7 +50,13 @@ export function createClient({
     });
   async function request(
     path,
-    { method = "GET", body, authorization = true, token: override } = {},
+    {
+      method = "GET",
+      body,
+      authorization = true,
+      token: override,
+      setupKey,
+    } = {},
   ) {
     if (!base)
       throw new ApiError(
@@ -61,6 +67,7 @@ export function createClient({
     if (url.origin !== base.origin || url.protocol !== "https:")
       throw new ApiError(400, "Destino no autorizado.");
     const headers = { Accept: "application/json" };
+    if (setupKey) headers["X-Setup-Key"] = setupKey;
     if (body !== undefined) headers["Content-Type"] = "application/json";
     const ticket = generation;
     const token = authorization
@@ -148,6 +155,23 @@ export function createClient({
         );
       }
       return session.user;
+    },
+    async setupAdmin(body, setupKey) {
+      const account = await request("api/auth/setup-admin", {
+        method: "POST",
+        body,
+        setupKey,
+        authorization: false,
+      });
+      if (
+        account?.role !== "Administrador" ||
+        !/^[1-9][0-9]*$/.test(account.id ?? "")
+      )
+        throw new ApiError(
+          502,
+          "El servidor no confirmó la cuenta administradora.",
+        );
+      return account;
     },
     async register(body) {
       const account = await request("api/auth/register", {

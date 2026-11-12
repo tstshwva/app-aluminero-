@@ -157,13 +157,13 @@ try {
     ).status === 404,
     "Configuración inicial exige clave externa",
   );
-  const admin = await post(
-    "/api/auth/setup-admin",
-    { email: "admin@integration.invalid", password },
-    null,
-    { "X-Setup-Key": setupKey },
+  const admin = await testAppSession()
+    .open()
+    .setupAdmin({ email: "admin@integration.invalid", password }, setupKey);
+  check(
+    admin.role === "Administrador",
+    "Creación protegida del primer administrador desde el cliente de Empresa",
   );
-  check(admin.status === 200, "Creación protegida del primer administrador");
   check(
     (
       await post(

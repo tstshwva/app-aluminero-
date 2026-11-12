@@ -3084,7 +3084,7 @@ export default function BusinessApp({
                 if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/u.test(email))
                   throw formError(
                     "email",
-                    "Escribe un correo válido, como nombre@ejemplo.com.",
+                    "Escribe un correo válido, como nombre@gmail.com.",
                   );
                 if ((form.password?.length ?? 0) < 12)
                   throw formError(
