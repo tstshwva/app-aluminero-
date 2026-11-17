@@ -21,6 +21,7 @@ import {
   where,
   onSnapshot,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 
 const instances = new Map();
@@ -292,9 +293,31 @@ export function createFirebaseClient({
       });
       return account(user);
     },
-    async register({ email, password, name: displayName }) {
-      if (company)
-        throw new Error("La cuenta de Empresa requiere autorización.");
+    async register({ email, password, name: displayName, inviteCode }) {
+      if (company) {
+        const code = inviteCode?.trim().toLowerCase();
+        if (!/^[a-f0-9]{32}$/.test(code ?? ""))
+          throw new Error("Ingresa el código de invitación de Empresa.");
+        const address = email.trim().toLowerCase();
+        const { user } = await createUserWithEmailAndPassword(auth, address, password)
+          .catch(error => {
+            if (error.code !== "auth/email-already-in-use") throw error;
+            return signInWithEmailAndPassword(auth, address, password);
+          });
+        try {
+          await updateProfile(user, { displayName: displayName.trim() });
+          const batch = writeBatch(db);
+          batch.update(doc(db, "aluf_invites", code), { usedBy: user.uid });
+          batch.set(roleDoc(user.uid), { active: true, role: "Operador", inviteCode: code });
+          await batch.commit();
+          return { id: user.uid };
+        } catch (error) {
+          if (error.code !== "permission-denied") throw error;
+          throw Object.assign(new Error("El código es inválido, ya se usó o pertenece a otro correo."), { field: "inviteCode" });
+        } finally {
+          await signOut(auth);
+        }
+      }
       const { user } = await createUserWithEmailAndPassword(
         auth,
         email.trim(),
