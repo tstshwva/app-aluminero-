@@ -21,6 +21,7 @@ import BusinessApp from "./BusinessApp";
 import { loadDarkMode, saveDarkMode } from "./preferences";
 import { createDemoClient } from "./demoClient";
 import "./dialogs";
+import { getAssistantAppCheckToken } from "./assistantAppCheck";
 import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 
 // Modo demostración: solo con EXPO_PUBLIC_DEMO=1 en el .env de la app.
@@ -62,6 +63,8 @@ function AppContent({ audience }) {
         : createFirebaseClient({
             audience,
             storage,
+            getAssistantAppCheckToken:
+              audience === "cliente" ? getAssistantAppCheckToken : undefined,
             config: {
               projectId: "alumineroapp-9244c",
               apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,

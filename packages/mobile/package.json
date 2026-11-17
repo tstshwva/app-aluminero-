@@ -6,6 +6,8 @@
   "dependencies": {
     "@aluformix/catalog": "*",
     "@aluformix/client": "*",
+    "@react-native-firebase/app": "27.1.1",
+    "@react-native-firebase/app-check": "27.1.1",
     "expo-camera": "~58.0.14",
     "expo-crypto": "~58.0.7",
     "expo-device": "~58.0.5",

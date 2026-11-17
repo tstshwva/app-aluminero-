@@ -1,3 +1,4 @@
+import { CustomProvider, initializeAppCheck } from "firebase/app-check";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeApp, getApps } from "firebase/app";
 import {
@@ -24,7 +25,12 @@ import {
 
 const instances = new Map();
 
-export function createFirebaseClient({ config, storage, audience }) {
+export function createFirebaseClient({
+  config,
+  storage,
+  audience,
+  getAssistantAppCheckToken,
+}) {
   const name = "aluformix-" + audience;
   if (!instances.has(name)) {
     const app =
@@ -160,6 +166,10 @@ export function createFirebaseClient({ config, storage, audience }) {
   return {
     cloud: true,
     async assistant(question) {
+      if (!getAssistantAppCheckToken)
+        throw new Error(
+          "El asistente requiere una versión de Android con App Check configurado.",
+        );
       if (!auth.currentUser)
         throw new Error("Inicia sesión para usar el asistente.");
       const prompt = question.trim();
@@ -178,7 +188,18 @@ export function createFirebaseClient({ config, storage, audience }) {
       if (!products.length) throw new Error("El catálogo todavía está vacío.");
 
       try {
-        const ai = getAI(app, { backend: new GoogleAIBackend() });
+        const aiName = app.name + "-assistant";
+        let aiApp = getApps().find((item) => item.name === aiName);
+        if (!aiApp) {
+          aiApp = initializeApp(app.options, aiName);
+          initializeAppCheck(aiApp, {
+            provider: new CustomProvider({
+              getToken: getAssistantAppCheckToken,
+            }),
+            isTokenAutoRefreshEnabled: false,
+          });
+        }
+        const ai = getAI(aiApp, { backend: new GoogleAIBackend() });
         const model = getGenerativeModel(
           ai,
           {
