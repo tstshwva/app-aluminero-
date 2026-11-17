@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   Pressable,
+  Platform,
   Share,
   StyleSheet,
   Text,
@@ -14,6 +15,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { randomUUID } from "expo-crypto";
+import { useOrderOutbox } from "./orderOutbox";
 import Scanner from "./Scanner";
 import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 import { displayLength, lengthUnits, toMillimeters } from "./measure.js";
@@ -201,6 +203,8 @@ export default function BusinessApp({
   s = dark ? darkStyles : lightStyles;
   const company = audience === "empresa",
     admin = user.role === "Administrador";
+  const localOrders = client.cloud && !company && Platform.OS !== "web";
+  const outbox = useOrderOutbox(client, user.id, localOrders);
   const [screen, setScreen] = useState("inicio"),
     [data, setData] = useState({}),
     [form, setForm] = useState({}),
@@ -657,7 +661,7 @@ export default function BusinessApp({
         "deliveryAddress",
         "Escribe la dirección completa para la entrega.",
       );
-    const result = await client.createOrder({
+    const order = {
       requestKey: cartKey.current,
       ...checkout,
       ...(!company ? { customerId: null } : {}),
@@ -667,7 +671,15 @@ export default function BusinessApp({
         cutLengthMm,
         ...(finish ? { finish } : {}),
       })),
-    });
+    };
+    if (localOrders && !outbox.actions)
+      throw new Error("Espera a que termine de cargar el almacenamiento del teléfono.");
+    let orderId = order.requestKey;
+    if (localOrders) {
+      await outbox.actions.enqueue(order);
+    } else {
+      orderId = (await client.createOrder(order)).id;
+    }
     cartChange([]);
     setCheckout({
       fulfillment: "Recoger",
@@ -675,7 +687,7 @@ export default function BusinessApp({
       notes: "",
       customerId: "",
     });
-    setData({ orderId: result.id });
+    setData({ orderId, savedLocally: !!localOrders });
     setScreen("confirmacion");
   }
   function confirm(label, fn) {
@@ -2157,6 +2169,12 @@ export default function BusinessApp({
               <View style={s.success}>
                 <Text style={s.successMark}>✓</Text>
               </View>
+              {data.savedLocally && (!outbox.pending || outbox.pending.some(order => order.requestKey === data.orderId)) ? (
+                <>
+                  <Text style={[s.title, s.center]}>Encargo guardado en el teléfono</Text>
+                  <Text style={s.plain}>Pendiente de envío. Abre Aluformix cuando tengas {outbox.wifiOnly ? "Wi-Fi" : "conexión"} para sincronizarlo.</Text>
+                </>
+              ) : (<>
               <Text style={[s.title, s.center]}>¡Recibimos tu encargo!</Text>
               <Text style={s.plain}>
                 Solicitud #{data.orderId} guardada. La empresa puede consultarla
@@ -2165,6 +2183,7 @@ export default function BusinessApp({
               {button("Ver seguimiento", () =>
                 perform(() => openOrder(data.orderId)),
               )}
+              </>)}
               {button("Volver al inicio", () => go("inicio"), true)}
             </>,
           )}
@@ -2944,6 +2963,14 @@ export default function BusinessApp({
                   true,
                 )}
               </>,
+            )}
+            {localOrders && outbox.actions && (
+              <>
+                {menuRow("Sincronizar pedidos solo por Wi-Fi", outbox.wifiOnly ? "Activado" : "Desactivado", () => perform(() => outbox.actions.setWifi(!outbox.wifiOnly)))}
+                <Text style={s.subtitle}>{outbox.pending?.length ?? 0} pedidos pendientes de envío.</Text>
+                {outbox.syncError && <Text style={s.subtitle}>No se pudo completar la sincronización. Tus pedidos pendientes siguen en el teléfono.</Text>}
+                {!!outbox.pending?.length && button("Reintentar sincronización", outbox.actions.sync, true)}
+              </>
             )}
             <Text style={s.sectionTitle}>Apariencia</Text>
             <Pressable

@@ -315,6 +315,7 @@ export function createFirebaseClient({
     recovery: (email) => sendPasswordResetEmail(auth, email.trim()),
     async createOrder({
       requestKey,
+      expectedOwnerUid,
       fulfillment,
       deliveryAddress,
       notes,
@@ -324,6 +325,8 @@ export function createFirebaseClient({
         throw new Error("Inicia sesión como comprador.");
       const ref = doc(orders, requestKey);
       const ownerUid = auth.currentUser.uid;
+      if (expectedOwnerUid && expectedOwnerUid !== ownerUid)
+        throw new Error("Abre la sesión que guardó este encargo.");
       return runTransaction(db, async (transaction) => {
         const existing = await transaction.get(ref);
         if (!existing.exists()) {

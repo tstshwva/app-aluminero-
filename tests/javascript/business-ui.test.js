@@ -29,7 +29,7 @@ async function component() {
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"]react-native['"];/s,
-      `const Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
+      `const Platform={OS:'web'},Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"].\/catalogImages['"];/,
