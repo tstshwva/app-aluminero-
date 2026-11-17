@@ -13,10 +13,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { fetch as secureFetch } from "expo/fetch";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { createClient } from "@aluformix/client";
+import { createFirebaseClient } from "@aluformix/client";
 import { createSessionStorage } from "./storage";
 import BusinessApp from "./BusinessApp";
 import { loadDarkMode, saveDarkMode } from "./preferences";
@@ -60,10 +59,14 @@ function AppContent({ audience }) {
     () =>
       demo
         ? createDemoClient(audience)
-        : createClient({
-            baseUrl: process.env.EXPO_PUBLIC_API_URL ?? "",
+        : createFirebaseClient({
+            audience,
             storage,
-            fetchImpl: secureFetch,
+            config: {
+              projectId: "alumineroapp-9244c",
+              apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+              appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+            },
           }),
     [storage, audience],
   );
@@ -209,7 +212,7 @@ function AppContent({ audience }) {
         setMessage("Cuenta administradora creada. Inicia sesión.");
       } else if (mode === "forgot") {
         await client.recovery(values.email ?? "");
-        switchMode("reset");
+        switchMode(client.cloud ? "login" : "reset");
         setMessage(
           "Si la cuenta existe y el servicio está disponible, recibirás instrucciones por correo.",
         );
@@ -419,6 +422,7 @@ function AppContent({ audience }) {
                 )}
               {mode === "login" &&
                 audience === "empresa" &&
+                !client.cloud &&
                 button(
                   "Crear primer administrador",
                   () => switchMode("setup"),
@@ -431,6 +435,7 @@ function AppContent({ audience }) {
                   true,
                 )}
               {mode === "forgot" &&
+                !client.cloud &&
                 button("Ya tengo un código", () => switchMode("reset"), true)}
               {mode !== "login" &&
                 button(

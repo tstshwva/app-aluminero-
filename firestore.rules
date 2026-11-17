@@ -14,6 +14,10 @@ service cloud.firestore {
       allow get: if signedIn() && request.auth.uid == uid;
     }
 
+    match /categorias/{categoryId} {
+      allow get, list: if signedIn();
+    }
+
     match /catalogo/{productoId} {
       allow get, list: if signedIn();
     }

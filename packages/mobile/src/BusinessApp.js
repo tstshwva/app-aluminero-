@@ -513,6 +513,17 @@ export default function BusinessApp({
       listener.remove();
     };
   }, []);
+  useEffect(() => {
+    if (!company || screen !== "encargos" || !client.subscribeOrders) return;
+    return client.subscribeOrders(
+      filter,
+      (orders) => setData((current) => ({ ...current, orders })),
+      () =>
+        perform(async () => {
+          throw new Error("No se pudo actualizar la lista de encargos.");
+        }),
+    );
+  }, [client, company, screen, filter]);
   const go = (next, query = "") => perform(() => load(next, query));
   // Los favoritos solo existen para compradores; si fallan, el catálogo se muestra igual.
   async function loadFavorites() {

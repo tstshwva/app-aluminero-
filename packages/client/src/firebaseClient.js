@@ -132,8 +132,44 @@ export function createFirebaseClient({ config, storage, audience }) {
     };
   }
 
+  async function enterpriseDashboard() {
+    if (!company) throw new Error("El panel requiere una cuenta de Empresa.");
+    const [snapshot, products] = await Promise.all([
+      getDocs(orderQuery()),
+      catalog(),
+    ]);
+    const pendingOrders = list(snapshot);
+    const counts = new Map();
+    for (const { status } of pendingOrders) {
+      counts.set(status, (counts.get(status) ?? 0) + 1);
+    }
+    return {
+      total: pendingOrders.length,
+      pendientes: counts.get("Solicitado") ?? 0,
+      orders: Array.from(counts, ([status, count]) => ({ status, count })),
+      lowStock: products.filter(
+        (p) =>
+          p.active !== 0 &&
+          Number(p.stock) - Number(p.reserved ?? 0) <= Number(p.minimum_stock),
+      ),
+    };
+  }
+
   return {
+    cloud: true,
     catalog,
+    async categories() {
+      const snapshot = await getDocs(
+        query(collection(db, "categorias"), orderBy("nombre")),
+      );
+      return snapshot.docs.map((category) => ({
+        ...category.data(),
+        id: category.id,
+        name: category.data().nombre,
+      }));
+    },
+    enterpriseDashboard,
+    dashboard: enterpriseDashboard,
     async products(search = "") {
       const term = search.trim().toLowerCase();
       return (await catalog()).filter((product) =>

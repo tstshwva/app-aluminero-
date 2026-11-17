@@ -1,7 +1,6 @@
-[CmdletBinding(DefaultParameterSetName = 'Usb')]
+[CmdletBinding(DefaultParameterSetName = 'Firebase')]
 param(
-    [Parameter(Mandatory, ParameterSetName = 'Usb')][switch]$Usb,
-    [Parameter(Mandatory, ParameterSetName = 'Publica')][uri]$ApiUrl,
+    [Parameter(ParameterSetName = 'Firebase')][switch]$Firebase,
     # Modo demostración: datos de ejemplo en memoria, sin API ni certificado.
     [Parameter(Mandatory, ParameterSetName = 'Demo')][switch]$Demo,
     [ValidateSet('cliente','empresa')][string[]]$Apps = @('cliente','empresa'),
@@ -27,26 +26,16 @@ function Confirmar-Codigo([string]$etapa) {
     if ($LASTEXITCODE -ne 0) { throw "$etapa falló ($LASTEXITCODE)." }
 }
 
-if ($Usb) {
-    $certPath = Join-Path $root '.local/api-localhost-cert.pem'
-    if (!(Test-Path $certPath)) { throw 'Falta el certificado público de la API local.' }
-    $cert = [IO.File]::ReadAllText($certPath)
-    if ($cert -notmatch '\A\s*-----BEGIN CERTIFICATE-----[\sA-Za-z0-9+/=]+-----END CERTIFICATE-----\s*\z') {
-        throw 'Se esperaba exclusivamente el certificado público PEM.'
+$suffix = if ($Demo) { 'demo' } else { 'firebase' }
+$firebaseConfig = $null
+if (!$Demo) {
+    $configFile = Join-Path $root 'apps/cliente/google-services.json'
+    if (!(Test-Path -LiteralPath $configFile)) { throw 'Falta el archivo de configuración de Firebase de Cliente.' }
+    $config = Get-Content -LiteralPath $configFile -Raw | ConvertFrom-Json
+    $firebaseConfig = $config.client | Where-Object { $_.client_info.android_client_info.package_name -eq 'com.aluformix.cliente' }
+    if ($config.project_info.project_id -ne 'alumineroapp-9244c' -or !$firebaseConfig.api_key[0].current_key -or !$firebaseConfig.client_info.mobilesdk_app_id) {
+        throw 'La configuración de Firebase no corresponde a Aluformix.'
     }
-    $port = & $node --input-type=module -e "import {readFileSync} from 'node:fs'; import {parseEnv} from 'node:util'; const p=Number(parseEnv(readFileSync(process.argv[1],'utf8')).PORT || 5180); if (!Number.isInteger(p)||p<1024||p>65535) process.exit(1); console.log(p);" (Join-Path $root '.env')
-    Confirmar-Codigo 'Lectura del puerto local'
-    $url = "https://localhost:$port/"
-    $suffix = 'usb'
-} elseif ($Demo) {
-    $url = ''
-    $suffix = 'demo'
-} else {
-    if (!$ApiUrl.IsAbsoluteUri -or $ApiUrl.Scheme -ne 'https' -or $ApiUrl.UserInfo -or $ApiUrl.Query -or $ApiUrl.Fragment -or $ApiUrl.IsLoopback) {
-        throw 'La URL de la API debe ser HTTPS pública, sin credenciales, consulta ni fragmento.'
-    }
-    $url = $ApiUrl.AbsoluteUri.TrimEnd('/') + '/'
-    $suffix = 'https'
 }
 
 $outputDir = (New-Item -Path $Output -ItemType Directory -Force).FullName
@@ -59,7 +48,8 @@ if ($existingKey -and !$existingPassword) {
     throw 'Falta la contraseña DPAPI de la firma existente. Recupera el respaldo antes de compilar.'
 }
 $priorPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
-$priorUrl = $env:EXPO_PUBLIC_API_URL
+$priorFirebaseKey = $env:EXPO_PUBLIC_FIREBASE_API_KEY
+$priorFirebaseAppId = $env:EXPO_PUBLIC_FIREBASE_APP_ID
 $priorDemo = $env:EXPO_PUBLIC_DEMO
 $priorCi = $env:CI
 try {
@@ -78,7 +68,10 @@ try {
     }
     $signingPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
     Remove-Item Env:ALUFORMIX_APK_SIGNING_PASSWORD
-    $env:EXPO_PUBLIC_API_URL = $url
+    if (!$Demo) {
+        $env:EXPO_PUBLIC_FIREBASE_API_KEY = $firebaseConfig.api_key[0].current_key
+        $env:EXPO_PUBLIC_FIREBASE_APP_ID = $firebaseConfig.client_info.mobilesdk_app_id
+    }
     $env:EXPO_PUBLIC_DEMO = if ($Demo) { '1' } else { '0' }
     $env:CI = '1'
     $expo = Join-Path $root 'node_modules/expo/bin/cli'
@@ -115,24 +108,6 @@ if (project.hasProperty("aluformixNativeDir")) {
 "@
             }
             [IO.File]::WriteAllText($gradleFile, $gradle + [char]10)
-            if ($Usb) {
-                $main = 'android/app/src/main'
-                New-Item -ItemType Directory -Path "$main/res/raw","$main/res/xml" -Force | Out-Null
-                [IO.File]::WriteAllText((Join-Path $PWD "$main/res/raw/aluformix_usb_cert.pem"), $cert.Trim() + "`n")
-                @"
-<network-security-config>
-    <base-config cleartextTrafficPermitted="false" />
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="false">localhost</domain>
-        <trust-anchors><certificates src="@raw/aluformix_usb_cert" /></trust-anchors>
-    </domain-config>
-</network-security-config>
-"@ | Set-Content "$main/res/xml/aluformix_network_security.xml" -Encoding utf8
-                $manifest = Join-Path $PWD "$main/AndroidManifest.xml"
-                $xml = [xml][IO.File]::ReadAllText($manifest)
-                $xml.manifest.application.SetAttribute('networkSecurityConfig', 'http://schemas.android.com/apk/res/android', '@xml/aluformix_network_security')
-                $xml.Save($manifest)
-            }
             Push-Location android
             try {
                 # Fuerza el bundle porque incluye código compartido fuera del directorio de la app.
@@ -155,7 +130,8 @@ if (project.hasProperty("aluformixNativeDir")) {
     }
 } finally {
     $env:ALUFORMIX_APK_SIGNING_PASSWORD = $priorPassword
-    $env:EXPO_PUBLIC_API_URL = $priorUrl
+    $env:EXPO_PUBLIC_FIREBASE_API_KEY = $priorFirebaseKey
+    $env:EXPO_PUBLIC_FIREBASE_APP_ID = $priorFirebaseAppId
     $env:EXPO_PUBLIC_DEMO = $priorDemo
     $env:CI = $priorCi
 }
