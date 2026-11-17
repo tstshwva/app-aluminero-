@@ -12,6 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
+    .replace('import { useOrderOutbox } from "./orderOutbox";', "const useOrderOutbox=()=>({});")
     .replace(/require\("\.\.\/assets\/[^"\n]+\.png"\)/g, "0")
     .replace(
       'import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";',
