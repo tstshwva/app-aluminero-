@@ -13,6 +13,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   runTransaction,
   query,
   where,
@@ -59,6 +60,7 @@ export function createFirebaseClient({ config, storage, audience }) {
 
   const { auth, db } = instances.get(name);
   const orders = collection(db, "pedidos");
+  const products = collection(db, "catalogo");
   const company = audience === "empresa";
   const roleDoc = (uid) => doc(db, "aluf_staff", uid);
 
@@ -107,7 +109,54 @@ export function createFirebaseClient({ config, storage, audience }) {
       .map(readOrder)
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
 
+  async function catalog() {
+    const snapshot = await getDocs(query(products, orderBy("name")));
+    return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+  }
+
+  async function orderDetail(id) {
+    const snapshot = await getDoc(doc(orders, String(id)));
+    if (!snapshot.exists()) throw new Error("El pedido no existe.");
+    const order = readOrder(snapshot);
+    return {
+      order,
+      items: order.items.map((item, index) => ({
+        ...item,
+        id: String(index + 1),
+        product_id: item.productId,
+        cut_length_mm: item.cutLengthMm ?? null,
+      })),
+      quote: order.quote ?? null,
+      history: order.history ?? [],
+      payments: order.payments ?? [],
+    };
+  }
+
   return {
+    catalog,
+    async products(search = "") {
+      const term = search.trim().toLowerCase();
+      return (await catalog()).filter((product) =>
+        [product.name, product.code].some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(term),
+        ),
+      );
+    },
+    async product(id) {
+      const snapshot = await getDoc(doc(products, String(id)));
+      if (!snapshot.exists()) throw new Error("El producto no existe.");
+      return { ...snapshot.data(), id: snapshot.id };
+    },
+    async profile() {
+      const user = auth.currentUser;
+      if (!user) throw new Error("Inicia sesión para continuar.");
+      const snapshot = await getDoc(doc(db, "usuarios", user.uid));
+      return { ...snapshot.data(), ...(await account(user)) };
+    },
+    orderDetail,
+    order: orderDetail,
     async login(email, password) {
       const { user } = await signInWithEmailAndPassword(
         auth,
