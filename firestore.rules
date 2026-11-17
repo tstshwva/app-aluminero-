@@ -20,51 +20,7 @@ service cloud.firestore {
         request.resource.data.keys().hasOnly(['active', 'role', 'inviteCode']) &&
         request.resource.data.active == true &&
         request.resource.data.role == "Operador" &&
-        request.resource.data.inviteCode.matches('^[a-f0-9]{32}
-
-    match /categorias/{categoryId} {
-      allow get, list: if signedIn();
-    }
-
-    match /catalogo/{productoId} {
-      allow get, list: if signedIn();
-    }
-
-    match /usuarios/{uid} {
-      allow get: if signedIn() && request.auth.uid == uid;
-    }
-
-    match /pedidos/{pedidoId} {
-      allow get: if signedIn() && resource == null;
-      allow get, list: if signedIn() &&
-        (resource.data.ownerUid == request.auth.uid || staff());
-
-      allow create: if signedIn() &&
-        pedidoId.matches('^[0-9a-fA-F-]{36}$') &&
-        request.resource.data.keys().hasAll(
-          ['ownerUid', 'status', 'fulfillment', 'deliveryAddress', 'notes', 'items', 'createdAt']
-        ) &&
-        request.resource.data.keys().hasOnly(
-          ['ownerUid', 'status', 'fulfillment', 'deliveryAddress', 'notes', 'items', 'createdAt']
-        ) &&
-        request.resource.data.ownerUid == request.auth.uid &&
-        request.resource.data.status == 'Solicitado' &&
-        request.resource.data.createdAt == request.time &&
-        request.resource.data.notes is string &&
-        request.resource.data.notes.size() <= 2000 &&
-        request.resource.data.deliveryAddress is string &&
-        request.resource.data.deliveryAddress.size() <= 500 &&
-        ((request.resource.data.fulfillment == 'Recoger' &&
-          request.resource.data.deliveryAddress == '') ||
-         (request.resource.data.fulfillment == 'Entrega' &&
-          request.resource.data.deliveryAddress.size() > 0)) &&
-        request.resource.data.items is list &&
-        request.resource.data.items.size() > 0 &&
-        request.resource.data.items.size() <= 50;
-    }
-  }
-}
-) &&
+        request.resource.data.inviteCode.matches('^[a-f0-9]{32}$') &&
         get(invitePath(request.resource.data.inviteCode)).data.usedBy == null &&
         getAfter(invitePath(request.resource.data.inviteCode)).data.usedBy == uid;
     }
