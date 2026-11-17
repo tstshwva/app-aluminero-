@@ -330,3 +330,4 @@ export function createClient({
     createStaff: (body) => request("api/auth/staff", { method: "POST", body }),
   };
 }
+export { createFirebaseClient } from "./firebaseClient.js";

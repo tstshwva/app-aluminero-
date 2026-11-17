@@ -1,0 +1,189 @@
+import { initializeApp, getApps } from "firebase/app";
+import {
+  initializeAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendPasswordResetEmail,
+  signOut,
+} from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  runTransaction,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp,
+} from "firebase/firestore";
+
+const instances = new Map();
+
+export function createFirebaseClient({ config, storage, audience }) {
+  const name = "aluformix-" + audience;
+  if (!instances.has(name)) {
+    const app =
+      getApps().find((item) => item.name === name) ??
+      initializeApp(config, name);
+    const persistence = class {
+      static type = "LOCAL";
+      type = "LOCAL";
+      async _isAvailable() {
+        await storage.get();
+        return true;
+      }
+      async _set(_key, data) {
+        await storage.save(JSON.stringify(data));
+      }
+      async _get() {
+        try {
+          return JSON.parse(await storage.get());
+        } catch {
+          return null;
+        }
+      }
+      async _remove() {
+        await storage.clear();
+      }
+      _addListener() {}
+      _removeListener() {}
+    };
+    instances.set(name, {
+      auth: initializeAuth(app, { persistence }),
+      db: getFirestore(app),
+    });
+  }
+
+  const { auth, db } = instances.get(name);
+  const orders = collection(db, "pedidos");
+  const company = audience === "empresa";
+  const roleDoc = (uid) => doc(db, "aluf_staff", uid);
+
+  async function account(user) {
+    if (!user) return null;
+    const staff = (await getDoc(roleDoc(user.uid))).data();
+    const role =
+      staff?.active === true &&
+      ["Administrador", "Operador"].includes(staff.role)
+        ? staff.role
+        : "Cliente";
+    if (company !== (role !== "Cliente")) {
+      await signOut(auth);
+      throw new Error("Esta cuenta no corresponde a esta aplicación.");
+    }
+    return {
+      id: user.uid,
+      name: user.displayName || user.email,
+      email: user.email,
+      role,
+    };
+  }
+
+  function orderQuery(status) {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Inicia sesión para continuar.");
+    const filters = [];
+    if (!company) filters.push(where("ownerUid", "==", user.uid));
+    if (status) filters.push(where("status", "==", status));
+    return query(orders, ...filters);
+  }
+
+  const readOrder = (snapshot) => {
+    const value = snapshot.data();
+    return {
+      ...value,
+      id: snapshot.id,
+      user_id: value.ownerUid,
+      created_at: value.createdAt?.toDate()?.toISOString() ?? null,
+      delivery_address: value.deliveryAddress || null,
+    };
+  };
+
+  const list = (snapshot) =>
+    snapshot.docs
+      .map(readOrder)
+      .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
+
+  return {
+    async login(email, password) {
+      const { user } = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      ).catch((error) => {
+        if (
+          [
+            "auth/invalid-credential",
+            "auth/user-not-found",
+            "auth/wrong-password",
+          ].includes(error.code)
+        )
+          throw new Error("El correo o la contraseña son incorrectos.");
+        throw error;
+      });
+      return account(user);
+    },
+    async register({ email, password, name: displayName }) {
+      if (company)
+        throw new Error("La cuenta de Empresa requiere autorización.");
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      );
+      try {
+        await updateProfile(user, { displayName: displayName.trim() });
+      } finally {
+        await signOut(auth);
+      }
+      return { id: user.uid, role: "Cliente" };
+    },
+    async current() {
+      await auth.authStateReady();
+      return account(auth.currentUser);
+    },
+    logout: () => signOut(auth),
+    recovery: (email) => sendPasswordResetEmail(auth, email.trim()),
+    async createOrder({
+      requestKey,
+      fulfillment,
+      deliveryAddress,
+      notes,
+      items,
+    }) {
+      if (company || !auth.currentUser)
+        throw new Error("Inicia sesión como comprador.");
+      const ref = doc(orders, requestKey);
+      const ownerUid = auth.currentUser.uid;
+      return runTransaction(db, async (transaction) => {
+        const existing = await transaction.get(ref);
+        if (!existing.exists()) {
+          transaction.set(ref, {
+            ownerUid,
+            fulfillment,
+            deliveryAddress:
+              fulfillment === "Entrega" ? (deliveryAddress ?? "").trim() : "",
+            notes: notes ?? "",
+            items,
+            status: "Solicitado",
+            createdAt: serverTimestamp(),
+          });
+        }
+        return { id: ref.id };
+      });
+    },
+    async orders(status) {
+      return list(await getDocs(orderQuery(status)));
+    },
+    subscribeOrders(status, callback, onError) {
+      return onSnapshot(
+        orderQuery(status),
+        (snapshot) => callback(list(snapshot)),
+        onError,
+      );
+    },
+  };
+}

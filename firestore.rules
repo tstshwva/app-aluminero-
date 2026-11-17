@@ -10,7 +10,12 @@ service cloud.firestore {
         get(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.active == true;
     }
 
+    match /aluf_staff/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+    }
+
     match /pedidos/{pedidoId} {
+      allow get: if signedIn() && resource == null;
       allow get, list: if signedIn() &&
         (resource.data.ownerUid == request.auth.uid || staff());
 
