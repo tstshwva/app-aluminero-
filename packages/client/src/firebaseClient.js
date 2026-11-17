@@ -10,7 +10,7 @@ import {
   signOut,
 } from "firebase/auth";
 import {
-  getFirestore,
+  initializeFirestore,
   collection,
   doc,
   getDoc,
@@ -30,6 +30,7 @@ export function createFirebaseClient({
   storage,
   audience,
   getAssistantAppCheckToken,
+  forceLongPolling = false,
 }) {
   const name = "aluformix-" + audience;
   if (!instances.has(name)) {
@@ -62,7 +63,10 @@ export function createFirebaseClient({
     instances.set(name, {
       app,
       auth: initializeAuth(app, { persistence }),
-      db: getFirestore(app),
+      db: initializeFirestore(
+        app,
+        forceLongPolling ? { experimentalForceLongPolling: true } : {},
+      ),
     });
   }
 
@@ -74,7 +78,15 @@ export function createFirebaseClient({
 
   async function account(user) {
     if (!user) return null;
-    const staff = (await getDoc(roleDoc(user.uid))).data();
+    const staffSnapshot = await getDoc(roleDoc(user.uid)).catch((error) => {
+      if (error.code === "unavailable" || error.code === "deadline-exceeded") {
+        throw new Error(
+          "No pudimos verificar tu cuenta en Firestore. Cambia entre Wi-Fi y datos móviles y vuelve a intentarlo.",
+        );
+      }
+      throw error;
+    });
+    const staff = staffSnapshot.data();
     const role =
       staff?.active === true &&
       ["Administrador", "Operador"].includes(staff.role)

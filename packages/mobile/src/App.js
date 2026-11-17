@@ -63,6 +63,7 @@ function AppContent({ audience }) {
         : createFirebaseClient({
             audience,
             storage,
+            forceLongPolling: Platform.OS === "android",
             getAssistantAppCheckToken:
               audience === "cliente" ? getAssistantAppCheckToken : undefined,
             config: {
