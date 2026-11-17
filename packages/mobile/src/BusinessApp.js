@@ -568,10 +568,11 @@ export default function BusinessApp({
     view = company ? "detalle" : "seguimiento",
   ) {
     const detail = await client.order(orderId);
-    const settings = detail.quote ? null : await client.company();
+    const settings =
+      detail.quote || !client.company ? null : await client.company();
     setData(detail);
     setForm({
-      taxRate: detail.quote?.tax_rate ?? settings.tax_rate,
+      taxRate: detail.quote?.tax_rate ?? settings?.tax_rate ?? "",
       shipping: detail.quote?.shipping ?? "0.00",
       ...Object.fromEntries(
         detail.items.map((i) => ["price" + i.id, i.unit_price]),
@@ -635,7 +636,11 @@ export default function BusinessApp({
           "Edita " + item.product.name + " y selecciona un acabado disponible.",
         );
     }
-    const settings = await client.company();
+    if (company && !client.customers)
+      throw new Error(
+        "El alta de encargos desde Empresa sigue pendiente en Firebase.",
+      );
+    const settings = client.company ? await client.company() : null;
     setData({
       company: settings,
       ...(company
@@ -3154,6 +3159,10 @@ export default function BusinessApp({
                     "Describe el material o trabajo que necesitas.",
                   );
                 setAnswer("");
+                if (!client.assistant)
+                  throw new Error(
+                    "El Asistente de materiales todavía no está conectado. Puedes buscar el material en el catálogo.",
+                  );
                 const result = await client.assistant(question);
                 setAnswer(result.answer);
               }),
