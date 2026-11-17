@@ -313,7 +313,7 @@ export function createFirebaseClient({
           return { id: user.uid };
         } catch (error) {
           if (error.code !== "permission-denied") throw error;
-          throw Object.assign(new Error("El código es inválido, ya se usó o pertenece a otro correo."), { field: "inviteCode" });
+          throw Object.assign(new Error("El código no es válido, ya se usó o venció."), { field: "inviteCode" });
         } finally {
           await signOut(auth);
         }

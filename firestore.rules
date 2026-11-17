@@ -27,7 +27,6 @@ service cloud.firestore {
 
     match /aluf_invites/{code} {
       allow update: if signedIn() &&
-        resource.data.email == request.auth.token.email &&
         resource.data.usedBy == null &&
         resource.data.expiresAt > request.time &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']) &&
