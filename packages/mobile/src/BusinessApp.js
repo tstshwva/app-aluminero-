@@ -442,7 +442,16 @@ export default function BusinessApp({
     run(async () => {
       await fn();
     });
+  const tabCache = useRef(new Map());
+  const navigationVersion = useRef(0);
   async function load(next, query = "") {
+    const version = ++navigationVersion.current;
+    const cacheKey = next + ":" + query;
+    const cached = tabCache.current.get(cacheKey);
+    if (cached && alive.current) {
+      setData(cached);
+      setScreen(next);
+    }
     let result = {};
     if (next === "inicio")
       result = company
@@ -545,7 +554,9 @@ export default function BusinessApp({
         taxRate: p.tax_rate,
       });
     }
-    if (alive.current) {
+    if (["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next))
+      tabCache.current.set(cacheKey, result);
+    if (alive.current && navigationVersion.current === version) {
       setData(result);
       setScreen(next);
     }

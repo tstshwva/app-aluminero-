@@ -130,9 +130,25 @@ export function createFirebaseClient({
       .map(readOrder)
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
 
+  const cachedReads = new Map();
+
+  function readCached(key, read) {
+    const cached = cachedReads.get(key);
+    if (cached && cached.expires > Date.now()) return cached.promise;
+    const entry = { expires: Date.now() + 30000 };
+    entry.promise = Promise.resolve().then(read).catch(error => {
+      if (cachedReads.get(key) === entry) cachedReads.delete(key);
+      throw error;
+    });
+    cachedReads.set(key, entry);
+    return entry.promise;
+  }
+
   async function catalog() {
-    const snapshot = await getDocs(query(products, orderBy("name")));
-    return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+    return readCached("catalog", async () => {
+      const snapshot = await getDocs(query(products, orderBy("name")));
+      return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+    });
   }
 
   async function orderDetail(id) {
@@ -243,6 +259,7 @@ export function createFirebaseClient({
     },
     catalog,
     async categories() {
+      return readCached("categories", async () => {
       const snapshot = await getDocs(
         query(collection(db, "categorias"), orderBy("nombre")),
       );
@@ -251,6 +268,7 @@ export function createFirebaseClient({
         id: category.id,
         name: category.data().nombre,
       }));
+      });
     },
     enterpriseDashboard,
     dashboard: enterpriseDashboard,
