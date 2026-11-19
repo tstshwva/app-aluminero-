@@ -178,7 +178,7 @@ export function createFirebaseClient({
 
   return {
     cloud: true,
-    async assistant(question) {
+    async assistant(question, image) {
       if (!getAssistantAppCheckToken)
         throw new Error(
           "El asistente requiere una versión de Android con App Check configurado.",
@@ -223,9 +223,11 @@ export function createFirebaseClient({
           },
           { timeout: 20000 },
         );
-        const result = await model.generateContent(
-          JSON.stringify({ pregunta: prompt, catalogo: products }),
-        );
+        if (image && (typeof image !== "string" || image.length > 8000000 || !/^[A-Za-z0-9+/=]+$/.test(image)))
+          throw new Error("La imagen no es válida o es demasiado grande.");
+        const content = [{ text: JSON.stringify({ pregunta: prompt, catalogo: products }) }];
+        if (image) content.push({ inlineData: { mimeType: "image/jpeg", data: image } });
+        const result = await model.generateContent(content);
         const answer = result.response.text().trim();
         if (!answer) throw new Error("Respuesta vacía.");
         return { answer };

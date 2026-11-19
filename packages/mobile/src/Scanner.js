@@ -1,10 +1,13 @@
 import React, { useRef, useState } from "react";
-import { Linking, Pressable, Text, View } from "react-native";
+import { Linking, Pressable, Text, TextInput, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Notice } from "./Feedback";
-export default function Scanner({ onScan, onClose, onManual, dark }) {
+export default function Scanner({ onScan, onClose, onManual, onReadList, dark }) {
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
+  const camera = useRef(null);
+  const [reading, setReading] = useState(false);
+  const [listText, setListText] = useState("");
   const [message, setMessage] = useState("");
   const [cameraFailed, setCameraFailed] = useState(false);
   const ink = dark ? "#f2f2f2" : "#102c46";
@@ -104,6 +107,7 @@ export default function Scanner({ onScan, onClose, onManual, dark }) {
         )
       ) : (
         <CameraView
+          ref={camera}
           style={{
             height: 300,
             marginVertical: 8,
@@ -150,6 +154,20 @@ export default function Scanner({ onScan, onClose, onManual, dark }) {
         onDismiss={() => setMessage("")}
         dark={dark}
       />
+      {!!onReadList && permission?.granted && !cameraFailed && button(reading ? "Leyendo lista…" : "Fotografiar lista escrita", async () => {
+        if (reading) return;
+        setReading(true);
+        setMessage("");
+        try {
+          const photo = await camera.current.takePictureAsync({ base64: true, quality: 0.4 });
+          setListText(await onReadList(photo.base64));
+        } catch {
+          setMessage("No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.");
+        } finally { setReading(false); }
+      })}
+      <Text style={{ color: ink, marginTop: 12 }}>Revisa o escribe tu lista, un material por renglón</Text>
+      <TextInput multiline value={listText} onChangeText={setListText} maxLength={4000} placeholder="Riel de aluminio\nContramarco" style={{ minHeight: 120, color: ink, borderWidth: 1, borderColor: "#879bac", borderRadius: 12, padding: 12, marginVertical: 8 }} />
+      {button("Buscar lista completa", () => { if (listText.trim()) onScan(listText.trim()); else setMessage("Escribe al menos un material."); })}
       {button("Buscar manualmente", onManual)}
       {button("Volver sin escanear", onClose, true)}
     </View>

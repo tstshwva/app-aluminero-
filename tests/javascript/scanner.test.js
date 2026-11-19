@@ -20,7 +20,7 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
     )
     .replace(
       /import \{[^}]*\} from "react-native";/,
-      'const Pressable="Pressable", Text="Text", View="View", Linking={};',
+      'const Pressable="Pressable", Text="Text", TextInput="TextInput", View="View", Linking={};',
     )
     .replace(
       /import \{[^}]*\} from "expo-camera";/,

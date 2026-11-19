@@ -436,6 +436,8 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   const idOf = (code) => products.find((p) => p.code === code).id;
   const total = products.length;
   await press("Catálogo");
+  assert.equal(cards().length, Math.min(20, total));
+  while (cards().length < total) await press("Mostrar más materiales");
   assert.equal(cards().length, total);
   assert.ok(texts().includes(total + " productos"));
   assert.ok(!texts().some((t) => /$0.00/.test(t)), "Nunca muestra $0.00");

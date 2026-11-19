@@ -205,6 +205,7 @@ export default function BusinessApp({
     admin = user.role === "Administrador";
   const localOrders = client.cloud && !company && Platform.OS !== "web";
   const outbox = useOrderOutbox(client, user.id, localOrders);
+  const [catalogLimit, setCatalogLimit] = useState(20);
   const [screen, setScreen] = useState("inicio"),
     [data, setData] = useState({}),
     [form, setForm] = useState({}),
@@ -992,15 +993,18 @@ export default function BusinessApp({
     catalogFilter.group && !showingSystems
       ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
       : [];
+  useEffect(() => setCatalogLimit(20), [search, catalogFilter, screen]);
   const catalogList =
     screen === "catalogo"
       ? filterCatalog(allProducts, {
           ...catalogFilter,
           favorites: favoriteIds,
-          query: search,
+          query: search.includes("\n") ? "" : search,
           categoryNameOf,
         })
       : allProducts;
+  const listTerms = search.split(/\n/).map(term => term.trim().toLowerCase().replace(/^\d+\s+(?:(?:x|piezas? de|piezas?)\s+)?/i, "")).filter(Boolean);
+  const matchedCatalog = listTerms.length > 1 ? catalogList.filter(product => listTerms.some(term => [product.name, product.code].some(value => String(value ?? "").toLowerCase().includes(term)))) : catalogList;
   const productByCode = (codigo, alternos = []) =>
     allProducts.find((p) =>
       [codigo, ...alternos].filter(Boolean).includes(String(p.code)),
@@ -1471,10 +1475,11 @@ export default function BusinessApp({
             )}
             {!(showingSystems && screen === "catalogo") && (
               <View style={wide ? s.grid : null}>
-                {catalogList.map(productRow)}
+                {matchedCatalog.slice(0, catalogLimit).map(productRow)}
+                {matchedCatalog.length > catalogLimit && button("Mostrar más materiales", () => setCatalogLimit(limit => limit + 20), true)}
               </View>
             )}
-            {!!data.products && !catalogList.length && !showingSystems && (
+            {!!data.products && !matchedCatalog.length && !showingSystems && (
               <View style={s.empty}>
                 <Text style={s.name}>
                   {screen === "catalogo" &&
@@ -3144,6 +3149,7 @@ export default function BusinessApp({
         {screen === "camara" && (
           <Scanner
             dark={dark}
+            onReadList={client.cloud ? async (image) => (await client.assistant("Transcribe esta lista. Devuelve solamente el texto de cada material en un renglón separado, sin explicaciones. Conserva cantidades y medidas. No inventes texto ilegible.", image)).answer : undefined}
             onClose={back}
             onManual={() => go("catalogo")}
             onScan={(value) => {
