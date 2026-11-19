@@ -447,6 +447,7 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
     "Sin 6 m por defecto",
   );
   await press("Filtrar Perfiles");
+  while (texts().includes("Mostrar más materiales")) await press("Mostrar más materiales");
   assert.equal(
     cards().length,
     data.productos.filter((p) => p.codigo && p.grupo === "Perfiles").length,
@@ -486,6 +487,7 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   await press("♥ Favoritos");
   assert.deepEqual(cards(), [products[0].code]);
   await press("♥ Favoritos");
+  await type("Buscar producto", "2488");
   await press("Agregar a favoritos 2488");
   assert.deepEqual(calls.at(-1), { favorite: idOf("2488"), enabled: true });
   assert.ok(
