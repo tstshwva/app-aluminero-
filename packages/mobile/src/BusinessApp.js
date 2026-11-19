@@ -307,7 +307,10 @@ export default function BusinessApp({
   const nudgeQuantity = (item, step) => {
     const current = Number(String(item.quantity).replace(",", "."));
     const scaled = Number.isFinite(current) ? Math.round(current * 1000) : 1000;
-    const next = Math.min(999999999999, Math.max(1, scaled + step * 1000));
+    // Las cantidades van en milésimas: el botón − no baja de 1 unidad (1000).
+    // Una cantidad escrita menor que 1 (p. ej. 0.5 m²) se conserva en vez de subir.
+    const floor = Math.min(Math.max(scaled, 1), 1000);
+    const next = Math.min(999999999999, Math.max(floor, scaled + step * 1000));
     changeQuantity(item.productId, String(next / 1000));
   };
   const field = (
@@ -2484,7 +2487,7 @@ export default function BusinessApp({
                   <Text style={s.name}>Cotización · {quote.status}</Text>
                   {data.items.map((i) => (
                     <View key={i.id} style={s.amountRow}>
-                      <Text style={s.grow}>
+                      <Text style={[s.grow, s.plain]}>
                         {i.quantity} × {i.product_name}
                       </Text>
                       <Text style={s.name}>${i.unit_price} / unidad</Text>

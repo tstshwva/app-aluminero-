@@ -199,6 +199,14 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     ).length,
   );
   await press("Reducir Perfil de prueba UI");
+  // En 1, el botón − no debe bajar a 0.001.
+  await press("Reducir Perfil de prueba UI");
+  assert.equal(
+    renderer.root.findByProps({
+      accessibilityLabel: "Cantidad de Perfil de prueba UI",
+    }).props.value,
+    "1",
+  );
   await press("Revisar solicitud");
   await press("Enviar solicitud");
   assert.equal(calls[0].items[0].productId, "10");
@@ -208,6 +216,16 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
   assert.match(calls[0].requestKey, /^[a-f0-9-]{36}$/i);
   await press("Ver seguimiento");
   await press("Ver cotización");
+  // Las líneas de la cotización llevan color del tema (en oscuro eran invisibles).
+  const quoteLine = renderer.root.find(
+    (n) =>
+      n.type === "Text" &&
+      n.children.join("").includes("× Perfil de prueba UI"),
+  );
+  assert.ok(
+    [quoteLine.props.style].flat(Infinity).some((style) => style?.color),
+    "La línea de la cotización debe tener color de texto",
+  );
   await press("Aceptar cotización y reservar material");
   assert.deepEqual(calls[1], { orderId: "20", revision: 2 });
   assert.ok(
