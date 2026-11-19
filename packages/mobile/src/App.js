@@ -1,3 +1,4 @@
+import { useAppUpdates } from "./useAppUpdates";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -34,6 +35,7 @@ if (Platform.OS === "web" && typeof document !== "undefined")
   document.documentElement.lang = "es-MX";
 
 export default function AluformixApp({ audience }) {
+  useAppUpdates();
   return (
     <SafeAreaProvider>
       <AppContent audience={audience} />
