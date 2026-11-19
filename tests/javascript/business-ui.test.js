@@ -13,7 +13,7 @@ async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
     .replace('import { useOrderOutbox } from "./orderOutbox";', "const useOrderOutbox=()=>({});")
-    .replace(/require\("\.\.\/assets\/[^"\n]+\.(png|jpg)"\)/g, "0")
+    .replace(/require\("\.\.\/assets\/[^"\n]+\.(png|jpg|webp)"\)/g, "0")
     .replace(
       'import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";',
       "const FieldIssue=({message})=>message,Notice=({issue})=>issue?.message??null,validationStyles={invalid:{borderColor:'red'}},formError=(field,message)=>Object.assign(new Error(message),{field});",
@@ -30,7 +30,7 @@ async function component() {
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"]react-native['"];/s,
-      `const Animated={ScrollView:'ScrollView',Value:class{interpolate(){return 0}},timing:()=>({start(){},stop(){}})},Easing={out:()=>null,cubic:null},Platform={OS:'web'},Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
+      `const Animated={ScrollView:'ScrollView',View:'View',event:()=>()=>{},Value:class{interpolate(){return 0}setValue(){}},timing:()=>({start(){},stop(){}})},Easing={out:()=>null,cubic:null},Platform={OS:'web'},Alert={alert:(title,message,buttons)=>buttons?.at(-1)?.onPress?.()},AppState={addEventListener:()=>({remove(){}})},ActivityIndicator='ActivityIndicator',ScrollView='ScrollView',Image='Image',Pressable='Pressable',Share={share:async()=>{}},StyleSheet={create:x=>x},Text='Text',TextInput='TextInput',View='View',useWindowDimensions=()=>({width:globalThis.__uiWidth??390,height:800});`,
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"].\/catalogImages['"];/,

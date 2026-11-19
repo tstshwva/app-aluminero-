@@ -255,6 +255,10 @@ export default function BusinessApp({
     [search, setSearch] = useState(""),
     [catalogFilter, setCatalogFilter] = useState(emptyFilter),
     [favoriteIds, setFavoriteIds] = useState(() => new Set());
+  // Desplazamiento de Inicio: el fondo de la foto sube junto con el contenido,
+  // así la zona de materiales siempre queda sobre el color del tema.
+  const homeScroll = useRef(new Animated.Value(0)).current;
+  useEffect(() => homeScroll.setValue(0), [screen, homeScroll]);
   const { width } = useWindowDimensions();
   const wide = width >= 720,
     columns = width >= 1080 ? 3 : 2;
@@ -1154,15 +1158,36 @@ export default function BusinessApp({
   };
   return (
     <View style={s.shell}>
-      {/* Fondo: foto del almacén ya difuminada en el archivo, con un velo
-          para que el contenido se lea bien en ambos temas. */}
-      <Image
-        source={require("../assets/fondo-almacen.jpg")}
-        style={s.backdrop}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-      />
-      <View style={s.backdropVeil} pointerEvents="none" />
+      {/* Fondo solo en la parte superior de Inicio: foto del almacén con
+          difuminado ligero que se desvanece hacia abajo (transparencia en el
+          propio archivo) y un velo para que el texto se lea en ambos temas. */}
+      {screen === "inicio" && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            s.backdropArea,
+            {
+              transform: [
+                {
+                  translateY: homeScroll.interpolate({
+                    inputRange: [0, 600],
+                    outputRange: [0, -600],
+                    extrapolate: "clamp",
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Image
+            source={require("../assets/fondo-almacen.webp")}
+            style={s.backdrop}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+          <View style={s.backdropVeil} />
+        </Animated.View>
+      )}
       <View style={s.header}>
         <View style={s.headerSide}>
           {screen !== "inicio" ? (
@@ -1210,6 +1235,15 @@ export default function BusinessApp({
             ].includes(screen) && { maxWidth: columns === 3 ? 1120 : 900 },
         ]}
         keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={16}
+        onScroll={
+          screen === "inicio"
+            ? Animated.event(
+                [{ nativeEvent: { contentOffset: { y: homeScroll } } }],
+                { useNativeDriver: Platform.OS !== "web" },
+              )
+            : undefined
+        }
       >
         {!!message && (
           <Text accessibilityLiveRegion="polite" style={s.notice}>
@@ -3355,22 +3389,21 @@ export default function BusinessApp({
 }
 const baseStyles = {
   shell: { flex: 1, backgroundColor: "#f2f6fb", overflow: "hidden" },
-  backdrop: {
+  backdropArea: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
+    height: 600,
   },
+  backdrop: { width: "100%", height: "100%" },
   backdropVeil: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(242,246,251,0.62)",
+    backgroundColor: "rgba(242,246,251,0.55)",
   },
   grow: { flex: 1, minWidth: 0 },
   plain: { color: "#102c46" },
@@ -3962,7 +3995,7 @@ const DARK_BACKGROUND = {
   "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
   "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
-  "rgba(242,246,251,0.62)": "rgba(0,0,0,0.66)",
+  "rgba(242,246,251,0.55)": "rgba(0,0,0,0.55)",
   "#e1e9f1": "#2a2a2a",
   "#dce7f2": "#2a2a2a",
   "#cfdeec": "#333333",
