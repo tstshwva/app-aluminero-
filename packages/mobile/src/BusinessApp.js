@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   ActivityIndicator,
+  Animated,
   AppState,
+  Easing,
   Image,
   ScrollView,
   Pressable,
@@ -185,6 +187,47 @@ const help = [
     "Orienta sobre materiales del catálogo. No modifica encargos ni confirma medidas o precios. Revisa su sugerencia con la empresa.",
   ],
 ];
+// Transición al cambiar de apartado: cada pantalla es un ScrollView animado
+// que entra con un desvanecido, un ligero deslizamiento hacia arriba y una
+// escala sutil. Se monta de nuevo en cada cambio (key={screen}).
+function SectionScroll({ style, ...props }) {
+  const progress = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const animation = Animated.timing(progress, {
+      toValue: 1,
+      duration: 320,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: Platform.OS !== "web",
+    });
+    animation.start();
+    return () => animation.stop?.();
+  }, [progress]);
+  return (
+    <Animated.ScrollView
+      {...props}
+      style={[
+        style,
+        {
+          opacity: progress,
+          transform: [
+            {
+              translateY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [18, 0],
+              }),
+            },
+            {
+              scale: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.985, 1],
+              }),
+            },
+          ],
+        },
+      ]}
+    />
+  );
+}
 export default function BusinessApp({
   client,
   user,
@@ -1132,7 +1175,7 @@ export default function BusinessApp({
         </View>
       </View>
       {busy && <ActivityIndicator color="#007bff" />}
-      <ScrollView
+      <SectionScroll
         key={screen}
         style={s.grow}
         contentContainerStyle={[
@@ -3254,7 +3297,7 @@ export default function BusinessApp({
               </Text>
             </>,
           )}
-      </ScrollView>
+      </SectionScroll>
       <Notice issue={issue} onDismiss={onDismissIssue} dark={dark} />
       <View style={s.footer}>
         {tabs.map(([label, next, icon]) => (
