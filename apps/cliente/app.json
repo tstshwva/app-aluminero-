@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Aluformix Cliente",
-    "slug": "aluformix-cliente",
+    "slug": "aluformix",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -44,6 +44,7 @@
       ],
       "expo-notifications"
     ],
-    "icon": "../../packages/mobile/assets/aluformix-icon.png"
+    "icon": "../../packages/mobile/assets/aluformix-icon.png",
+    "owner": "seclon-company"
   }
 }
