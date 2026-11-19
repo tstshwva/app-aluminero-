@@ -13,7 +13,7 @@ async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
     .replace('import { useOrderOutbox } from "./orderOutbox";', "const useOrderOutbox=()=>({});")
-    .replace(/require\("\.\.\/assets\/[^"\n]+\.png"\)/g, "0")
+    .replace(/require\("\.\.\/assets\/[^"\n]+\.(png|jpg)"\)/g, "0")
     .replace(
       'import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";',
       "const FieldIssue=({message})=>message,Notice=({issue})=>issue?.message??null,validationStyles={invalid:{borderColor:'red'}},formError=(field,message)=>Object.assign(new Error(message),{field});",

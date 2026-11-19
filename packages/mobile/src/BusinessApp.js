@@ -1154,6 +1154,15 @@ export default function BusinessApp({
   };
   return (
     <View style={s.shell}>
+      {/* Fondo: foto del almacén ya difuminada en el archivo, con un velo
+          para que el contenido se lea bien en ambos temas. */}
+      <Image
+        source={require("../assets/fondo-almacen.jpg")}
+        style={s.backdrop}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+      />
+      <View style={s.backdropVeil} pointerEvents="none" />
       <View style={s.header}>
         <View style={s.headerSide}>
           {screen !== "inicio" ? (
@@ -3345,7 +3354,24 @@ export default function BusinessApp({
   );
 }
 const baseStyles = {
-  shell: { flex: 1, backgroundColor: "#f2f6fb" },
+  shell: { flex: 1, backgroundColor: "#f2f6fb", overflow: "hidden" },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+  },
+  backdropVeil: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(242,246,251,0.62)",
+  },
   grow: { flex: 1, minWidth: 0 },
   plain: { color: "#102c46" },
   switchTrack: {
@@ -3936,6 +3962,7 @@ const DARK_BACKGROUND = {
   "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
   "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
+  "rgba(242,246,251,0.62)": "rgba(0,0,0,0.66)",
   "#e1e9f1": "#2a2a2a",
   "#dce7f2": "#2a2a2a",
   "#cfdeec": "#333333",
