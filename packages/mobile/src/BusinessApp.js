@@ -22,6 +22,7 @@ import Scanner from "./Scanner";
 import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 import { displayLength, lengthUnits, toMillimeters } from "./measure.js";
 import { registerPush, disablePush } from "./push";
+import { loadPushEnabled, savePushEnabled } from "./preferences";
 import { catalogImages, genericImages, systemImages } from "./catalogImages";
 import {
   GROUPS,
@@ -249,6 +250,15 @@ export default function BusinessApp({
   const localOrders = client.cloud && !company && Platform.OS !== "web";
   const outbox = useOrderOutbox(client, user.id, localOrders);
   const [catalogLimit, setCatalogLimit] = useState(20);
+  // Estado de los avisos de este teléfono: decide qué botón se muestra.
+  const [pushOn, setPushOn] = useState(false);
+  useEffect(() => {
+    let active = true;
+    loadPushEnabled(audience).then((value) => active && setPushOn(value));
+    return () => {
+      active = false;
+    };
+  }, [audience]);
   const [screen, setScreen] = useState("inicio"),
     [data, setData] = useState({}),
     [form, setForm] = useState({}),
@@ -1554,10 +1564,18 @@ export default function BusinessApp({
                 )}
                 {data.products && !showingSystems && (
                   <Text style={s.resultCount} accessibilityLiveRegion="polite">
-                    {catalogList.length === 1
+                    {matchedCatalog.length === 1
                       ? "1 producto"
-                      : catalogList.length + " productos"}
-                    {search.trim() ? " para «" + search.trim() + "»" : ""}
+                      : matchedCatalog.length + " productos"}
+                    {search.trim()
+                      ? " para «" +
+                        search
+                          .split(/\n/)
+                          .map((term) => term.trim())
+                          .filter(Boolean)
+                          .join(", ") +
+                        "»"
+                      : ""}
                   </Text>
                 )}
               </>
@@ -2134,7 +2152,15 @@ export default function BusinessApp({
                     : "Solicitar entrega",
                   () => {
                     if (issue?.field === "deliveryAddress") onDismissIssue();
-                    setCheckout((x) => ({ ...x, fulfillment: value }));
+                    // Para entrega se propone la dirección guardada en el perfil.
+                    setCheckout((x) => ({
+                      ...x,
+                      fulfillment: value,
+                      deliveryAddress:
+                        value === "Entrega" && !x.deliveryAddress.trim()
+                          ? (data.profile?.address ?? "")
+                          : x.deliveryAddress,
+                    }));
                     cartKey.current = randomUUID();
                   },
                   checkout.fulfillment !== value,
@@ -2992,30 +3018,38 @@ export default function BusinessApp({
               Actualizar. Para avisos con la app cerrada se requiere una
               instalación propia con notificaciones configuradas.
             </Text>
-            {button(
-              "Activar avisos en este teléfono",
-              () =>
-                perform(async () => {
-                  await registerPush(client);
-                  Alert.alert(
-                    "Registro completado",
-                    "El dispositivo quedó registrado. La entrega depende de los permisos, conexión y configuración de Android o iOS.",
-                  );
-                }),
-              true,
-            )}
-            {button(
-              "Desactivar avisos en este teléfono",
-              () =>
-                perform(async () => {
-                  await disablePush(client);
-                  Alert.alert(
-                    "Avisos desactivados",
-                    "Puedes seguir consultando los avisos dentro de la app.",
-                  );
-                }),
-              true,
-            )}
+            <Text style={s.subtitle}>
+              Avisos en este teléfono: {pushOn ? "activados" : "desactivados"}
+            </Text>
+            {pushOn
+              ? button(
+                  "Desactivar avisos en este teléfono",
+                  () =>
+                    perform(async () => {
+                      await disablePush(client);
+                      setPushOn(false);
+                      savePushEnabled(audience, false);
+                      Alert.alert(
+                        "Avisos desactivados",
+                        "Puedes seguir consultando los avisos dentro de la app.",
+                      );
+                    }),
+                  true,
+                )
+              : button(
+                  "Activar avisos en este teléfono",
+                  () =>
+                    perform(async () => {
+                      await registerPush(client);
+                      setPushOn(true);
+                      savePushEnabled(audience, true);
+                      Alert.alert(
+                        "Registro completado",
+                        "El dispositivo quedó registrado. La entrega depende de los permisos, conexión y configuración de Android o iOS.",
+                      );
+                    }),
+                  true,
+                )}
             {!data.notifications?.length && (
               <Text style={s.plain}>No hay notificaciones.</Text>
             )}
@@ -3406,7 +3440,7 @@ const baseStyles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(242,246,251,0.55)",
+    backgroundColor: "rgba(242,246,251,0.72)",
   },
   grow: { flex: 1, minWidth: 0 },
   plain: { color: "#102c46" },
@@ -3998,7 +4032,7 @@ const DARK_BACKGROUND = {
   "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
   "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
-  "rgba(242,246,251,0.55)": "rgba(0,0,0,0.55)",
+  "rgba(242,246,251,0.72)": "rgba(0,0,0,0.55)",
   "#e1e9f1": "#2a2a2a",
   "#dce7f2": "#2a2a2a",
   "#cfdeec": "#333333",

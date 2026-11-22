@@ -479,8 +479,7 @@ export function createDemoClient(audience) {
         !String(body.unit ?? "").trim()
       )
         fail("Completa código, nombre y presentación.");
-      if (!MONEY.test(String(body.price)))
-        fail("Revisa el precio.");
+      if (!MONEY.test(String(body.price))) fail("Revisa el precio.");
       if (body.imageUrl && !/^https:\/\//.test(body.imageUrl))
         fail("La imagen debe usar una dirección HTTPS.");
       if (db.products.some((p) => p.code === body.code && p.id !== Number(id)))
@@ -834,7 +833,58 @@ export function createDemoClient(audience) {
     async assistant(question) {
       await delay();
       if (!String(question ?? "").trim()) fail("Escribe tu pregunta.");
-      fail("El asistente no está disponible en el modo demostración.", 503);
+      // Sin servicio externo: propone productos del catálogo de ejemplo cuyo
+      // nombre comparte palabras con la pregunta, para poder enseñar la función.
+      const plain = (text) =>
+        String(text ?? "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[̀-ͯ]/g, "");
+      // Palabras comunes que no describen un material.
+      const common = new Set([
+        "para",
+        "busco",
+        "buscar",
+        "necesito",
+        "quiero",
+        "tengo",
+        "como",
+        "donde",
+        "cual",
+        "cuales",
+        "sirve",
+        "material",
+        "materiales",
+        "unos",
+        "unas",
+        "esta",
+        "este",
+        "puedo",
+        "hacer",
+        "hola",
+        "favor",
+      ]);
+      const words = plain(question)
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length >= 4 && !common.has(w));
+      const matches = db.products
+        .filter((p) => p.active)
+        .map((p) => ({
+          p,
+          score: words.filter((w) => plain(p.name).includes(w)).length,
+        }))
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(({ p }) => "• " + p.name + " (código " + p.code + ")");
+      return {
+        answer:
+          "Respuesta de ejemplo del modo demostración.\n\n" +
+          (matches.length
+            ? "Materiales del catálogo que pueden servirte:\n" +
+              matches.join("\n")
+            : "No encontré materiales parecidos en el catálogo de ejemplo. Prueba con palabras como perfil, tubo, ángulo o vidrio."),
+      };
     },
     async createStaff() {
       fail("Crea cuentas de personal desde la app conectada.", 409);

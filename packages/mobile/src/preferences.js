@@ -19,3 +19,26 @@ export async function saveDarkMode(audience, dark) {
     // Si no se puede guardar, el modo se aplica solo durante esta sesión.
   }
 }
+
+// Recuerda si el usuario activó los avisos en este teléfono, para mostrar un
+// solo botón (activar o desactivar) según el estado.
+const pushKey = (audience) => `aluformix.${audience}.avisos`;
+
+export async function loadPushEnabled(audience) {
+  try {
+    return (await SecureStore.getItemAsync(pushKey(audience))) === "activos";
+  } catch {
+    return false;
+  }
+}
+
+export async function savePushEnabled(audience, enabled) {
+  try {
+    await SecureStore.setItemAsync(
+      pushKey(audience),
+      enabled ? "activos" : "inactivos",
+    );
+  } catch {
+    // Si no se puede guardar, el estado se conoce solo durante esta sesión.
+  }
+}

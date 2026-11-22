@@ -51,6 +51,10 @@ async function component() {
     .replace(
       /import\s*\{[^}]*\}\s*from ['"].\/push['"];/,
       "const registerPush=async()=>{},disablePush=async()=>{};",
+    )
+    .replace(
+      /import\s*\{[^}]*\}\s*from ['"].\/preferences['"];/,
+      "const loadPushEnabled=async()=>false,savePushEnabled=async()=>{};",
     );
   const code = transformSync(source, {
     babelrc: false,
@@ -123,6 +127,7 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
       name: "Comprador",
       phone: "9991234567",
       email: "buyer@example.invalid",
+      address: "Calle 1 #2, Centro",
     }),
     createOrder: async (body) => {
       calls.push(body);
@@ -208,6 +213,14 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     "1",
   );
   await press("Revisar solicitud");
+  // Al pedir entrega se propone la dirección guardada en el perfil.
+  await press("Solicitar entrega");
+  assert.equal(
+    renderer.root.findByProps({ placeholder: "Dirección completa" }).props
+      .value,
+    "Calle 1 #2, Centro",
+  );
+  await press("Recoger en sucursal");
   await press("Enviar solicitud");
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
@@ -499,6 +512,13 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   assert.deepEqual(cards(), ["07333"]);
   await type("Buscar producto", "pasamanos");
   assert.deepEqual(cards().sort(), ["53883", "53896"]);
+  // Búsqueda por lista (un material por renglón): el contador cuenta lo mostrado.
+  await type("Buscar producto", "2488\n07333");
+  assert.deepEqual(cards().sort(), ["07333", "2488"]);
+  assert.ok(
+    texts().includes("2 productos para «2488, 07333»"),
+    "El contador de la lista cuenta solo los productos mostrados",
+  );
   await type("Buscar producto", "sin coincidencias xyz");
   assert.ok(texts().includes("No encontramos productos"));
   await press("Limpiar filtros");

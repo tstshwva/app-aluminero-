@@ -21,7 +21,7 @@
     "@babel/parser": "^7.28.0",
     "prettier": "^3.9.10",
     "react-test-renderer": "^19.3.0",
-    "sharp": "^0.34.4"
+    "sharp": "^0.35.5"
   },
   "workspaces": [
     "apps/*",
@@ -30,6 +30,8 @@
   ],
   "overrides": {
     "glob": "14.0.3",
-    "minimatch": "11.0.3"
+    "minimatch": "11.0.3",
+    "@grpc/grpc-js": "1.13.7",
+    "node-forge": "1.4.3"
   }
 }

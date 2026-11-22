@@ -45,7 +45,11 @@ test("Modo demostración: el cliente compra, acepta la cotización y se reserva 
     c.quote(id, { taxRate: "0.16", shipping: "0", prices: [] }),
     { status: 403 },
   );
-  await assert.rejects(c.assistant("hola"), { status: 503 });
+  const suggestion = await c.assistant("Busco un tubo cuadrado");
+  assert.match(suggestion.answer, /Respuesta de ejemplo/);
+  assert.match(suggestion.answer, /Tubo cuadrado/);
+  assert.match((await c.assistant("hola")).answer, /No encontré materiales/);
+  await assert.rejects(c.assistant("   "), { status: 400 });
   await c.logout();
   assert.equal(await c.current(), null);
 });
