@@ -1370,7 +1370,7 @@ export default function BusinessApp({
         </View>
         <View style={[s.headerSide, s.headerActions]}>
           {iconButton("Notificaciones", "bell", () => go("notificaciones"))}
-          {iconButton("Escanear código", "camera", openCamera)}
+          {iconButton("Escanear cotización", "camera", openCamera)}
           {!company && iconButton("Mi encargo", "cart", openCart, cart.length)}
         </View>
       </View>
@@ -1480,7 +1480,7 @@ export default function BusinessApp({
                 </View>
                 <View style={s.quickRow}>
                   {button("Clientes", () => go("clientes"), true, s.grow)}
-                  {button("Escanear código", openCamera, true, s.grow)}
+                  {button("Escanear cotización", openCamera, true, s.grow)}
                 </View>
                 <Text style={s.sectionTitle}>Actividad reciente</Text>
                 {data.recent?.map((o) =>
@@ -1567,8 +1567,8 @@ export default function BusinessApp({
               )
             )}
             {menuRow(
-              "Escanear código",
-              "Lectura de código QR o de barras",
+              "Escanear cotización",
+              "Hoja escrita, código QR o de barras",
               openCamera,
             )}
             {menuRow(

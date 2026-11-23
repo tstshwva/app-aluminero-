@@ -61,7 +61,7 @@ export default function Scanner({
           marginTop: 12,
         }}
       >
-        Escanear material
+        Escanear cotización
       </Text>
       <Text style={{ color: dark ? "#a6a6a6" : "#526b82", marginVertical: 6 }}>
         Códigos del catálogo y cotizaciones escritas en hoja.
@@ -90,7 +90,7 @@ export default function Scanner({
           }}
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>
-            Escáner de materiales
+            Escanear cotización
           </Text>
         </View>
       )}
