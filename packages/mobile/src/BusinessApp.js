@@ -3764,7 +3764,7 @@ const baseStyles = {
     flexDirection: "row",
     alignItems: "center",
   },
-  headerActions: { justifyContent: "flex-end", flex: 1.45 },
+  headerActions: { justifyContent: "flex-end", flex: 1.45, minWidth: 102 },
   iconButton: {
     width: 34,
     height: 44,
@@ -3787,7 +3787,7 @@ const baseStyles = {
   brand: { flexDirection: "row", alignItems: "center", gap: 6 },
   brandName: {
     color: "#102c46",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "900",
     letterSpacing: 0.3,
     textAlign: "center",
@@ -3799,7 +3799,7 @@ const baseStyles = {
     letterSpacing: 2,
     textAlign: "center",
   },
-  logo: { width: 29, height: 29, borderRadius: 15 },
+  logo: { width: 42, height: 42, borderRadius: 21 },
   content: {
     width: "100%",
     maxWidth: 620,
