@@ -8,7 +8,12 @@ import Scanner from "./Scanner";
 import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 import { displayLength, lengthUnits, toMillimeters } from "./measure.js";
 import { registerPush, disablePush } from "./push";
-import { loadPushEnabled, savePushEnabled } from "./preferences";
+import {
+  loadContact,
+  loadPushEnabled,
+  saveContact,
+  savePushEnabled,
+} from "./preferences";
 import { catalogImages, genericImages, systemImages } from "./catalogImages";
 import {
   GROUPS,
@@ -304,6 +309,7 @@ export default function BusinessApp({
     [customerAdding, setCustomerAdding] = useState(false),
     [inventoryMode, setInventoryMode] = useState("movimientos"),
     [units, setUnits] = useState({});
+  const contactSent = useRef(null);
   const cartKey = useRef(randomUUID()),
     payKey = useRef(randomUUID()),
     alive = useRef(true);
@@ -343,7 +349,13 @@ export default function BusinessApp({
   const field = (
     name,
     label,
-    { decimal = false, secret = false, multiline = false, max = 500 } = {},
+    {
+      decimal = false,
+      secret = false,
+      multiline = false,
+      phone = false,
+      max = 500,
+    } = {},
   ) => (
     <View key={name}>
       <Text style={s.label}>{label}</Text>
@@ -351,7 +363,7 @@ export default function BusinessApp({
         accessibilityLabel={label}
         value={String(form[name] ?? "")}
         onChangeText={(v) => change(name, v)}
-        keyboardType={decimal ? "decimal-pad" : "default"}
+        keyboardType={decimal ? "decimal-pad" : phone ? "phone-pad" : "default"}
         secureTextEntry={secret}
         autoCapitalize={secret ? "none" : "sentences"}
         multiline={multiline}
@@ -814,12 +826,21 @@ export default function BusinessApp({
         "El alta de encargos desde Empresa sigue pendiente en Firebase.",
       );
     const settings = client.company ? await client.company() : null;
-    setData({
-      company: settings,
-      ...(company
-        ? { customers: await client.customers() }
-        : { profile: await client.profile() }),
-    });
+    if (company) {
+      setData({ company: settings, customers: await client.customers() });
+    } else {
+      const profile = await client.profile();
+      const saved = client.saveProfile ? {} : await loadContact(user.id);
+      setForm({
+        contactName: saved.name || profile.name || user.name || "",
+        contactPhone: saved.phone || profile.phone || "",
+        contactBusiness: saved.businessName || profile.business_name || "",
+      });
+      setData({
+        company: settings,
+        profile: { ...profile, address: profile.address || saved.address },
+      });
+    }
     setScreen("checkout");
   }
   async function submitOrder() {
@@ -830,9 +851,47 @@ export default function BusinessApp({
         "deliveryAddress",
         "Escribe la dirección completa para la entrega.",
       );
+    let notes = checkout.notes;
+    if (!company) {
+      // Los datos se llenan aquí mismo. Con API se guardan en el perfil; con
+      // Firebase viajan en las indicaciones, que es lo que ve la empresa.
+      const contact = {
+        name: required("contactName", "Escribe tu nombre."),
+        phone: validPhone("contactPhone"),
+        businessName: String(form.contactBusiness ?? "").trim(),
+        address:
+          data.profile?.address ||
+          (checkout.fulfillment === "Entrega"
+            ? checkout.deliveryAddress.trim()
+            : ""),
+      };
+      if (client.saveProfile) {
+        await client.saveProfile({
+          ...contact,
+          taxId: data.profile?.tax_id ?? "",
+        });
+        onUser({ ...user, name: contact.name });
+      } else {
+        await saveContact(user.id, contact);
+        notes = [
+          "Contacto: " + contact.name,
+          "Teléfono: " + contact.phone,
+          contact.businessName && "Taller: " + contact.businessName,
+          checkout.notes.trim(),
+        ]
+          .filter(Boolean)
+          .join("\n");
+      }
+      // Otros datos de contacto son otra solicitud, no un reintento.
+      const signature = JSON.stringify(contact);
+      if (contactSent.current && contactSent.current !== signature)
+        cartKey.current = randomUUID();
+      contactSent.current = signature;
+    }
     const order = {
       requestKey: cartKey.current,
       ...checkout,
+      notes,
       ...(!company ? { customerId: null } : {}),
       items: cart.map(({ productId, quantity, cutLengthMm, finish }) => ({
         productId,
@@ -2337,19 +2396,18 @@ export default function BusinessApp({
                 "contacto",
                 <>
                   <Text style={s.name}>Tus datos de contacto</Text>
-                  {[
-                    ["Nombre o contacto", data.profile.name],
-                    ["Teléfono de contacto", data.profile.phone],
-                    ["Taller o negocio", data.profile.business_name],
-                  ].map(([label, value]) => (
-                    <View key={label}>
-                      <Text style={s.label}>{label}</Text>
-                      <Text style={s.fieldRead}>
-                        {value || "Sin registrar"}
-                      </Text>
-                    </View>
-                  ))}
-                  {button("Corregir mis datos", () => go("perfil"), true)}
+                  <Text style={s.subtitle}>
+                    Los usaremos para confirmar este encargo y quedarán
+                    guardados para el siguiente.
+                  </Text>
+                  {field("contactName", "Nombre o contacto", { max: 120 })}
+                  {field("contactPhone", "Teléfono de contacto", {
+                    phone: true,
+                    max: 25,
+                  })}
+                  {field("contactBusiness", "Taller o negocio (opcional)", {
+                    max: 160,
+                  })}
                 </>,
               )}
             {checkout.fulfillment === "Entrega" && (
@@ -2384,7 +2442,7 @@ export default function BusinessApp({
               placeholder="Indicaciones para la empresa"
               style={s.input}
               multiline
-              maxLength={2000}
+              maxLength={1600}
               value={checkout.notes}
               onChangeText={(value) => {
                 setCheckout((x) => ({ ...x, notes: value }));

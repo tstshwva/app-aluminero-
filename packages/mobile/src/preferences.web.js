@@ -40,3 +40,9 @@ export async function savePushEnabled(audience, enabled) {
     // Navegación privada o almacenamiento bloqueado: solo para esta sesión.
   }
 }
+
+// En el navegador no se guardan datos personales.
+export async function loadContact() {
+  return {};
+}
+export async function saveContact() {}

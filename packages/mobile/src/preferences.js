@@ -42,3 +42,26 @@ export async function savePushEnabled(audience, enabled) {
     // Si no se puede guardar, el estado se conoce solo durante esta sesión.
   }
 }
+
+// Datos de contacto del comprador para no pedirlos en cada encargo. Se guardan
+// cifrados en el teléfono, por cuenta.
+const contactKey = (userId) =>
+  "aluformix.contacto." + String(userId).replace(/[^A-Za-z0-9._-]/g, "_");
+
+export async function loadContact(userId) {
+  try {
+    return JSON.parse(
+      (await SecureStore.getItemAsync(contactKey(userId))) ?? "{}",
+    );
+  } catch {
+    return {};
+  }
+}
+
+export async function saveContact(userId, contact) {
+  try {
+    await SecureStore.setItemAsync(contactKey(userId), JSON.stringify(contact));
+  } catch {
+    // Sin almacenamiento, se vuelven a pedir en el siguiente encargo.
+  }
+}

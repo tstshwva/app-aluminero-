@@ -59,7 +59,7 @@ async function component() {
     )
     .replace(
       /import\s*\{[^}]*\}\s*from ['"].\/preferences['"];/,
-      "const loadPushEnabled=async()=>false,savePushEnabled=async()=>{};",
+      "const loadPushEnabled=async()=>false,savePushEnabled=async()=>{},loadContact=async()=>({}),saveContact=async(id,c)=>{globalThis.__savedContact=[id,c]};",
     );
   const code = transformSync(source, {
     babelrc: false,
@@ -226,7 +226,38 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
     "Calle 1 #2, Centro",
   );
   await press("Recoger en sucursal");
+  // Los datos de contacto se llenan en el mismo encargo.
+  const contact = (label) =>
+    renderer.root.findByProps({ accessibilityLabel: label });
+  assert.equal(contact("Nombre o contacto").props.value, "Comprador");
+  await act(async () =>
+    contact("Teléfono de contacto").props.onChangeText(""),
+  );
+  await assert.rejects(
+    () => press("Enviar solicitud"),
+    (e) => e.field === "contactPhone",
+  );
+  assert.equal(calls.length, 0, "Sin teléfono no se envía");
+  await act(async () =>
+    contact("Teléfono de contacto").props.onChangeText("999 222 3344"),
+  );
+  await act(async () =>
+    contact("Taller o negocio (opcional)").props.onChangeText("Taller Uno"),
+  );
   await press("Enviar solicitud");
+  assert.equal(
+    calls[0].notes,
+    "Contacto: Comprador\nTeléfono: 999 222 3344\nTaller: Taller Uno",
+  );
+  assert.deepEqual(globalThis.__savedContact, [
+    "1",
+    {
+      name: "Comprador",
+      phone: "999 222 3344",
+      businessName: "Taller Uno",
+      address: "Calle 1 #2, Centro",
+    },
+  ]);
   assert.equal(calls[0].items[0].productId, "10");
   assert.equal(calls[0].items[0].quantity, "1");
   assert.equal(calls[0].items[0].cutLengthMm, 1255);
@@ -421,7 +452,7 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
     },
     product: async (id) => products.find((p) => p.id === String(id)),
     company: async () => ({ tax_rate: "0.1600" }),
-    profile: async () => ({ name: "Comprador" }),
+    profile: async () => ({ name: "Comprador", phone: "9991234567" }),
     createOrder: async (body) => {
       calls.push(body);
       return { id: "50" };
