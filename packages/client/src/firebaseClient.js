@@ -24,6 +24,8 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
+import { profileFields } from "./profile.js";
+
 const instances = new Map();
 
 export function createFirebaseClient({
@@ -309,6 +311,30 @@ export function createFirebaseClient({
       if (!user) throw new Error("Inicia sesión para continuar.");
       const snapshot = await getDoc(doc(db, "usuarios", user.uid));
       return { ...snapshot.data(), ...(await account(user)) };
+    },
+    async saveProfile(body) {
+      const user = auth.currentUser;
+      if (!user) throw new Error("Inicia sesión para continuar.");
+      const displayName = String(body.name ?? "")
+        .trim()
+        .slice(0, 120);
+      if (!displayName)
+        throw Object.assign(new Error("Escribe tu nombre."), { field: "name" });
+      if (!company) {
+        const ref = doc(db, "usuarios", user.uid);
+        try {
+          // Transacción: sin conexión falla en vez de quedarse esperando.
+          await runTransaction(db, async (transaction) => {
+            transaction.set(ref, profileFields(body), { merge: true });
+          });
+        } catch (error) {
+          if (error.code !== "permission-denied") throw error;
+          throw new Error(
+            "El perfil todavía no se puede guardar en el servidor. Puedes escribir tus datos al hacer un encargo.",
+          );
+        }
+      }
+      await updateProfile(user, { displayName });
     },
     orderDetail,
     order: orderDetail,

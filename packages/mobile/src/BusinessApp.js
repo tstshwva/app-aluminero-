@@ -830,11 +830,12 @@ export default function BusinessApp({
       setData({ company: settings, customers: await client.customers() });
     } else {
       const profile = await client.profile();
-      const saved = client.saveProfile ? {} : await loadContact(user.id);
+      const saved =
+        client.saveProfile && !client.cloud ? {} : await loadContact(user.id);
       setForm({
         contactName: saved.name || profile.name || user.name || "",
         contactPhone: saved.phone || profile.phone || "",
-        contactBusiness: saved.businessName || profile.business_name || "",
+        contactBusiness: saved.businessName ?? profile.business_name ?? "",
       });
       setData({
         company: settings,
@@ -865,14 +866,15 @@ export default function BusinessApp({
             ? checkout.deliveryAddress.trim()
             : ""),
       };
-      if (client.saveProfile) {
-        await client.saveProfile({
-          ...contact,
-          taxId: data.profile?.tax_id ?? "",
-        });
+      const profile = { ...contact, taxId: data.profile?.tax_id ?? "" };
+      if (client.saveProfile && !client.cloud) {
+        await client.saveProfile(profile);
         onUser({ ...user, name: contact.name });
       } else {
         await saveContact(user.id, contact);
+        // El encargo no depende del perfil: si no hay conexión o la regla aún no
+        // está publicada, el contacto llega de todos modos en las indicaciones.
+        client.saveProfile?.(profile)?.catch(() => {});
         notes = [
           "Contacto: " + contact.name,
           "Teléfono: " + contact.phone,
@@ -3406,6 +3408,13 @@ export default function BusinessApp({
                           );
                       }
                       await client.saveProfile(profile);
+                      if (client.cloud && !company)
+                        await saveContact(user.id, {
+                          name,
+                          phone: profile.phone,
+                          businessName: profile.businessName ?? "",
+                          address: profile.address ?? "",
+                        });
                       onUser({ ...user, name });
                       await load("perfil");
                     }),

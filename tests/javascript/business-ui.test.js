@@ -134,6 +134,10 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
       email: "buyer@example.invalid",
       address: "Calle 1 #2, Centro",
     }),
+    cloud: true,
+    saveProfile: async () => {
+      throw new Error("La regla aún no está publicada");
+    },
     createOrder: async (body) => {
       calls.push(body);
       return { id: "20" };

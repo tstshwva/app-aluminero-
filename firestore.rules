@@ -42,8 +42,28 @@ service cloud.firestore {
       allow get, list: if signedIn();
     }
 
+    // Datos de contacto que cada comprador guarda de sí mismo. El rol no vive
+    // aquí (ver aluf_staff) y ningún otro campo puede crearse ni cambiarse.
+    function profileKeys() {
+      return ['phone', 'business_name', 'tax_id', 'address'];
+    }
+
+    function validProfile(d) {
+      return d.keys().hasAll(profileKeys()) &&
+        d.phone is string && d.phone.matches('^[0-9 +()-]{10,25}$') &&
+        d.business_name is string && d.business_name.size() <= 160 &&
+        d.tax_id is string && d.tax_id.size() <= 13 &&
+        d.address is string && d.address.size() <= 500;
+    }
+
     match /usuarios/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(profileKeys()) &&
+        validProfile(request.resource.data);
+      allow update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(profileKeys()) &&
+        validProfile(request.resource.data);
     }
 
     match /pedidos/{pedidoId} {
