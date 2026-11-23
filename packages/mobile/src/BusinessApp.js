@@ -1,22 +1,7 @@
 import AssistantChat from "./AssistantChat";
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import {
-  Alert,
-  ActivityIndicator,
-  Animated,
-  AppState,
-  Easing,
-  Image,
-  ScrollView,
-  Pressable,
-  Platform,
-  Share,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Alert, ActivityIndicator, Animated, AppState, Easing, Image, ScrollView, Pressable, Platform, Share, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "./Typography";
 import { randomUUID } from "expo-crypto";
 import { useOrderOutbox } from "./orderOutbox";
 import Scanner from "./Scanner";
@@ -2278,7 +2263,7 @@ export default function BusinessApp({
             {cart.length > 0 && estimate !== null && (
               <View style={s.amountRow}>
                 <Text style={s.name}>Total estimado</Text>
-                <Text style={s.name}>{displayCents(estimate)}</Text>
+                <Text style={s.total}>{displayCents(estimate)}</Text>
               </View>
             )}
             {cart.length > 0 && (
@@ -2694,8 +2679,20 @@ export default function BusinessApp({
                     ["Saldo", quote.balance],
                   ].map(([label, amount]) => (
                     <View key={label} style={s.amountRow}>
-                      <Text style={s.plain}>{label}</Text>
-                      <Text style={s.name}>${amount}</Text>
+                      <Text
+                        style={
+                          ["Total", "Saldo"].includes(label) ? s.name : s.plain
+                        }
+                      >
+                        {label}
+                      </Text>
+                      <Text
+                        style={
+                          ["Total", "Saldo"].includes(label) ? s.total : s.name
+                        }
+                      >
+                        ${amount}
+                      </Text>
                     </View>
                   ))}
                   {!company &&
@@ -3852,11 +3849,11 @@ const baseStyles = {
   },
   active: { color: "#0066cc", fontWeight: "800" },
   heading: { marginTop: 12, marginBottom: 16, gap: 4 },
-  title: { fontSize: 27, fontWeight: "800", color: "#102c46" },
+  title: { fontSize: 29, fontWeight: "800", color: "#102c46" },
   subtitle: { color: "#526b82", fontSize: 13, lineHeight: 18 },
   sectionTitle: {
     color: "#102c46",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "800",
     marginTop: 13,
     marginBottom: 5,
@@ -3909,7 +3906,7 @@ const baseStyles = {
     padding: 7,
     minHeight: 65,
   },
-  metricValue: { color: "#0071d9", fontSize: 24, fontWeight: "900" },
+  metricValue: { color: "#0071d9", fontSize: 28, fontWeight: "900" },
   metricLabel: { color: "#526b82", fontSize: 10, textAlign: "center" },
   quickRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   menuRow: {
@@ -4004,8 +4001,9 @@ const baseStyles = {
     borderColor: "#8ba2b3",
     borderBottomWidth: 8,
   },
-  price: { color: "#0071d9", fontSize: 25, fontWeight: "800" },
-  priceSmall: { color: "#102c46", fontWeight: "800", fontSize: 13 },
+  price: { color: "#0071d9", fontSize: 30, fontWeight: "800" },
+  priceSmall: { color: "#0071d9", fontWeight: "800", fontSize: 16 },
+  total: { color: "#0071d9", fontWeight: "800", fontSize: 20 },
   productDetail: { gap: 7 },
   stepper: {
     flexDirection: "row",
@@ -4125,7 +4123,7 @@ const baseStyles = {
   },
   buttonText: {
     color: "white",
-    fontSize: 14,
+    fontSize: 15,
     textAlign: "center",
     fontWeight: "800",
   },

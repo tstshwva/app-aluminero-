@@ -10,6 +10,7 @@ const require = createRequire(import.meta.url);
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 test("Chat conserva contexto y permite reintentar sin duplicar mensajes", async () => {
   const source = (await readFile("packages/mobile/src/AssistantChat.js", "utf8"))
+    .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace('import { CameraView, useCameraPermissions } from "expo-camera";', 'const CameraView="CameraView",useCameraPermissions=()=>[{granted:false},async()=>({granted:false})];')
     .replace('from "react";', () => 'from "' + pathToFileURL(require.resolve("react")).href + '";')
     .replace(/import \{[^}]*\} from "react-native";/, 'const ActivityIndicator="ActivityIndicator",Pressable="Pressable",Text="Text",TextInput="TextInput",View="View";');

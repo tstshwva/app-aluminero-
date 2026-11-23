@@ -1,19 +1,7 @@
 import { useAppUpdates } from "./useAppUpdates";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  AppState,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, AppState, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text, TextInput, useAppFonts } from "./Typography";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { createFirebaseClient } from "@aluformix/client";
@@ -36,6 +24,7 @@ if (Platform.OS === "web" && typeof document !== "undefined")
 
 export default function AluformixApp({ audience }) {
   useAppUpdates();
+  if (!useAppFonts()) return null;
   return (
     <SafeAreaProvider>
       <AppContent audience={audience} />

@@ -1,6 +1,7 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View, Image } from "react-native";
+import { ActivityIndicator, Pressable, View, Image } from "react-native";
+import { Text, TextInput } from "./Typography";
 
 export default function AssistantChat({ client, messages, onMessages, dark, onCatalog, onCamera }) {
   const [permission, requestPermission] = useCameraPermissions();

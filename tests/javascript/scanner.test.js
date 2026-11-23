@@ -12,6 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manual", async () => {
   const source = (await readFile("packages/mobile/src/Scanner.js", "utf8"))
+    .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(
       'from "react";',
       "from " +

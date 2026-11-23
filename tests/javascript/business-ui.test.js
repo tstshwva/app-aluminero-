@@ -12,6 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
+    .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace('import AssistantChat from "./AssistantChat";', "const AssistantChat=()=>null;")
     .replace(
       'import { useOrderOutbox } from "./orderOutbox";',
