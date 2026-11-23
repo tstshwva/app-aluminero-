@@ -228,10 +228,8 @@ export default function Scanner({
               setListText(text);
               if (text) await onList(text);
               else setMessage("No encontramos texto legible en la hoja.");
-            } catch {
-              setMessage(
-                "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.",
-              );
+            } catch (error) {
+              setMessage(error.message || "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.");
             } finally {
               setReading(false);
             }

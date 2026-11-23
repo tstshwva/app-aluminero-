@@ -213,7 +213,7 @@ export function createFirebaseClient({
       if (!prompt || prompt.length > 1000)
         throw new Error("Escribe una pregunta de hasta 1000 caracteres.");
 
-      const products = (await catalog())
+      const products = (image && !visualChat ? [] : await catalog())
         .filter((product) => Number(product.active) === 1)
         .map(({ code, name, unit, finish, length_mm }) => ({
           code,

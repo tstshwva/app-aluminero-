@@ -8,7 +8,7 @@ export async function getAssistantAppCheckToken() {
     provider: { providerOptions: { android: { provider: "playIntegrity" } } },
     isTokenAutoRefreshEnabled: false,
   });
-  const { token } = await getToken(await nativeAppCheck, true);
+  const { token } = await getToken(await nativeAppCheck, false);
   const encoded = token.split(".")[1]?.replace(/-/g, "+").replace(/_/g, "/");
   if (!encoded) throw new Error("App Check no devolvió un token válido.");
   const payload = JSON.parse(
