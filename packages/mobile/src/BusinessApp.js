@@ -1,6 +1,26 @@
 import AssistantChat from "./AssistantChat";
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { Alert, ActivityIndicator, Animated, AppState, Easing, Image, ScrollView, Pressable, Platform, Share, StyleSheet, View, useWindowDimensions } from "react-native";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
+import {
+  Alert,
+  ActivityIndicator,
+  Animated,
+  AppState,
+  Easing,
+  Image,
+  ScrollView,
+  Pressable,
+  Platform,
+  Share,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Text, TextInput } from "./Typography";
 import { randomUUID } from "expo-crypto";
 import { useOrderOutbox } from "./orderOutbox";
@@ -313,6 +333,47 @@ export default function BusinessApp({
   const cartKey = useRef(randomUUID()),
     payKey = useRef(randomUUID()),
     alive = useRef(true);
+  const [draftReady, setDraftReady] = useState(false);
+  const draftChanged = useRef(false);
+  useEffect(() => {
+    let active = true;
+    if (!localOrders || !client.offlineStore) return;
+    client.offlineStore
+      .get("cart." + user.id)
+      .then((saved) => {
+        if (!active) return;
+        if (saved && !draftChanged.current) {
+          setCart(saved.cart ?? []);
+          setCheckout(saved.checkout);
+          cartKey.current = saved.requestKey;
+        }
+        setDraftReady(true);
+      })
+      .catch(() => {
+        if (active)
+          Alert.alert(
+            "Almacenamiento no disponible",
+            "No se pudo recuperar el borrador guardado.",
+          );
+      });
+    return () => {
+      active = false;
+    };
+  }, [client, user.id]);
+  useEffect(() => {
+    if (!draftReady || !client.offlineStore) return;
+    const timer = setTimeout(() => {
+      client.offlineStore
+        .set("cart." + user.id, { cart, checkout, requestKey: cartKey.current })
+        .catch(() =>
+          Alert.alert(
+            "Borrador pendiente",
+            "No se pudo guardar el carrito en el teléfono. Mantén la app abierta y vuelve a intentarlo.",
+          ),
+        );
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [client, user.id, cart, checkout, draftReady]);
   const lineEstimates = cart.map(({ product, quantity }) =>
     estimateCents(product.price, String(quantity).replace(",", ".")),
   );
@@ -326,6 +387,7 @@ export default function BusinessApp({
     if (issue?.field === name) onDismissIssue();
   };
   const cartChange = (items) => {
+    draftChanged.current = true;
     setCart(items);
     cartKey.current = randomUUID();
   };
@@ -500,7 +562,12 @@ export default function BusinessApp({
     const version = ++navigationVersion.current;
     const cacheKey = next + ":" + query;
     const cached = tabCache.current.get(cacheKey);
-    if (alive.current && ["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next)) {
+    if (
+      alive.current &&
+      ["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(
+        next,
+      )
+    ) {
       setData(cached ?? {});
       setScreen(next);
     }
@@ -651,7 +718,11 @@ export default function BusinessApp({
       setScreen(next);
       return Promise.resolve();
     }
-    if (["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next))
+    if (
+      ["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(
+        next,
+      )
+    )
       return run(() => load(next, query), { blocking: false });
     return perform(() => load(next, query));
   };
@@ -1108,19 +1179,24 @@ export default function BusinessApp({
       style={large ? s.image : s.thumb}
     />
   );
-  const categoryNames = useMemo(() => new Map(
-    (data.categories ?? []).map(category => [String(category.id), category.name]),
-  ), [data.categories]);
+  const categoryNames = useMemo(
+    () =>
+      new Map(
+        (data.categories ?? []).map((category) => [
+          String(category.id),
+          category.name,
+        ]),
+      ),
+    [data.categories],
+  );
   const categoryNameOf = useCallback(
-    product => categoryNames.get(String(product.category_id)) ?? "",
+    (product) => categoryNames.get(String(product.category_id)) ?? "",
     [categoryNames],
   );
   const priceText = (p) =>
     isPricePending(p.price)
       ? "Consultar precio"
-      : "$" +
-        p.price +
-        (client.demo ? "" : company ? " sin IVA" : " estimado");
+      : "$" + p.price + (client.demo ? "" : company ? " sin IVA" : " estimado");
   const productRow = (p) => {
     const { subcategory } = classify(p, categoryNameOf(p));
     const info = catalogInfo(p.code);
@@ -1233,16 +1309,16 @@ export default function BusinessApp({
       ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
       : [];
   useEffect(() => setCatalogLimit(20), [search, catalogFilter, screen]);
-  const catalogList = useMemo(() =>
-    screen === "catalogo"
-      ? filterCatalog(allProducts, {
-          ...catalogFilter,
-          favorites: favoriteIds,
-          query: search.includes("\n") ? "" : search,
-          categoryNameOf,
-        })
-
-      : allProducts,
+  const catalogList = useMemo(
+    () =>
+      screen === "catalogo"
+        ? filterCatalog(allProducts, {
+            ...catalogFilter,
+            favorites: favoriteIds,
+            query: search.includes("\n") ? "" : search,
+            categoryNameOf,
+          })
+        : allProducts,
     [screen, allProducts, catalogFilter, favoriteIds, search, categoryNameOf],
   );
   const listTerms = search
@@ -3560,70 +3636,74 @@ export default function BusinessApp({
               const review = l.review && sheet.picks[i] === undefined;
               return (
                 <React.Fragment key={i}>
-                {first && (
-                  <Text style={s.sectionTitle}>
-                    {["Reconocidos", "Por revisar", "No encontrados"][l.group]}
-                    {" (" + inGroup + ")"}
-                  </Text>
-                )}
-                <View style={s.sheetLine}>
-                  <View style={s.sheetHead}>
-                    <Text style={s.sheetNumber}>{position + 1}</Text>
-                    <View style={s.grow}>
-                      <Text style={s.subtitle}>En tu hoja: «{l.line}»</Text>
-                      {!!l.quantity && (
-                        <Text style={s.name}>Cantidad: {l.quantity}</Text>
-                      )}
-                    </View>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={"Eliminar " + l.line}
-                      disabled={busy}
-                      hitSlop={4}
-                      onPress={() => removeSheetLine(l)}
-                      style={s.sheetDelete}
-                    >
-                      <Text style={s.sheetDeleteText}>✕ Eliminar</Text>
-                    </Pressable>
-                  </View>
-                  {!chosen && (
-                    <Text style={s.notice}>
-                      No encontramos este material en el catálogo.
+                  {first && (
+                    <Text style={s.sectionTitle}>
+                      {
+                        ["Reconocidos", "Por revisar", "No encontrados"][
+                          l.group
+                        ]
+                      }
+                      {" (" + inGroup + ")"}
                     </Text>
                   )}
-                  {!!chosen && productRow(chosen)}
-                  {review && (
-                    <Text style={s.notice}>
-                      Coincidencia por revisar. Confirma que sea el correcto.
-                    </Text>
-                  )}
-                  {(l.options.length > 1 || review) &&
-                    button(
-                      sheetOpen === i
-                        ? "Ocultar opciones"
-                        : "Confirmar o cambiar" +
-                            (l.total > 5 ? " (5 de " + l.total + ")" : ""),
-                      () => setSheetOpen(sheetOpen === i ? null : i),
-                      true,
-                    )}
-                  {sheetOpen === i &&
-                    l.options.map((p, k) => (
-                      <React.Fragment key={p.id}>
-                        {chip(
-                          p.name + " · " + p.code,
-                          chosen === p,
-                          () => {
-                            setSheet((v) => ({
-                              ...v,
-                              picks: { ...v.picks, [i]: k },
-                            }));
-                            setSheetOpen(null);
-                          },
-                          "opcion" + p.id,
+                  <View style={s.sheetLine}>
+                    <View style={s.sheetHead}>
+                      <Text style={s.sheetNumber}>{position + 1}</Text>
+                      <View style={s.grow}>
+                        <Text style={s.subtitle}>En tu hoja: «{l.line}»</Text>
+                        {!!l.quantity && (
+                          <Text style={s.name}>Cantidad: {l.quantity}</Text>
                         )}
-                      </React.Fragment>
-                    ))}
-                </View>
+                      </View>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={"Eliminar " + l.line}
+                        disabled={busy}
+                        hitSlop={4}
+                        onPress={() => removeSheetLine(l)}
+                        style={s.sheetDelete}
+                      >
+                        <Text style={s.sheetDeleteText}>✕ Eliminar</Text>
+                      </Pressable>
+                    </View>
+                    {!chosen && (
+                      <Text style={s.notice}>
+                        No encontramos este material en el catálogo.
+                      </Text>
+                    )}
+                    {!!chosen && productRow(chosen)}
+                    {review && (
+                      <Text style={s.notice}>
+                        Coincidencia por revisar. Confirma que sea el correcto.
+                      </Text>
+                    )}
+                    {(l.options.length > 1 || review) &&
+                      button(
+                        sheetOpen === i
+                          ? "Ocultar opciones"
+                          : "Confirmar o cambiar" +
+                              (l.total > 5 ? " (5 de " + l.total + ")" : ""),
+                        () => setSheetOpen(sheetOpen === i ? null : i),
+                        true,
+                      )}
+                    {sheetOpen === i &&
+                      l.options.map((p, k) => (
+                        <React.Fragment key={p.id}>
+                          {chip(
+                            p.name + " · " + p.code,
+                            chosen === p,
+                            () => {
+                              setSheet((v) => ({
+                                ...v,
+                                picks: { ...v.picks, [i]: k },
+                              }));
+                              setSheetOpen(null);
+                            },
+                            "opcion" + p.id,
+                          )}
+                        </React.Fragment>
+                      ))}
+                  </View>
                 </React.Fragment>
               );
             })}
@@ -3661,8 +3741,14 @@ export default function BusinessApp({
           />
         )}
         {screen === "ia" && (
-          <AssistantChat client={client} messages={chatMessages} onMessages={setChatMessages}
-            dark={dark} onCatalog={() => go("catalogo")} onCamera={openCamera} />
+          <AssistantChat
+            client={client}
+            messages={chatMessages}
+            onMessages={setChatMessages}
+            dark={dark}
+            onCatalog={() => go("catalogo")}
+            onCamera={openCamera}
+          />
         )}
         {screen === "ayuda" && (
           <View>

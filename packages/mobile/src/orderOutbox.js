@@ -25,11 +25,20 @@ export function useOrderOutbox(client, ownerUid, enabled) {
     }
 
     async function read() {
-      return JSON.parse((await SecureStore.getItemAsync(key)) ?? "[]");
+      if (!client.offlineStore)
+        return JSON.parse((await SecureStore.getItemAsync(key)) ?? "[]");
+      const stored = await client.offlineStore.get(key);
+      if (stored !== null) return stored;
+      const legacy = JSON.parse((await SecureStore.getItemAsync(key)) ?? "[]");
+      await client.offlineStore.set(key, legacy);
+      await SecureStore.deleteItemAsync(key);
+      return legacy;
     }
 
     async function save(orders) {
-      if (orders.length) {
+      if (client.offlineStore) {
+        await client.offlineStore.set(key, orders);
+      } else if (orders.length) {
         await SecureStore.setItemAsync(key, JSON.stringify(orders));
       } else {
         await SecureStore.deleteItemAsync(key);

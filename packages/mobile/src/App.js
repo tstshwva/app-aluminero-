@@ -1,6 +1,20 @@
+import * as Network from "expo-network";
+import { createOfflineStore } from "./offlineStorage";
+import { withOfflineData } from "./offlineClient";
 import { useAppUpdates } from "./useAppUpdates";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, AppState, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  AppState,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Text, TextInput, useAppFonts } from "./Typography";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -47,24 +61,58 @@ function AppContent({ audience }) {
     setDark(value);
     saveDarkMode(audience, value);
   };
+  const offlineStore = useMemo(() => createOfflineStore(audience), [audience]);
   const client = useMemo(
     () =>
       demo
         ? createDemoClient(audience)
-        : createFirebaseClient({
-            audience,
-            storage,
-            forceLongPolling: Platform.OS === "android",
-            getAssistantAppCheckToken:
-              audience === "cliente" ? getAssistantAppCheckToken : undefined,
-            config: {
-              projectId: "alumineroapp-9244c",
-              apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-              appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+        : withOfflineData(
+            createFirebaseClient({
+              audience,
+              storage,
+              forceLongPolling: Platform.OS === "android",
+              getAssistantAppCheckToken:
+                audience === "cliente" ? getAssistantAppCheckToken : undefined,
+              config: {
+                projectId: "alumineroapp-9244c",
+                apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+                appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+              },
+            }),
+            offlineStore,
+            async () => {
+              const network = await Network.getNetworkStateAsync();
+              return (
+                !!network.isConnected && network.isInternetReachable !== false
+              );
             },
-          }),
-    [storage, audience],
+          ),
+    [storage, audience, offlineStore],
   );
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const refresh = async () => {
+      const network = await Network.getNetworkStateAsync();
+      if (!active) return;
+      const connected =
+        network.isConnected && network.isInternetReachable !== false;
+      setOffline(!connected);
+      if (connected) void client.syncOffline?.().catch(() => {});
+    };
+    void refresh().catch(() => {});
+    const network = Network.addNetworkStateListener(
+      () => void refresh().catch(() => {}),
+    );
+    const foreground = AppState.addEventListener("change", (state) => {
+      if (state === "active") void refresh().catch(() => {});
+    });
+    return () => {
+      active = false;
+      network.remove();
+      foreground.remove();
+    };
+  }, [client]);
   const [user, setUser] = useState(null),
     [mode, setMode] = useState("login"),
     [busy, setBusy] = useState(false),
@@ -313,6 +361,19 @@ function AppContent({ audience }) {
         style={[styles.businessScreen, dark && styles.businessScreenDark]}
       >
         <StatusBar style={dark ? "light" : "dark"} />
+        {offline && (
+          <Text
+            accessibilityLiveRegion="polite"
+            style={{
+              backgroundColor: "#fff4d6",
+              color: "#573d00",
+              padding: 10,
+            }}
+          >
+            Sin conexión. Mostramos los datos descargados. Los encargos
+            pendientes se enviarán al recuperar internet.
+          </Text>
+        )}
         <BusinessApp
           key={user.id}
           client={client}
