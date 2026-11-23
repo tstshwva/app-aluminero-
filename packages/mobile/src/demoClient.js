@@ -156,7 +156,11 @@ function seed() {
         unit: p.unidad,
         finish: p.acabados.length ? p.acabados.join(", ") : "Por confirmar",
         length_mm: p.longitud_mm,
-        price: "0.00",
+        // Precio inventado, solo para la demostración: las fuentes del catálogo
+        // no traen precios. No usar en la app conectada.
+        price: money(
+          p.grupo === "Perfiles" ? 180 + ((i * 37) % 60) * 10 : 25 + ((i * 13) % 40) * 5,
+        ),
         // Existencias de ejemplo: casi todo surtido y uno de cada 20 por
         // debajo del mínimo, para que «Stock bajo» se vea como en una tienda.
         stock: i % 20 === 0 ? "3.000" : qty(12 + ((i * 7) % 30)),

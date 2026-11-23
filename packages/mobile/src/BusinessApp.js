@@ -1118,7 +1118,9 @@ export default function BusinessApp({
   const priceText = (p) =>
     isPricePending(p.price)
       ? "Consultar precio"
-      : "$" + p.price + (company ? " sin IVA" : " estimado");
+      : "$" +
+        p.price +
+        (client.demo ? " de ejemplo" : company ? " sin IVA" : " estimado");
   const productRow = (p) => {
     const { subcategory } = classify(p, categoryNameOf(p));
     const info = catalogInfo(p.code);
@@ -2061,7 +2063,14 @@ export default function BusinessApp({
                   </Text>
                 </View>
               ) : (
-                <Text style={s.price}>${data.product.price}</Text>
+                <>
+                  <Text style={s.price}>${data.product.price}</Text>
+                  {client.demo && (
+                    <Text style={s.subtitle}>
+                      Precio de ejemplo de la demostración; no es real.
+                    </Text>
+                  )}
+                </>
               )}
               {company && (
                 <View style={s.metrics}>

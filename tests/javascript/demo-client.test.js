@@ -17,7 +17,9 @@ test("Modo demostración: el cliente compra, acepta la cotización y se reserva 
   // La demostración incluye los 124 registros con código del catálogo maestro.
   const all = await c.products("");
   assert.ok(all.some((p) => p.code === "07333"));
-  assert.equal(all.filter((p) => p.price === "0.00").length, 124);
+  assert.equal(all.length, 130);
+  // Precios inventados, solo para la demostración.
+  assert.ok(all.every((p) => Number(p.price) > 0));
   assert.equal((await c.favorites()).length, 1);
   await c.favorite(5, true);
   assert.equal((await c.favorites()).length, 2);
