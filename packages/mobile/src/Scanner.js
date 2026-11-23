@@ -2,7 +2,13 @@ import React, { useRef, useState } from "react";
 import { Linking, Pressable, Text, TextInput, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Notice } from "./Feedback";
-export default function Scanner({ onScan, onClose, onManual, onReadList, dark }) {
+export default function Scanner({
+  onScan,
+  onClose,
+  onManual,
+  onReadList,
+  dark,
+}) {
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
   const camera = useRef(null);
@@ -159,20 +165,55 @@ export default function Scanner({ onScan, onClose, onManual, onReadList, dark })
         onDismiss={() => setMessage("")}
         dark={dark}
       />
-      {!!onReadList && permission?.granted && !cameraFailed && button(reading ? "Leyendo lista…" : "Fotografiar lista escrita", async () => {
-        if (reading) return;
-        setReading(true);
-        setMessage("");
-        try {
-          const photo = await camera.current.takePictureAsync({ base64: true, quality: 0.4 });
-          setListText(await onReadList(photo.base64));
-        } catch {
-          setMessage("No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.");
-        } finally { setReading(false); }
+      {!!onReadList &&
+        permission?.granted &&
+        !cameraFailed &&
+        button(
+          reading ? "Leyendo lista…" : "Fotografiar lista escrita",
+          async () => {
+            if (reading) return;
+            setReading(true);
+            setMessage("");
+            try {
+              const photo = await camera.current.takePictureAsync({
+                base64: true,
+                quality: 0.4,
+              });
+              setListText(await onReadList(photo.base64));
+            } catch {
+              setMessage(
+                "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.",
+              );
+            } finally {
+              setReading(false);
+            }
+          },
+        )}
+      <Text style={{ color: ink, marginTop: 12 }}>
+        Revisa o escribe tu lista, un material por renglón
+      </Text>
+      <TextInput
+        multiline
+        value={listText}
+        onChangeText={setListText}
+        maxLength={4000}
+        accessibilityLabel="Lista de materiales"
+        placeholder={"Riel de aluminio\nContramarco"}
+        placeholderTextColor={hint}
+        style={{
+          minHeight: 120,
+          color: ink,
+          borderWidth: 1,
+          borderColor: "#879bac",
+          borderRadius: 12,
+          padding: 12,
+          marginVertical: 8,
+        }}
+      />
+      {button("Buscar lista completa", () => {
+        if (listText.trim()) onScan(listText.trim());
+        else setMessage("Escribe al menos un material.");
       })}
-      <Text style={{ color: ink, marginTop: 12 }}>Revisa o escribe tu lista, un material por renglón</Text>
-      <TextInput multiline value={listText} onChangeText={setListText} maxLength={4000} accessibilityLabel="Lista de materiales" placeholder={"Riel de aluminio\nContramarco"} placeholderTextColor={hint} style={{ minHeight: 120, color: ink, borderWidth: 1, borderColor: "#879bac", borderRadius: 12, padding: 12, marginVertical: 8 }} />
-      {button("Buscar lista completa", () => { if (listText.trim()) onScan(listText.trim()); else setMessage("Escribe al menos un material."); })}
       {button("Buscar manualmente", onManual)}
       {button("Volver sin escanear", onClose, true)}
     </View>

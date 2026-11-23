@@ -12,7 +12,10 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
-    .replace('import { useOrderOutbox } from "./orderOutbox";', "const useOrderOutbox=()=>({});")
+    .replace(
+      'import { useOrderOutbox } from "./orderOutbox";',
+      "const useOrderOutbox=()=>({});",
+    )
     .replace(/require\("\.\.\/assets\/[^"\n]+\.(png|jpg|webp)"\)/g, "0")
     .replace(
       'import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";',
@@ -484,7 +487,8 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
     "Sin 6 m por defecto",
   );
   await press("Filtrar Perfiles");
-  while (texts().includes("Mostrar más materiales")) await press("Mostrar más materiales");
+  while (texts().includes("Mostrar más materiales"))
+    await press("Mostrar más materiales");
   assert.equal(
     cards().length,
     data.productos.filter((p) => p.codigo && p.grupo === "Perfiles").length,

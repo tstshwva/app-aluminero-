@@ -49,12 +49,21 @@ export function useOrderOutbox(client, ownerUid, enabled) {
         for (const order of orders) {
           const network = await Network.getNetworkStateAsync();
           const onlyWifi = await SecureStore.getItemAsync(preference);
-          if (!active || !network.isConnected ||
-              network.isInternetReachable === false ||
-              (onlyWifi === "true" && network.type !== Network.NetworkStateType.WIFI)) break;
+          if (
+            !active ||
+            !network.isConnected ||
+            network.isInternetReachable === false ||
+            (onlyWifi === "true" &&
+              network.type !== Network.NetworkStateType.WIFI)
+          )
+            break;
           await client.createOrder({ ...order, expectedOwnerUid: ownerUid });
           await serialize(async () => {
-            await save((await read()).filter(item => item.requestKey !== order.requestKey));
+            await save(
+              (await read()).filter(
+                (item) => item.requestKey !== order.requestKey,
+              ),
+            );
           });
         }
         if (active) setSyncError(false);
@@ -74,10 +83,12 @@ export function useOrderOutbox(client, ownerUid, enabled) {
         await serialize(async () => {
           if (!active) throw new Error("Vuelve a abrir esta pantalla.");
           const orders = await read();
-          if (!orders.some(item => item.requestKey === order.requestKey))
+          if (!orders.some((item) => item.requestKey === order.requestKey))
             await save([...orders, order]);
         }).catch(() => {
-          throw new Error("No se pudo guardar el encargo en el teléfono. Tus productos siguen en el carrito.");
+          throw new Error(
+            "No se pudo guardar el encargo en el teléfono. Tus productos siguen en el carrito.",
+          );
         });
         void sync();
       },
@@ -96,9 +107,11 @@ export function useOrderOutbox(client, ownerUid, enabled) {
         setWifiOnly(onlyWifi === "true");
         void sync();
       })
-      .catch(() => { if (active) setSyncError(true); });
+      .catch(() => {
+        if (active) setSyncError(true);
+      });
     const network = Network.addNetworkStateListener(() => void sync());
-    const foreground = AppState.addEventListener("change", state => {
+    const foreground = AppState.addEventListener("change", (state) => {
       if (state === "active") void sync();
     });
     return () => {

@@ -156,8 +156,14 @@ function AppContent({ audience }) {
     await run(async () => {
       const password = values.password ?? "";
       if (mode === "register") {
-        if (audience === "empresa" && !/^[a-f0-9]{32}$/.test(values.inviteCode?.trim().toLowerCase() ?? ""))
-          throw formError("inviteCode", "Ingresa el código de invitación de Empresa.");
+        if (
+          audience === "empresa" &&
+          !/^[a-f0-9]{32}$/.test(values.inviteCode?.trim().toLowerCase() ?? "")
+        )
+          throw formError(
+            "inviteCode",
+            "Ingresa el código de invitación de Empresa.",
+          );
         if (!values.name?.trim())
           throw formError("name", "Escribe tu nombre completo.");
         const phone = values.phone?.trim() ?? "";
@@ -384,8 +390,12 @@ function AppContent({ audience }) {
                   keyboard: "email-address",
                   maxLength: 254,
                 })}
-              {mode === "register" && audience === "empresa" &&
-                field("inviteCode", "Código de invitación de Empresa", { secret: true, maxLength: 32 })}
+              {mode === "register" &&
+                audience === "empresa" &&
+                field("inviteCode", "Código de invitación de Empresa", {
+                  secret: true,
+                  maxLength: 32,
+                })}
               {mode === "setup" &&
                 field("setupKey", "Código de activación de Empresa", {
                   secret: true,
@@ -427,7 +437,9 @@ function AppContent({ audience }) {
               {mode === "login" &&
                 (audience === "cliente" || client.cloud) &&
                 button(
-                  audience === "empresa" ? "Crear cuenta de Empresa" : "Crear cuenta de comprador",
+                  audience === "empresa"
+                    ? "Crear cuenta de Empresa"
+                    : "Crear cuenta de comprador",
                   () => switchMode("register"),
                   true,
                 )}

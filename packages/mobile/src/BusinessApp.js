@@ -199,7 +199,9 @@ const toPercent = (rate) =>
 // Cantidad para mostrar sin ceros sobrantes: "6.000" → "6", "1.250" → "1.25".
 const qtyText = (value) => {
   const n = Number(String(value ?? "").replace(",", "."));
-  return Number.isFinite(n) ? String(Math.round(n * 1000) / 1000) : String(value ?? "");
+  return Number.isFinite(n)
+    ? String(Math.round(n * 1000) / 1000)
+    : String(value ?? "");
 };
 function SectionScroll({ style, ref, ...props }) {
   const progress = useRef(new Animated.Value(0)).current;
@@ -370,7 +372,10 @@ export default function BusinessApp({
         editable={!busy}
         style={[s.input, issue?.field === name && validationStyles.invalid]}
       />
-      <FieldIssue dark={dark} message={issue?.field === name ? issue.message : null} />
+      <FieldIssue
+        dark={dark}
+        message={issue?.field === name ? issue.message : null}
+      />
     </View>
   );
   const required = (name, message) => {
@@ -603,7 +608,11 @@ export default function BusinessApp({
         taxRate: toPercent(p.tax_rate),
       });
     }
-    if (["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next))
+    if (
+      ["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(
+        next,
+      )
+    )
       tabCache.current.set(cacheKey, result);
     if (alive.current && navigationVersion.current === version) {
       setData(result);
@@ -777,7 +786,9 @@ export default function BusinessApp({
       })),
     };
     if (localOrders && !outbox.actions)
-      throw new Error("Espera a que termine de cargar el almacenamiento del teléfono.");
+      throw new Error(
+        "Espera a que termine de cargar el almacenamiento del teléfono.",
+      );
     let orderId = order.requestKey;
     if (localOrders) {
       await outbox.actions.enqueue(order);
@@ -1106,8 +1117,27 @@ export default function BusinessApp({
           categoryNameOf,
         })
       : allProducts;
-  const listTerms = search.split(/\n/).map(term => term.trim().toLowerCase().replace(/^\d+\s+(?:(?:x|piezas? de|piezas?)\s+)?/i, "")).filter(Boolean);
-  const matchedCatalog = listTerms.length > 1 ? catalogList.filter(product => listTerms.some(term => [product.name, product.code].some(value => String(value ?? "").toLowerCase().includes(term)))) : catalogList;
+  const listTerms = search
+    .split(/\n/)
+    .map((term) =>
+      term
+        .trim()
+        .toLowerCase()
+        .replace(/^\d+\s+(?:(?:x|piezas? de|piezas?)\s+)?/i, ""),
+    )
+    .filter(Boolean);
+  const matchedCatalog =
+    listTerms.length > 1
+      ? catalogList.filter((product) =>
+          listTerms.some((term) =>
+            [product.name, product.code].some((value) =>
+              String(value ?? "")
+                .toLowerCase()
+                .includes(term),
+            ),
+          ),
+        )
+      : catalogList;
   const productByCode = (codigo, alternos = []) =>
     allProducts.find((p) =>
       [codigo, ...alternos].filter(Boolean).includes(String(p.code)),
@@ -1628,7 +1658,12 @@ export default function BusinessApp({
             {!(showingSystems && screen === "catalogo") && (
               <View style={wide ? s.grid : null}>
                 {matchedCatalog.slice(0, catalogLimit).map(productRow)}
-                {matchedCatalog.length > catalogLimit && button("Mostrar más materiales", () => setCatalogLimit(limit => limit + 20), true)}
+                {matchedCatalog.length > catalogLimit &&
+                  button(
+                    "Mostrar más materiales",
+                    () => setCatalogLimit((limit) => limit + 20),
+                    true,
+                  )}
               </View>
             )}
             {!!data.products && !matchedCatalog.length && !showingSystems && (
@@ -1977,7 +2012,8 @@ export default function BusinessApp({
               {finishesOf(data.product).length > 1 && (
                 <>
                   <Text style={s.label}>Acabado</Text>
-                  <FieldIssue dark={dark}
+                  <FieldIssue
+                    dark={dark}
                     message={issue?.field === "finish" ? issue.message : null}
                   />
                   <View
@@ -2130,7 +2166,8 @@ export default function BusinessApp({
                       <Text style={s.name}>×</Text>
                     </Pressable>
                   </View>
-                  <FieldIssue dark={dark}
+                  <FieldIssue
+                    dark={dark}
                     message={
                       issue?.field === "quantity-" + item.productId
                         ? issue.message
@@ -2209,7 +2246,8 @@ export default function BusinessApp({
                 }
               >
                 <Text style={s.name}>Selecciona al cliente</Text>
-                <FieldIssue dark={dark}
+                <FieldIssue
+                  dark={dark}
                   message={issue?.field === "customerId" ? issue.message : null}
                 />
                 {data.customers?.map((c) =>
@@ -2268,7 +2306,8 @@ export default function BusinessApp({
                     cartKey.current = randomUUID();
                   }}
                 />
-                <FieldIssue dark={dark}
+                <FieldIssue
+                  dark={dark}
                   message={
                     issue?.field === "deliveryAddress" ? issue.message : null
                   }
@@ -2334,21 +2373,34 @@ export default function BusinessApp({
               <View style={s.success}>
                 <Text style={s.successMark}>✓</Text>
               </View>
-              {data.savedLocally && (!outbox.pending || outbox.pending.some(order => order.requestKey === data.orderId)) ? (
+              {data.savedLocally &&
+              (!outbox.pending ||
+                outbox.pending.some(
+                  (order) => order.requestKey === data.orderId,
+                )) ? (
                 <>
-                  <Text style={[s.title, s.center]}>Encargo guardado en el teléfono</Text>
-                  <Text style={s.plain}>Pendiente de envío. Abre Aluformix cuando tengas {outbox.wifiOnly ? "Wi-Fi" : "conexión"} para sincronizarlo.</Text>
+                  <Text style={[s.title, s.center]}>
+                    Encargo guardado en el teléfono
+                  </Text>
+                  <Text style={s.plain}>
+                    Pendiente de envío. Abre Aluformix cuando tengas{" "}
+                    {outbox.wifiOnly ? "Wi-Fi" : "conexión"} para sincronizarlo.
+                  </Text>
                 </>
-              ) : (<>
-              <Text style={[s.title, s.center]}>¡Recibimos tu encargo!</Text>
-              <Text style={s.plain}>
-                Solicitud #{data.orderId} guardada. La empresa puede consultarla
-                en sus encargos y avisos.
-              </Text>
-              {button("Ver seguimiento", () =>
-                perform(() => openOrder(data.orderId)),
+              ) : (
+                <>
+                  <Text style={[s.title, s.center]}>
+                    ¡Recibimos tu encargo!
+                  </Text>
+                  <Text style={s.plain}>
+                    Solicitud #{data.orderId} guardada. La empresa puede
+                    consultarla en sus encargos y avisos.
+                  </Text>
+                  {button("Ver seguimiento", () =>
+                    perform(() => openOrder(data.orderId)),
+                  )}
+                </>
               )}
-              </>)}
               {button("Volver al inicio", () => go("inicio"), true)}
             </>,
           )}
@@ -2582,13 +2634,9 @@ export default function BusinessApp({
               card(
                 "cotizar",
                 <>
-                  {field(
-                    "taxRate",
-                    "Impuesto (%)",
-                    {
-                      decimal: true,
-                    },
-                  )}
+                  {field("taxRate", "Impuesto (%)", {
+                    decimal: true,
+                  })}
                   {field("shipping", "Costo de envío", { decimal: true })}
                   {button("Enviar cotización", () =>
                     confirm("Enviar cotización", async () => {
@@ -3141,10 +3189,26 @@ export default function BusinessApp({
             )}
             {localOrders && outbox.actions && (
               <>
-                {menuRow("Sincronizar pedidos solo por Wi-Fi", outbox.wifiOnly ? "Activado" : "Desactivado", () => perform(() => outbox.actions.setWifi(!outbox.wifiOnly)))}
-                <Text style={s.subtitle}>{outbox.pending?.length ?? 0} pedidos pendientes de envío.</Text>
-                {outbox.syncError && <Text style={s.subtitle}>No se pudo completar la sincronización. Tus pedidos pendientes siguen en el teléfono.</Text>}
-                {!!outbox.pending?.length && button("Reintentar sincronización", outbox.actions.sync, true)}
+                {menuRow(
+                  "Sincronizar pedidos solo por Wi-Fi",
+                  outbox.wifiOnly ? "Activado" : "Desactivado",
+                  () => perform(() => outbox.actions.setWifi(!outbox.wifiOnly)),
+                )}
+                <Text style={s.subtitle}>
+                  {outbox.pending?.length ?? 0} pedidos pendientes de envío.
+                </Text>
+                {outbox.syncError && (
+                  <Text style={s.subtitle}>
+                    No se pudo completar la sincronización. Tus pedidos
+                    pendientes siguen en el teléfono.
+                  </Text>
+                )}
+                {!!outbox.pending?.length &&
+                  button(
+                    "Reintentar sincronización",
+                    outbox.actions.sync,
+                    true,
+                  )}
               </>
             )}
             <Text style={s.sectionTitle}>Apariencia</Text>
@@ -3319,7 +3383,17 @@ export default function BusinessApp({
         {screen === "camara" && (
           <Scanner
             dark={dark}
-            onReadList={client.cloud ? async (image) => (await client.assistant("Transcribe esta lista. Devuelve solamente el texto de cada material en un renglón separado, sin explicaciones. Conserva cantidades y medidas. No inventes texto ilegible.", image)).answer : undefined}
+            onReadList={
+              client.cloud
+                ? async (image) =>
+                    (
+                      await client.assistant(
+                        "Transcribe esta lista. Devuelve solamente el texto de cada material en un renglón separado, sin explicaciones. Conserva cantidades y medidas. No inventes texto ilegible.",
+                        image,
+                      )
+                    ).answer
+                : undefined
+            }
             onClose={back}
             onManual={() => go("catalogo")}
             onScan={(value) => {

@@ -20,7 +20,9 @@ const [version] = await rows(
 );
 if (Number(version.version) !== 4) {
   await pool.end();
-  throw new Error("Aplica el esquema de base de datos versión 4 antes de iniciar.");
+  throw new Error(
+    "Aplica el esquema de base de datos versión 4 antes de iniciar.",
+  );
 }
 let mail = null;
 if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASSWORD && env.SMTP_FROM) {

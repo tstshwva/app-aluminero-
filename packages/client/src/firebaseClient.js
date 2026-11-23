@@ -136,10 +136,12 @@ export function createFirebaseClient({
     const cached = cachedReads.get(key);
     if (cached && cached.expires > Date.now()) return cached.promise;
     const entry = { expires: Date.now() + 30000 };
-    entry.promise = Promise.resolve().then(read).catch(error => {
-      if (cachedReads.get(key) === entry) cachedReads.delete(key);
-      throw error;
-    });
+    entry.promise = Promise.resolve()
+      .then(read)
+      .catch((error) => {
+        if (cachedReads.get(key) === entry) cachedReads.delete(key);
+        throw error;
+      });
     cachedReads.set(key, entry);
     return entry.promise;
   }
@@ -239,10 +241,18 @@ export function createFirebaseClient({
           },
           { timeout: 20000 },
         );
-        if (image && (typeof image !== "string" || image.length > 8000000 || !/^[A-Za-z0-9+/=]+$/.test(image)))
+        if (
+          image &&
+          (typeof image !== "string" ||
+            image.length > 8000000 ||
+            !/^[A-Za-z0-9+/=]+$/.test(image))
+        )
           throw new Error("La imagen no es válida o es demasiado grande.");
-        const content = [{ text: JSON.stringify({ pregunta: prompt, catalogo: products }) }];
-        if (image) content.push({ inlineData: { mimeType: "image/jpeg", data: image } });
+        const content = [
+          { text: JSON.stringify({ pregunta: prompt, catalogo: products }) },
+        ];
+        if (image)
+          content.push({ inlineData: { mimeType: "image/jpeg", data: image } });
         const result = await model.generateContent(content);
         const answer = result.response.text().trim();
         if (!answer) throw new Error("Respuesta vacía.");
@@ -260,14 +270,14 @@ export function createFirebaseClient({
     catalog,
     async categories() {
       return readCached("categories", async () => {
-      const snapshot = await getDocs(
-        query(collection(db, "categorias"), orderBy("nombre")),
-      );
-      return snapshot.docs.map((category) => ({
-        ...category.data(),
-        id: category.id,
-        name: category.data().nombre,
-      }));
+        const snapshot = await getDocs(
+          query(collection(db, "categorias"), orderBy("nombre")),
+        );
+        return snapshot.docs.map((category) => ({
+          ...category.data(),
+          id: category.id,
+          name: category.data().nombre,
+        }));
       });
     },
     enterpriseDashboard,
@@ -319,21 +329,31 @@ export function createFirebaseClient({
         if (!/^[a-f0-9]{32}$/.test(code ?? ""))
           throw new Error("Ingresa el código de invitación de Empresa.");
         const address = email.trim().toLowerCase();
-        const { user } = await createUserWithEmailAndPassword(auth, address, password)
-          .catch(error => {
-            if (error.code !== "auth/email-already-in-use") throw error;
-            return signInWithEmailAndPassword(auth, address, password);
-          });
+        const { user } = await createUserWithEmailAndPassword(
+          auth,
+          address,
+          password,
+        ).catch((error) => {
+          if (error.code !== "auth/email-already-in-use") throw error;
+          return signInWithEmailAndPassword(auth, address, password);
+        });
         try {
           await updateProfile(user, { displayName: displayName.trim() });
           const batch = writeBatch(db);
           batch.update(doc(db, "aluf_invites", code), { usedBy: user.uid });
-          batch.set(roleDoc(user.uid), { active: true, role: "Operador", inviteCode: code });
+          batch.set(roleDoc(user.uid), {
+            active: true,
+            role: "Operador",
+            inviteCode: code,
+          });
           await batch.commit();
           return { id: user.uid };
         } catch (error) {
           if (error.code !== "permission-denied") throw error;
-          throw Object.assign(new Error("El código no es válido, ya se usó o venció."), { field: "inviteCode" });
+          throw Object.assign(
+            new Error("El código no es válido, ya se usó o venció."),
+            { field: "inviteCode" },
+          );
         } finally {
           await signOut(auth);
         }
