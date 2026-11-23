@@ -1,3 +1,4 @@
+import { readStaffOverHttps } from "./staffLookup.js";
 import { CustomProvider, initializeAppCheck } from "firebase/app-check";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeApp, getApps } from "firebase/app";
@@ -81,15 +82,18 @@ export function createFirebaseClient({
 
   async function account(user) {
     if (!user) return null;
-    const staffSnapshot = await getDoc(roleDoc(user.uid)).catch((error) => {
-      if (error.code === "unavailable" || error.code === "deadline-exceeded") {
-        throw new Error(
-          "No pudimos conectar con la base de datos. Si usas Wi-Fi de la universidad, abre el navegador y completa el acceso a la red. Después vuelve a intentar. Si continúa, la red puede estar restringiendo Firebase.",
-        );
+    let staff;
+    try {
+      staff = (await getDoc(roleDoc(user.uid))).data();
+    } catch (error) {
+      if (!["unavailable", "deadline-exceeded"].includes(error.code)) throw error;
+      try {
+        staff = await readStaffOverHttps(config.projectId, user);
+      } catch (failure) {
+        if (["permission-denied", "unauthenticated"].includes(failure.code)) throw failure;
+        throw new Error("No pudimos verificar tu cuenta con el servidor. Comprueba el acceso a internet y vuelve a intentar.");
       }
-      throw error;
-    });
-    const staff = staffSnapshot.data();
+    }
     const role =
       staff?.active === true &&
       ["Administrador", "Operador"].includes(staff.role)
