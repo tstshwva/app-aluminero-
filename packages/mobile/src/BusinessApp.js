@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import {
   Alert,
   ActivityIndicator,
@@ -208,7 +208,7 @@ function SectionScroll({ style, ref, ...props }) {
   useEffect(() => {
     const animation = Animated.timing(progress, {
       toValue: 1,
-      duration: 320,
+      duration: 120,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: Platform.OS !== "web",
     });
@@ -1001,9 +1001,13 @@ export default function BusinessApp({
       style={large ? s.image : s.thumb}
     />
   );
-  const categoryNameOf = (p) =>
-    data.categories?.find((c) => String(c.id) === String(p.category_id))
-      ?.name ?? "";
+  const categoryNames = useMemo(() => new Map(
+    (data.categories ?? []).map(category => [String(category.id), category.name]),
+  ), [data.categories]);
+  const categoryNameOf = useCallback(
+    product => categoryNames.get(String(product.category_id)) ?? "",
+    [categoryNames],
+  );
   const priceText = (p) =>
     isPricePending(p.price)
       ? "Consultar precio"
@@ -1104,7 +1108,7 @@ export default function BusinessApp({
       <Text style={[s.chipText, selected && s.chipTextOn]}>{label}</Text>
     </Pressable>
   );
-  const allProducts = data.products ?? [];
+  const allProducts = useMemo(() => data.products ?? [], [data.products]);
   const groupTabs = [
     ...GROUPS,
     "Sistemas",
@@ -1120,7 +1124,7 @@ export default function BusinessApp({
       ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
       : [];
   useEffect(() => setCatalogLimit(20), [search, catalogFilter, screen]);
-  const catalogList =
+  const catalogList = useMemo(() =>
     screen === "catalogo"
       ? filterCatalog(allProducts, {
           ...catalogFilter,
@@ -1128,7 +1132,10 @@ export default function BusinessApp({
           query: search.includes("\n") ? "" : search,
           categoryNameOf,
         })
-      : allProducts;
+
+      : allProducts,
+    [screen, allProducts, catalogFilter, favoriteIds, search, categoryNameOf],
+  );
   const listTerms = search
     .split(/\n/)
     .map((term) =>
