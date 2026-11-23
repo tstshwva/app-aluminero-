@@ -20,7 +20,7 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
     )
     .replace(
       /import \{[^}]*\} from "react-native";/,
-      'const Pressable="Pressable", Text="Text", TextInput="TextInput", View="View", Linking={};',
+      'const Image="Image", Pressable="Pressable", Text="Text", TextInput="TextInput", View="View", Linking={};',
     )
     .replace(
       /import \{[^}]*\} from "expo-camera";/,
@@ -30,11 +30,14 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
       'import { Notice } from "./Feedback";',
       'const Notice=({issue})=>issue ? React.createElement("Text",null,issue.message) : null;',
     );
-  const code = transformSync(source, {
-    babelrc: false,
-    configFile: false,
-    plugins: ["@babel/plugin-transform-react-jsx"],
-  }).code;
+  const code = transformSync(
+    source.replace(/require\("\.\.\/assets\/[^"]+"\)/g, "0"),
+    {
+      babelrc: false,
+      configFile: false,
+      plugins: ["@babel/plugin-transform-react-jsx"],
+    },
+  ).code;
   const { default: Scanner } = await import(
     "data:text/javascript;base64," + Buffer.from(code).toString("base64")
   );

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Linking, Pressable, Text, TextInput, View } from "react-native";
+import { Image, Linking, Pressable, Text, TextInput, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Notice } from "./Feedback";
 export default function Scanner({
@@ -23,26 +23,56 @@ export default function Scanner({
   // Colores secundarios que también se adaptan al modo oscuro.
   const soft = dark ? "#242424" : "#e1effc",
     softInk = dark ? "#6cb2ff" : "#0066bd",
+    outline = dark ? "#6cb2ff" : "#0066cc",
     note = dark ? "#cccccc" : "#31546e",
     hint = dark ? "#8c8c8c" : "#657b91";
   const openSettings = () =>
     Linking.openSettings().catch(() =>
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
     );
-  const button = (label, action, secondary = false) => (
+  // Verde: paso para empezar. Solo borde: opcional.
+  const button = (label, action, secondary = false, kind, icon) => (
     <Pressable
       onPress={action}
       accessibilityRole="button"
+      accessibilityLabel={label}
       style={{
-        padding: 16,
-        backgroundColor: secondary ? soft : "#006fe5",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        padding: kind === "outline" ? 14 : 16,
+        borderWidth: kind === "outline" ? 2 : 0,
+        borderColor: outline,
+        backgroundColor:
+          kind === "outline"
+            ? dark
+              ? "#121212"
+              : "#ffffff"
+            : kind === "start"
+              ? "#0b7a55"
+              : secondary
+                ? soft
+                : "#006fe5",
         borderRadius: 12,
         marginVertical: 8,
       }}
     >
+      {!!icon && (
+        <Image
+          source={icon}
+          accessible={false}
+          resizeMode="contain"
+          style={{
+            width: 22,
+            height: 22,
+            tintColor: kind === "outline" ? outline : "#ffffff",
+          }}
+        />
+      )}
       <Text
         style={{
-          color: secondary ? softInk : "white",
+          color: kind === "outline" ? outline : secondary ? softInk : "white",
           textAlign: "center",
           fontWeight: "700",
         }}
@@ -103,12 +133,23 @@ export default function Scanner({
             manualmente.
           </Text>
           {permission.canAskAgain
-            ? button("Permitir cámara", () =>
-                requestPermission().catch(() =>
-                  setMessage("No se pudo solicitar el permiso de cámara."),
-                ),
+            ? button(
+                "Permitir cámara",
+                () =>
+                  requestPermission().catch(() =>
+                    setMessage("No se pudo solicitar el permiso de cámara."),
+                  ),
+                false,
+                "start",
+                require("../assets/icon-camera.png"),
               )
-            : button("Abrir ajustes de cámara", openSettings)}
+            : button(
+                "Abrir ajustes de cámara",
+                openSettings,
+                false,
+                "start",
+                require("../assets/icon-camera.png"),
+              )}
         </View>
       ) : cameraFailed ? (
         button(
@@ -196,7 +237,13 @@ export default function Scanner({
           },
         )}
       {!!sampleList &&
-        button("Probar con una hoja de ejemplo", () => onList(sampleList))}
+        button(
+          "Ver ejemplo",
+          () => onList(sampleList),
+          false,
+          "outline",
+          require("../assets/icon-orders.png"),
+        )}
       <Text style={{ color: ink, marginTop: 12 }}>
         Revisa o escribe tu lista, un material por renglón
       </Text>
