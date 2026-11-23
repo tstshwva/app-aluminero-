@@ -694,18 +694,47 @@ export default function BusinessApp({
     ]);
     if (!alive.current || navigationVersion.current !== version) return;
     const names = new Map(categories.map((c) => [String(c.id), c.name]));
+    // Orden: reconocidos, por revisar y no encontrados; dentro de cada grupo se
+    // respeta el orden de la hoja.
     setSheet({
       text,
       lines: matchList(
         text,
         products,
         (p) => names.get(String(p.category_id)) ?? "",
-      ),
+      )
+        .map((l, id) => ({
+          ...l,
+          id,
+          group: !l.options.length ? 2 : l.review ? 1 : 0,
+        }))
+        .sort((a, b) => a.group - b.group || a.id - b.id),
       picks: {},
     });
     setSheetOpen(null);
     setData({ categories });
     setScreen("lista");
+  }
+  const sheetText = (lines) =>
+    [...lines]
+      .sort((a, b) => a.id - b.id)
+      .map((l) => l.line)
+      .join("\n");
+  function removeSheetLine(line) {
+    setSheetOpen(null);
+    setSheet((v) => {
+      const lines = v.lines.filter((l) => l.id !== line.id);
+      return { ...v, lines, text: sheetText(lines), removed: line };
+    });
+  }
+  function restoreSheetLine() {
+    setSheet((v) => {
+      if (!v.removed) return v;
+      const lines = [...v.lines, v.removed].sort(
+        (a, b) => a.group - b.group || a.id - b.id,
+      );
+      return { ...v, lines, text: sheetText(lines), removed: null };
+    });
   }
   async function openProduct(productId) {
     fromSheet.current = screen === "lista";
@@ -3440,15 +3469,57 @@ export default function BusinessApp({
                 sheet.lines.length +
                 " renglones reconocidos",
             )}
-            {sheet.lines.map((l, i) => {
+            {!!sheet.removed && (
+              <View style={s.sheetUndo}>
+                <Text style={[s.plain, s.grow]}>
+                  Eliminaste «{sheet.removed.line}»
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Deshacer eliminación"
+                  onPress={restoreSheetLine}
+                  style={s.sheetUndoButton}
+                >
+                  <Text style={s.secondaryText}>Deshacer</Text>
+                </Pressable>
+              </View>
+            )}
+            {sheet.lines.map((l, position) => {
+              const i = l.id;
+              const first = sheet.lines[position - 1]?.group !== l.group;
+              const inGroup = sheet.lines.filter(
+                (x) => x.group === l.group,
+              ).length;
               const chosen = l.options[sheet.picks[i] ?? 0];
               const review = l.review && sheet.picks[i] === undefined;
               return (
-                <View key={i} style={s.sheetLine}>
-                  <Text style={s.subtitle}>En tu hoja: «{l.line}»</Text>
-                  {!!l.quantity && (
-                    <Text style={s.name}>Cantidad: {l.quantity}</Text>
-                  )}
+                <React.Fragment key={i}>
+                {first && (
+                  <Text style={s.sectionTitle}>
+                    {["Reconocidos", "Por revisar", "No encontrados"][l.group]}
+                    {" (" + inGroup + ")"}
+                  </Text>
+                )}
+                <View style={s.sheetLine}>
+                  <View style={s.sheetHead}>
+                    <Text style={s.sheetNumber}>{position + 1}</Text>
+                    <View style={s.grow}>
+                      <Text style={s.subtitle}>En tu hoja: «{l.line}»</Text>
+                      {!!l.quantity && (
+                        <Text style={s.name}>Cantidad: {l.quantity}</Text>
+                      )}
+                    </View>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={"Eliminar " + l.line}
+                      disabled={busy}
+                      hitSlop={4}
+                      onPress={() => removeSheetLine(l)}
+                      style={s.sheetDelete}
+                    >
+                      <Text style={s.sheetDeleteText}>✕ Eliminar</Text>
+                    </Pressable>
+                  </View>
                   {!chosen && (
                     <Text style={s.notice}>
                       No encontramos este material en el catálogo.
@@ -3487,6 +3558,7 @@ export default function BusinessApp({
                       </React.Fragment>
                     ))}
                 </View>
+                </React.Fragment>
               );
             })}
             {!sheet.lines.length && (
@@ -3655,7 +3727,45 @@ export default function BusinessApp({
 }
 const baseStyles = {
   shell: { flex: 1, backgroundColor: "#f2f6fb", overflow: "hidden" },
-  sheetLine: { marginTop: 14, gap: 6 },
+  sheetLine: {
+    marginTop: 8,
+    marginBottom: 6,
+    padding: 10,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "#cfdeec",
+    borderRadius: 14,
+  },
+  sheetHead: { flexDirection: "row", alignItems: "center", gap: 10 },
+  sheetNumber: {
+    minWidth: 28,
+    paddingVertical: 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    textAlign: "center",
+    fontWeight: "800",
+    color: "#102c46",
+    backgroundColor: "#e1effc",
+  },
+  sheetDelete: {
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    borderWidth: 2,
+    borderColor: "#d92d20",
+    borderRadius: 10,
+    backgroundColor: "#fff1f2",
+  },
+  sheetDeleteText: { color: "#b42318", fontSize: 13, fontWeight: "800" },
+  sheetUndo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingLeft: 12,
+    borderRadius: 12,
+    backgroundColor: "#e1effc",
+  },
+  sheetUndoButton: { minHeight: 44, justifyContent: "center", padding: 12 },
   backdropArea: {
     position: "absolute",
     top: 0,
@@ -4250,6 +4360,7 @@ const DARK_TEXT = {
   "#8a9bab": "#8c8c8c",
   "#674b18": "#f0d9a8",
   "#8a5a00": "#f2b84b",
+  "#b42318": "#ff9a90",
 };
 const DARK_BACKGROUND = {
   white: "#121212",
@@ -4261,6 +4372,8 @@ const DARK_BACKGROUND = {
   "#e9f2fb": "#242424",
   "#e3eefb": "#2c2c2c",
   "#fff2d6": "#3a2f14",
+  "#fff1f2": "#39161a",
+  "#d92d20": "#ff5a4f",
   "rgba(255,255,255,0.92)": "rgba(18,18,18,0.92)",
   "rgba(242,246,251,0.72)": "rgba(0,0,0,0.55)",
   "#e1e9f1": "#2a2a2a",
