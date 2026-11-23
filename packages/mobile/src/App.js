@@ -96,10 +96,12 @@ function AppContent({ audience }) {
     setMessage("");
     setIssue(null);
   }
-  async function run(action, { resetFeedback = true } = {}) {
-    if (working.current) return;
-    working.current = true;
-    setBusy(true);
+  async function run(action, { resetFeedback = true, blocking = true } = {}) {
+    if (blocking && working.current) return;
+    if (blocking) {
+      working.current = true;
+      setBusy(true);
+    }
     if (resetFeedback) {
       setMessage("");
       setIssue(null);
@@ -117,8 +119,10 @@ function AppContent({ audience }) {
         }
       }
     } finally {
-      working.current = false;
-      if (mounted.current) setBusy(false);
+      if (blocking) {
+        working.current = false;
+        if (mounted.current) setBusy(false);
+      }
     }
   }
   useEffect(() => {

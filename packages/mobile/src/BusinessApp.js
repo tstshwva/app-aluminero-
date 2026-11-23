@@ -501,8 +501,8 @@ export default function BusinessApp({
     const version = ++navigationVersion.current;
     const cacheKey = next + ":" + query;
     const cached = tabCache.current.get(cacheKey);
-    if (cached && alive.current) {
-      setData(cached);
+    if (alive.current && ["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next)) {
+      setData(cached ?? {});
       setScreen(next);
     }
     let result = {};
@@ -652,6 +652,8 @@ export default function BusinessApp({
       setScreen(next);
       return Promise.resolve();
     }
+    if (["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next))
+      return run(() => load(next, query), { blocking: false });
     return perform(() => load(next, query));
   };
   // Los favoritos solo existen para compradores; si fallan, el catálogo se muestra igual.
