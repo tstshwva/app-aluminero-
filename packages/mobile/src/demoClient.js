@@ -157,9 +157,11 @@ function seed() {
         finish: p.acabados.length ? p.acabados.join(", ") : "Por confirmar",
         length_mm: p.longitud_mm,
         price: "0.00",
-        stock: "0.000",
+        // Existencias de ejemplo: casi todo surtido y uno de cada 20 por
+        // debajo del mínimo, para que «Stock bajo» se vea como en una tienda.
+        stock: i % 20 === 0 ? "3.000" : qty(12 + ((i * 7) % 30)),
         reserved: "0.000",
-        minimum_stock: "0.000",
+        minimum_stock: "5.000",
         description: p.descripcion,
         image_url: null,
         active: 1,

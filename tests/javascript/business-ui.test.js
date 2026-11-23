@@ -361,6 +361,12 @@ test("Empresa puede cotizar y avanzar un encargo sin cuenta; operador no ve crea
   await press("Inicio");
   await press("Revisar encargos");
   await press("Ver detalle y seguimiento");
+  // El impuesto se muestra como porcentaje y se envía como tasa.
+  assert.equal(
+    renderer.root.findByProps({ accessibilityLabel: "Impuesto (%)" }).props
+      .value,
+    "16",
+  );
   await press("Enviar cotización");
   assert.equal(calls[0].body.prices[0].unitPrice, "400.00");
   assert.equal(calls[0].body.taxRate, "0.1600");

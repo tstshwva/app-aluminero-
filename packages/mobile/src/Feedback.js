@@ -5,8 +5,12 @@ export function formError(field, message) {
   return Object.assign(new Error(message), { field });
 }
 
-export function FieldIssue({ message }) {
-  return message ? <Text style={validationStyles.hint}>{message}</Text> : null;
+export function FieldIssue({ message, dark }) {
+  return message ? (
+    <Text style={[validationStyles.hint, dark && validationStyles.darkHint]}>
+      {message}
+    </Text>
+  ) : null;
 }
 
 export function Notice({ issue, onDismiss, dark }) {
@@ -74,6 +78,7 @@ export const validationStyles = StyleSheet.create({
     padding: 12,
     marginVertical: 7,
   },
+  darkHint: { backgroundColor: "#39212a", color: "#ffd6db" },
   darkNotice: { backgroundColor: "#39212a" },
   darkText: { color: "#ffd6db" },
   copy: { flex: 1 },

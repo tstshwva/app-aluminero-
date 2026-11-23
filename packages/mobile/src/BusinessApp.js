@@ -191,7 +191,17 @@ const help = [
 // Transición al cambiar de apartado: cada pantalla es un ScrollView animado
 // que entra con un desvanecido, un ligero deslizamiento hacia arriba y una
 // escala sutil. Se monta de nuevo en cada cambio (key={screen}).
-function SectionScroll({ style, ...props }) {
+// Tasa guardada ("0.1600") a porcentaje para el formulario ("16").
+const toPercent = (rate) =>
+  rate === null || rate === undefined || rate === ""
+    ? ""
+    : String(Math.round(Number(rate) * 10000) / 100);
+// Cantidad para mostrar sin ceros sobrantes: "6.000" → "6", "1.250" → "1.25".
+const qtyText = (value) => {
+  const n = Number(String(value ?? "").replace(",", "."));
+  return Number.isFinite(n) ? String(Math.round(n * 1000) / 1000) : String(value ?? "");
+};
+function SectionScroll({ style, ref, ...props }) {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const animation = Animated.timing(progress, {
@@ -206,6 +216,7 @@ function SectionScroll({ style, ...props }) {
   return (
     <Animated.ScrollView
       {...props}
+      ref={ref}
       style={[
         style,
         {
@@ -268,7 +279,24 @@ export default function BusinessApp({
   // Desplazamiento de Inicio: el fondo de la foto sube junto con el contenido,
   // así la zona de materiales siempre queda sobre el color del tema.
   const homeScroll = useRef(new Animated.Value(0)).current;
-  useEffect(() => homeScroll.setValue(0), [screen, homeScroll]);
+  useEffect(() => {
+    homeScroll.setValue(0);
+    scrollOffset.current = 0;
+  }, [screen, homeScroll]);
+  // Cuando aparece el aviso inferior ocupa espacio y empuja hacia abajo el
+  // botón que se acaba de pulsar; se desplaza el contenido lo mismo para que
+  // el botón siga a la vista.
+  const sectionScroll = useRef(null),
+    scrollOffset = useRef(0),
+    hadIssue = useRef(false);
+  useEffect(() => {
+    if (issue && !hadIssue.current)
+      sectionScroll.current?.scrollTo?.({
+        y: scrollOffset.current + 96,
+        animated: true,
+      });
+    hadIssue.current = !!issue;
+  }, [issue]);
   const { width } = useWindowDimensions();
   const wide = width >= 720,
     columns = width >= 1080 ? 3 : 2;
@@ -342,7 +370,7 @@ export default function BusinessApp({
         editable={!busy}
         style={[s.input, issue?.field === name && validationStyles.invalid]}
       />
-      <FieldIssue message={issue?.field === name ? issue.message : null} />
+      <FieldIssue dark={dark} message={issue?.field === name ? issue.message : null} />
     </View>
   );
   const required = (name, message) => {
@@ -379,7 +407,9 @@ export default function BusinessApp({
       throw formError(name, "El valor debe ser mayor que cero.");
     return value;
   };
-  const taxRate = () => numberField("taxRate", { scale: 4, max: 1 });
+  // El impuesto se captura como porcentaje (16) y se envía como tasa ("0.1600").
+  const taxRate = () =>
+    (Number(numberField("taxRate", { scale: 2, max: 100 })) / 100).toFixed(4);
   const button = (label, action, secondary = false, layout) => (
     <Pressable
       key={label}
@@ -554,6 +584,8 @@ export default function BusinessApp({
     if (next === "perfil") {
       setProfileEditing(false);
       const p = await client.profile();
+      // La tarjeta muestra lo guardado; el formulario guarda lo que se edita.
+      result = { ...result, profile: p };
       setForm({
         name: p.name,
         phone: p.phone ?? "",
@@ -568,7 +600,7 @@ export default function BusinessApp({
         name: p.name ?? "",
         phone: p.phone ?? "",
         address: p.address ?? "",
-        taxRate: p.tax_rate,
+        taxRate: toPercent(p.tax_rate),
       });
     }
     if (["inicio", "catalogo", "encargos", "notificaciones", "entregas"].includes(next))
@@ -648,7 +680,7 @@ export default function BusinessApp({
       detail.quote || !client.company ? null : await client.company();
     setData(detail);
     setForm({
-      taxRate: detail.quote?.tax_rate ?? settings?.tax_rate ?? "",
+      taxRate: toPercent(detail.quote?.tax_rate ?? settings?.tax_rate),
       shipping: detail.quote?.shipping ?? "0.00",
       ...Object.fromEntries(
         detail.items.map((i) => ["price" + i.id, i.unit_price]),
@@ -1249,14 +1281,16 @@ export default function BusinessApp({
         ]}
         keyboardShouldPersistTaps="handled"
         scrollEventThrottle={16}
-        onScroll={
-          screen === "inicio"
-            ? Animated.event(
-                [{ nativeEvent: { contentOffset: { y: homeScroll } } }],
-                { useNativeDriver: Platform.OS !== "web" },
-              )
-            : undefined
-        }
+        ref={sectionScroll}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: homeScroll } } }],
+          {
+            useNativeDriver: Platform.OS !== "web",
+            listener: (e) => {
+              scrollOffset.current = e.nativeEvent.contentOffset.y;
+            },
+          },
+        )}
       >
         {!!message && (
           <Text accessibilityLiveRegion="polite" style={s.notice}>
@@ -1917,7 +1951,7 @@ export default function BusinessApp({
                 {specRow(
                   "Dimensiones",
                   catalogInfo(data.product.code)?.dimensiones?.texto ??
-                    "No indicadas en la fuente",
+                    "Por confirmar con la distribuidora",
                 )}
                 {specRow(
                   "Acabados",
@@ -1943,7 +1977,7 @@ export default function BusinessApp({
               {finishesOf(data.product).length > 1 && (
                 <>
                   <Text style={s.label}>Acabado</Text>
-                  <FieldIssue
+                  <FieldIssue dark={dark}
                     message={issue?.field === "finish" ? issue.message : null}
                   />
                   <View
@@ -2096,7 +2130,7 @@ export default function BusinessApp({
                       <Text style={s.name}>×</Text>
                     </Pressable>
                   </View>
-                  <FieldIssue
+                  <FieldIssue dark={dark}
                     message={
                       issue?.field === "quantity-" + item.productId
                         ? issue.message
@@ -2175,7 +2209,7 @@ export default function BusinessApp({
                 }
               >
                 <Text style={s.name}>Selecciona al cliente</Text>
-                <FieldIssue
+                <FieldIssue dark={dark}
                   message={issue?.field === "customerId" ? issue.message : null}
                 />
                 {data.customers?.map((c) =>
@@ -2234,7 +2268,7 @@ export default function BusinessApp({
                     cartKey.current = randomUUID();
                   }}
                 />
-                <FieldIssue
+                <FieldIssue dark={dark}
                   message={
                     issue?.field === "deliveryAddress" ? issue.message : null
                   }
@@ -2272,7 +2306,7 @@ export default function BusinessApp({
                   <View key={i.productId} style={s.amountRow}>
                     <View style={s.grow}>
                       <Text style={s.plain}>
-                        {i.quantity} × {i.product.name}
+                        {qtyText(i.quantity)} × {i.product.name}
                       </Text>
                       <Text style={s.subtitle}>
                         {i.finish ?? i.product.finish}
@@ -2492,7 +2526,7 @@ export default function BusinessApp({
                       {i.product_code} · {i.finish}
                     </Text>
                     <Text style={s.plain}>
-                      {i.quantity} × ${i.unit_price} · corte:{" "}
+                      {qtyText(i.quantity)} × ${i.unit_price} · corte:{" "}
                       {i.cut_length_mm
                         ? displayLength(i.cut_length_mm)
                         : "Sin corte"}
@@ -2514,7 +2548,7 @@ export default function BusinessApp({
                   {data.items.map((i) => (
                     <View key={i.id} style={s.amountRow}>
                       <Text style={[s.grow, s.plain]}>
-                        {i.quantity} × {i.product_name}
+                        {qtyText(i.quantity)} × {i.product_name}
                       </Text>
                       <Text style={s.name}>${i.unit_price} / unidad</Text>
                     </View>
@@ -2550,7 +2584,7 @@ export default function BusinessApp({
                 <>
                   {field(
                     "taxRate",
-                    "Tasa de impuesto (0.1600 equivale a 16%)",
+                    "Impuesto (%)",
                     {
                       decimal: true,
                     },
@@ -2678,7 +2712,7 @@ export default function BusinessApp({
               () =>
                 perform(async () => {
                   await Share.share({
-                    message: `Aluformix — Encargo #${order.id}\nEstado: ${order.status}\n${data.items.map((i) => `${i.quantity} x ${i.product_name} (${i.product_code}) $${i.unit_price}`).join("\n")}\n${quote ? `Cotización: $${quote.total}, saldo $${quote.balance}` : "Pendiente de cotización"}`,
+                    message: `Aluformix — Encargo #${order.id}\nEstado: ${order.status}\n${data.items.map((i) => `${qtyText(i.quantity)} x ${i.product_name} (${i.product_code}) $${i.unit_price}`).join("\n")}\n${quote ? `Cotización: $${quote.total}, saldo $${quote.balance}` : "Pendiente de cotización"}`,
                   });
                 }),
               true,
@@ -3090,11 +3124,13 @@ export default function BusinessApp({
               "cuenta",
               <>
                 <Text style={s.sectionTitle}>{user.name}</Text>
-                {!!form.businessName && (
-                  <Text style={s.plain}>{form.businessName}</Text>
+                {!!data.profile?.business_name && (
+                  <Text style={s.plain}>{data.profile.business_name}</Text>
                 )}
                 <Text style={s.subtitle}>{user.email}</Text>
-                {!!form.phone && <Text style={s.subtitle}>{form.phone}</Text>}
+                {!!data.profile?.phone && (
+                  <Text style={s.subtitle}>{data.profile.phone}</Text>
+                )}
                 {button(
                   profileEditing ? "Cancelar edición" : "Editar mis datos",
                   () =>
@@ -3184,7 +3220,7 @@ export default function BusinessApp({
                 )}
                 {menuRow(
                   "Dirección de entrega",
-                  form.address || "Añade tu dirección",
+                  data.profile?.address || "Añade tu dirección",
                   () => setProfileEditing(true),
                 )}
                 {menuRow(
@@ -3226,7 +3262,7 @@ export default function BusinessApp({
             {field("name", "Nombre comercial", { max: 160 })}
             {field("phone", "Teléfono", { max: 25 })}
             {field("address", "Dirección de la sucursal", { max: 500 })}
-            {field("taxRate", "Tasa de impuesto (0.1600 = 16%)", {
+            {field("taxRate", "Impuesto (%)", {
               decimal: true,
             })}
             {button("Guardar configuración", () =>

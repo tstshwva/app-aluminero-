@@ -11,6 +11,11 @@ export default function Scanner({ onScan, onClose, onManual, onReadList, dark })
   const [message, setMessage] = useState("");
   const [cameraFailed, setCameraFailed] = useState(false);
   const ink = dark ? "#f2f2f2" : "#102c46";
+  // Colores secundarios que también se adaptan al modo oscuro.
+  const soft = dark ? "#242424" : "#e1effc",
+    softInk = dark ? "#6cb2ff" : "#0066bd",
+    note = dark ? "#cccccc" : "#31546e",
+    hint = dark ? "#8c8c8c" : "#657b91";
   const openSettings = () =>
     Linking.openSettings().catch(() =>
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
@@ -21,14 +26,14 @@ export default function Scanner({ onScan, onClose, onManual, onReadList, dark })
       accessibilityRole="button"
       style={{
         padding: 16,
-        backgroundColor: secondary ? "#e1effc" : "#006fe5",
+        backgroundColor: secondary ? soft : "#006fe5",
         borderRadius: 12,
         marginVertical: 8,
       }}
     >
       <Text
         style={{
-          color: secondary ? "#0066bd" : "white",
+          color: secondary ? softInk : "white",
           textAlign: "center",
           fontWeight: "700",
         }}
@@ -54,8 +59,8 @@ export default function Scanner({ onScan, onClose, onManual, onReadList, dark })
       </Text>
       <Text
         style={{
-          color: "#31546e",
-          backgroundColor: "#e1effc",
+          color: note,
+          backgroundColor: soft,
           padding: 12,
           borderRadius: 10,
           marginVertical: 8,
@@ -166,7 +171,7 @@ export default function Scanner({ onScan, onClose, onManual, onReadList, dark })
         } finally { setReading(false); }
       })}
       <Text style={{ color: ink, marginTop: 12 }}>Revisa o escribe tu lista, un material por renglón</Text>
-      <TextInput multiline value={listText} onChangeText={setListText} maxLength={4000} placeholder="Riel de aluminio\nContramarco" style={{ minHeight: 120, color: ink, borderWidth: 1, borderColor: "#879bac", borderRadius: 12, padding: 12, marginVertical: 8 }} />
+      <TextInput multiline value={listText} onChangeText={setListText} maxLength={4000} accessibilityLabel="Lista de materiales" placeholder={"Riel de aluminio\nContramarco"} placeholderTextColor={hint} style={{ minHeight: 120, color: ink, borderWidth: 1, borderColor: "#879bac", borderRadius: 12, padding: 12, marginVertical: 8 }} />
       {button("Buscar lista completa", () => { if (listText.trim()) onScan(listText.trim()); else setMessage("Escribe al menos un material."); })}
       {button("Buscar manualmente", onManual)}
       {button("Volver sin escanear", onClose, true)}
