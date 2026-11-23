@@ -4068,8 +4068,8 @@ const baseStyles = {
     borderColor: "#8ba2b3",
     borderBottomWidth: 8,
   },
-  price: { color: "#0071d9", fontSize: 30, fontWeight: "800" },
-  priceSmall: { color: "#0071d9", fontWeight: "800", fontSize: 16 },
+  price: { color: "#0071d9", fontSize: 25, fontWeight: "800" },
+  priceSmall: { color: "#102c46", fontWeight: "800", fontSize: 13 },
   total: { color: "#0071d9", fontWeight: "800", fontSize: 20 },
   productDetail: { gap: 7 },
   stepper: {
