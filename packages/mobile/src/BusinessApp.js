@@ -1,3 +1,4 @@
+import AssistantChat from "./AssistantChat";
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import {
   Alert,
@@ -273,6 +274,7 @@ export default function BusinessApp({
       active = false;
     };
   }, [audience]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [screen, setScreen] = useState("inicio"),
     [data, setData] = useState({}),
     [form, setForm] = useState({}),
@@ -311,7 +313,6 @@ export default function BusinessApp({
       customerId: "",
     }),
     [filter, setFilter] = useState(""),
-    [answer, setAnswer] = useState(""),
     [orderView, setOrderView] = useState(""),
     [profileEditing, setProfileEditing] = useState(false),
     [customerSearch, setCustomerSearch] = useState(""),
@@ -963,7 +964,6 @@ export default function BusinessApp({
   const openAssistant = () => {
     onDismissIssue?.();
     setForm({ question: "" });
-    setAnswer("");
     setScreen("ia");
   };
   const openCamera = () => {
@@ -1504,7 +1504,7 @@ export default function BusinessApp({
                 )}
               </>
             )}
-            {button("Asistente de materiales", openAssistant, true)}
+            {button("Chatea con tu asistente", openAssistant)}
           </View>
         )}
         {screen === "mas" && (
@@ -3595,62 +3595,8 @@ export default function BusinessApp({
           />
         )}
         {screen === "ia" && (
-          <View>
-            {heading(
-              "Asistente de materiales",
-              "Describe qué quieres fabricar o reparar.",
-            )}
-            {card(
-              "asistente",
-              <>
-                <Text style={s.name}>Encuentra el material adecuado</Text>
-                <Text style={s.body}>
-                  Ejemplo: «Busco un perfil para una ventana corrediza de 1.2
-                  m».
-                </Text>
-                <Text style={s.subtitle}>
-                  La consulta se procesa en un servicio externo. Evita incluir
-                  datos personales.
-                </Text>
-              </>,
-            )}
-            {field("question", "¿Qué material necesitas?", {
-              multiline: true,
-              max: 1000,
-            })}
-            {button("Buscar sugerencias", () =>
-              perform(async () => {
-                const question = form.question?.trim();
-                if (!question)
-                  throw formError(
-                    "question",
-                    "Describe el material o trabajo que necesitas.",
-                  );
-                setAnswer("");
-                if (!client.assistant)
-                  throw new Error(
-                    "El Asistente de materiales todavía no está conectado. Puedes buscar el material en el catálogo.",
-                  );
-                const result = await client.assistant(question);
-                setAnswer(result.answer);
-              }),
-            )}
-            {button("Explorar catálogo", () => go("catalogo"), true)}
-            {!!answer &&
-              card(
-                "respuesta",
-                <>
-                  <Text style={s.name}>Sugerencias para tu proyecto</Text>
-                  <Text selectable style={s.body}>
-                    {answer}
-                  </Text>
-                  <Text style={s.subtitle}>
-                    Confirma las medidas y existencias con la distribuidora
-                    antes de encargar.
-                  </Text>
-                </>,
-              )}
-          </View>
+          <AssistantChat client={client} messages={chatMessages} onMessages={setChatMessages}
+            dark={dark} onCatalog={() => go("catalogo")} onCamera={openCamera} />
         )}
         {screen === "ayuda" && (
           <View>
