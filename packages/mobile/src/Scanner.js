@@ -64,7 +64,7 @@ export default function Scanner({
         Escanear cotización
       </Text>
       <Text style={{ color: dark ? "#a6a6a6" : "#526b82", marginVertical: 6 }}>
-        La IA lee tu hoja y encuentra los materiales en el catálogo.
+        Reconocimiento inteligente de materiales.
       </Text>
       <Text
         style={{
@@ -75,9 +75,8 @@ export default function Scanner({
           marginVertical: 8,
         }}
       >
-        Toma una foto de tu cotización escrita a mano. La IA reconoce cada
-        material y su cantidad, y te muestra solo los de tu hoja. Revísalos
-        antes de encargar. También puedes escanear un código de barras o QR.
+        Fotografía tu cotización escrita y la IA identificará los materiales en
+        nuestro catálogo.
       </Text>
       {!permission?.granted && (
         <View
