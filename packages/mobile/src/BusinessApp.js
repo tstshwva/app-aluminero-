@@ -29,6 +29,7 @@ import {
   catalogInfo,
   classify,
   filterCatalog,
+  matchList,
   finishesOf,
   genericTypeOf,
   isPricePending,
@@ -181,7 +182,7 @@ const help = [
   ],
   [
     "¿Para qué sirve la cámara?",
-    "Busca un producto leyendo su código de barras o QR. No mide ventanas ni interpreta fotografías.",
+    "Busca un producto por su código de barras o QR, o lee una cotización escrita en hoja y muestra solo esos materiales. Revisa siempre el resultado; no mide ventanas.",
   ],
   [
     "¿Cómo encuentro el material adecuado?",
@@ -681,7 +682,33 @@ export default function BusinessApp({
         products: d.products?.filter((p) => String(p.id) !== key),
       }));
   }
+  // Hoja escaneada: renglones reconocidos y opción elegida en cada uno.
+  const [sheet, setSheet] = useState({ text: "", lines: [], picks: {} }),
+    [sheetOpen, setSheetOpen] = useState(null),
+    fromSheet = useRef(false);
+  async function showSheet(text) {
+    const version = ++navigationVersion.current;
+    const [products, categories] = await Promise.all([
+      client.products(""),
+      client.categories(),
+    ]);
+    if (!alive.current || navigationVersion.current !== version) return;
+    const names = new Map(categories.map((c) => [String(c.id), c.name]));
+    setSheet({
+      text,
+      lines: matchList(
+        text,
+        products,
+        (p) => names.get(String(p.category_id)) ?? "",
+      ),
+      picks: {},
+    });
+    setSheetOpen(null);
+    setData({ categories });
+    setScreen("lista");
+  }
   async function openProduct(productId) {
+    fromSheet.current = screen === "lista";
     const p = await client.product(productId);
     setData((d) => ({ product: p, categories: d.categories }));
     const item = cart.find((i) => String(i.productId) === String(productId));
@@ -912,6 +939,7 @@ export default function BusinessApp({
   };
   const openCamera = () => {
     onDismissIssue?.();
+    setSheet({ text: "", lines: [], picks: {} });
     setScreen("camara");
   };
   const back = () => {
@@ -923,6 +951,8 @@ export default function BusinessApp({
     if (screen === "encargo" && orderView && orderView !== "detalle" && company)
       return setOrderView("detalle");
     if (screen === "encargo") return go("encargos", filter);
+    if (screen === "lista") return setScreen("camara");
+    if (screen === "producto" && fromSheet.current) return setScreen("lista");
     if (
       [
         "producto",
@@ -3401,6 +3431,71 @@ export default function BusinessApp({
             )}
           </View>
         )}
+        {screen === "lista" && (
+          <View>
+            {heading(
+              "Materiales de tu hoja",
+              sheet.lines.filter((l) => l.options.length).length +
+                " de " +
+                sheet.lines.length +
+                " renglones reconocidos",
+            )}
+            {sheet.lines.map((l, i) => {
+              const chosen = l.options[sheet.picks[i] ?? 0];
+              const review = l.review && sheet.picks[i] === undefined;
+              return (
+                <View key={i} style={s.sheetLine}>
+                  <Text style={s.subtitle}>En tu hoja: «{l.line}»</Text>
+                  {!!l.quantity && (
+                    <Text style={s.name}>Cantidad: {l.quantity}</Text>
+                  )}
+                  {!chosen && (
+                    <Text style={s.notice}>
+                      No encontramos este material en el catálogo.
+                    </Text>
+                  )}
+                  {!!chosen && productRow(chosen)}
+                  {review && (
+                    <Text style={s.notice}>
+                      Coincidencia por revisar. Confirma que sea el correcto.
+                    </Text>
+                  )}
+                  {(l.options.length > 1 || review) &&
+                    button(
+                      sheetOpen === i
+                        ? "Ocultar opciones"
+                        : "Confirmar o cambiar" +
+                            (l.total > 5 ? " (5 de " + l.total + ")" : ""),
+                      () => setSheetOpen(sheetOpen === i ? null : i),
+                      true,
+                    )}
+                  {sheetOpen === i &&
+                    l.options.map((p, k) => (
+                      <React.Fragment key={p.id}>
+                        {chip(
+                          p.name + " · " + p.code,
+                          chosen === p,
+                          () => {
+                            setSheet((v) => ({
+                              ...v,
+                              picks: { ...v.picks, [i]: k },
+                            }));
+                            setSheetOpen(null);
+                          },
+                          "opcion" + p.id,
+                        )}
+                      </React.Fragment>
+                    ))}
+                </View>
+              );
+            })}
+            {!sheet.lines.length && (
+              <Text style={s.notice}>No hay materiales en la hoja.</Text>
+            )}
+            {button("Corregir lista", () => setScreen("camara"), true)}
+            {button("Escanear otra hoja", openCamera, true)}
+          </View>
+        )}
         {screen === "camara" && (
           <Scanner
             dark={dark}
@@ -3415,6 +3510,9 @@ export default function BusinessApp({
                     ).answer
                 : undefined
             }
+            initialText={sheet.text}
+            sampleList={client.demo ? client.sampleList : undefined}
+            onList={(text) => perform(() => showSheet(text))}
             onClose={back}
             onManual={() => go("catalogo")}
             onScan={(value) => {
@@ -3557,6 +3655,7 @@ export default function BusinessApp({
 }
 const baseStyles = {
   shell: { flex: 1, backgroundColor: "#f2f6fb", overflow: "hidden" },
+  sheetLine: { marginTop: 14, gap: 6 },
   backdropArea: {
     position: "absolute",
     top: 0,

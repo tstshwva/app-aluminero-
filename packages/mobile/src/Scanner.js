@@ -7,13 +7,16 @@ export default function Scanner({
   onClose,
   onManual,
   onReadList,
+  onList,
+  sampleList,
+  initialText = "",
   dark,
 }) {
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
   const camera = useRef(null);
   const [reading, setReading] = useState(false);
-  const [listText, setListText] = useState("");
+  const [listText, setListText] = useState(initialText);
   const [message, setMessage] = useState("");
   const [cameraFailed, setCameraFailed] = useState(false);
   const ink = dark ? "#f2f2f2" : "#102c46";
@@ -61,7 +64,7 @@ export default function Scanner({
         Escanear material
       </Text>
       <Text style={{ color: dark ? "#a6a6a6" : "#526b82", marginVertical: 6 }}>
-        Lectura de códigos del catálogo.
+        Códigos del catálogo y cotizaciones escritas en hoja.
       </Text>
       <Text
         style={{
@@ -72,8 +75,8 @@ export default function Scanner({
           marginVertical: 8,
         }}
       >
-        Enfoca el código de barras o QR del material. Verifica el resultado en
-        el catálogo.
+        Enfoca un código, o fotografía tu hoja: verás únicamente los materiales
+        escritos en ella.
       </Text>
       {!permission?.granted && (
         <View
@@ -153,7 +156,7 @@ export default function Scanner({
               setMessage("Enfoca un código de catálogo válido.");
               return;
             }
-            if (!scanned.current) {
+            if (!scanned.current && !reading) {
               scanned.current = true;
               onScan(code);
             }
@@ -169,7 +172,7 @@ export default function Scanner({
         permission?.granted &&
         !cameraFailed &&
         button(
-          reading ? "Leyendo lista…" : "Fotografiar lista escrita",
+          reading ? "Leyendo hoja…" : "Fotografiar hoja escrita",
           async () => {
             if (reading) return;
             setReading(true);
@@ -179,7 +182,10 @@ export default function Scanner({
                 base64: true,
                 quality: 0.4,
               });
-              setListText(await onReadList(photo.base64));
+              const text = String(await onReadList(photo.base64)).trim();
+              setListText(text);
+              if (text) await onList(text);
+              else setMessage("No encontramos texto legible en la hoja.");
             } catch {
               setMessage(
                 "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.",
@@ -189,6 +195,8 @@ export default function Scanner({
             }
           },
         )}
+      {!!sampleList &&
+        button("Probar con una hoja de ejemplo", () => onList(sampleList))}
       <Text style={{ color: ink, marginTop: 12 }}>
         Revisa o escribe tu lista, un material por renglón
       </Text>
@@ -211,7 +219,7 @@ export default function Scanner({
         }}
       />
       {button("Buscar lista completa", () => {
-        if (listText.trim()) onScan(listText.trim());
+        if (listText.trim()) onList(listText.trim());
         else setMessage("Escribe al menos un material.");
       })}
       {button("Buscar manualmente", onManual)}

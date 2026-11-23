@@ -251,3 +251,28 @@ test("Sistemas y calculadora C-100 MID según la tabla de la guía", () => {
   assert.throws(() => c100Cuts(0, 1500));
   assert.throws(() => c100Cuts(200, 150), /vidrio/);
 });
+
+test("Hoja escrita: solo devuelve los materiales de cada renglón", async () => {
+  const { matchList } = await import("../../packages/catalog/src/index.js");
+  const products = [
+    { id: 1, code: "T-1", name: "Tubo cuadrado de 1 pulgada", active: 1 },
+    { id: 2, code: "T-2", name: "Tubo redondo de 2 pulgadas", active: 1 },
+    { id: 3, code: "90001", name: "Vidrio claro 6 mm", active: 1 },
+    { id: 4, code: "OFF", name: "Cinta gris", active: 0 },
+  ];
+  const rows = matchList(
+    "- 4 tubos cuadrados\n3 pzas vidrio claro 6 mm\n90001 vidrio\ncinta gris\n2 tubos\n\ntubo redondo 5 pzas",
+    products,
+  );
+  assert.deepEqual(
+    rows.map((r) => [r.quantity, r.options.map((p) => p.id), r.review]),
+    [
+      ["4", [1], false],
+      ["3", [3], false],
+      [null, [3], false],
+      [null, [], false],
+      ["2", [1, 2], true],
+      ["5", [2], false],
+    ],
+  );
+});

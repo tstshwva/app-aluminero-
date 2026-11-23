@@ -206,6 +206,78 @@ export function searchProducts(products, query, categoryNameOf = () => "") {
     .map((x) => x.p);
 }
 
+// Interpreta una lista escrita (un material por renglón). Devuelve, por cada
+// renglón, la cantidad, los productos que coinciden (el mejor primero) y si hay
+// que revisarlo. Nunca agrega productos que no estén en la hoja.
+const LIST_UNIT = "(?:x|×|pzas?\\.?|pz\\.?|piezas?|barras?|tramos?|unidades?)";
+const LEADING_QTY = new RegExp(
+  "^(\\d{1,4}(?:[.,]\\d{1,3})?)\\s*(?:" +
+    LIST_UNIT +
+    "\\s+)?(?:de\\s+)?(?!(?:pulg\\w*|mm|cm|mts?|metros?|m)\\b)(?=[a-záéíóúñ])",
+  "i",
+);
+const TRAILING_QTY = new RegExp(
+  "\\s+(?:[-–:]\\s*)?(\\d{1,4})\\s*(?:pzas?|pz|piezas?|barras?|tramos?)\\.?$",
+  "i",
+);
+export function matchList(text, products, categoryNameOf = () => "") {
+  const active = products.filter((p) => Number(p.active ?? 1));
+  const codes = new Set(active.map((p) => String(p.code).toLowerCase()));
+  return String(text ?? "")
+    .split(/\r?\n/)
+    .map((raw) => raw.replace(/^\s*(?:[-*•·]|\d{1,2}[.)](?=\s))\s*/, "").trim())
+    .filter((line) => queryTokens(line).length)
+    .slice(0, 60)
+    .map((line) => {
+      let term = line,
+        quantity = null;
+      const lead = LEADING_QTY.exec(line);
+      const tail = TRAILING_QTY.exec(line);
+      if (lead && !codes.has(lead[1].toLowerCase())) {
+        quantity = lead[1].replace(",", ".");
+        term = line.slice(lead[0].length).trim();
+      } else if (tail) {
+        quantity = tail[1];
+        term = line.slice(0, tail.index).trim();
+      }
+      const find = (query) =>
+        queryTokens(query).length
+          ? searchProducts(active, query, categoryNameOf)
+          : [];
+      let found = find(term),
+        approximate = false;
+      // «2488 tubo»: el código exacto manda sobre el resto del renglón.
+      const code = term.split(/\s+/).find((w) => codes.has(w.toLowerCase()));
+      if (code)
+        found = active.filter(
+          (p) => String(p.code).toLowerCase() === code.toLowerCase(),
+        );
+      // Si no coincide todo, se tolera una palabra distinta, pero se avisa.
+      const words = term.split(/\s+/);
+      if (!found.length && words.length >= 3) {
+        const seen = new Map();
+        words.forEach((_, i) => {
+          const rest = words.filter((__, j) => j !== i).join(" ");
+          if (queryTokens(rest).length >= 2)
+            find(rest).forEach((p) => seen.set(p.id, p));
+        });
+        found = [...seen.values()];
+        approximate = found.length > 0;
+      }
+      const exact =
+        found.length === 1 ||
+        (found.length > 1 &&
+          normalizeText(found[0].name) === normalizeText(term));
+      return {
+        line,
+        quantity,
+        options: found.slice(0, 5),
+        total: found.length,
+        review: found.length > 0 && (approximate || !exact),
+      };
+    });
+}
+
 export function sortProducts(products, order = "nombre") {
   const list = [...products];
   if (order === "codigo")

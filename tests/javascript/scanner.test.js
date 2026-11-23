@@ -86,4 +86,38 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
   await act(async () => manualButton.props.onPress());
   assert.equal(manual, 1);
   await act(async () => screen.unmount());
+
+  // Foto de una hoja: al terminar la lectura se muestran sus materiales.
+  const sheets = [];
+  let answer = "2 tubos\n1 vidrio";
+  await act(async () => {
+    screen = TestRenderer.create(
+      React.createElement(Scanner, {
+        onScan: (code) => results.push(code),
+        onReadList: async (image) => {
+          assert.equal(image, "Zm90bw==");
+          return answer;
+        },
+        onList: (text) => sheets.push(text),
+      }),
+      {
+        createNodeMock: () => ({
+          takePictureAsync: async () => ({ base64: "Zm90bw==" }),
+        }),
+      },
+    );
+  });
+  const photo = () =>
+    screen.root
+      .findAllByType("Pressable")
+      .find(
+        (n) =>
+          n.findByType("Text").props.children === "Fotografiar hoja escrita",
+      );
+  await act(async () => photo().props.onPress());
+  assert.deepEqual(sheets, ["2 tubos\n1 vidrio"]);
+  answer = "  ";
+  await act(async () => photo().props.onPress());
+  assert.equal(sheets.length, 1, "Una hoja ilegible no muestra productos");
+  await act(async () => screen.unmount());
 });

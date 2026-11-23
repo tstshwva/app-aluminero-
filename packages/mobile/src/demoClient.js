@@ -832,6 +832,9 @@ export function createDemoClient(audience) {
           .map(view),
       };
     },
+    // Hoja de ejemplo para enseñar el escaneo sin servicio externo.
+    sampleList:
+      '2 Perfil serie 3"\n4 tubos cuadrados 1 pulgada\n3 pzas vidrio claro 6 mm\n1 ángulo 3/4\nCinta gris',
     async assistant(question) {
       await delay();
       if (!String(question ?? "").trim()) fail("Escribe tu pregunta.");
