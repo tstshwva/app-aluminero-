@@ -1,3 +1,4 @@
+import { localTextAvailable, readLocalText } from "./localTextReader";
 import React, { useRef, useState } from "react";
 import { Image, Linking, Pressable, View } from "react-native";
 import { Text, TextInput } from "./Typography";
@@ -95,7 +96,7 @@ export default function Scanner({
         Escanear cotización
       </Text>
       <Text style={{ color: dark ? "#a6a6a6" : "#526b82", marginVertical: 6 }}>
-        Reconocimiento inteligente de materiales.
+        Lee tu hoja y revisa los materiales.
       </Text>
       <Text
         style={{
@@ -106,8 +107,7 @@ export default function Scanner({
           marginVertical: 8,
         }}
       >
-        Fotografía tu cotización escrita y la IA identificará los materiales en
-        nuestro catálogo.
+        Fotografía la hoja con buena luz. Revisa el texto reconocido antes de buscar los materiales en el catálogo.
       </Text>
       {!permission?.granted && (
         <View
@@ -210,7 +210,7 @@ export default function Scanner({
         onDismiss={() => setMessage("")}
         dark={dark}
       />
-      {!!onReadList &&
+      {(localTextAvailable || !!onReadList) &&
         permission?.granted &&
         !cameraFailed &&
         button(
@@ -221,13 +221,14 @@ export default function Scanner({
             setMessage("");
             try {
               const photo = await camera.current.takePictureAsync({
-                base64: true,
-                quality: 0.4,
+                base64: !localTextAvailable,
+                quality: 0.8,
               });
-              const text = String(await onReadList(photo.base64)).trim();
+              const text = localTextAvailable
+                ? await readLocalText(photo.uri)
+                : String(await onReadList(photo.base64)).trim();
               setListText(text);
-              if (text) await onList(text);
-              else setMessage("No encontramos texto legible en la hoja.");
+              if (!text) setMessage("No encontramos texto legible. Acerca la hoja, mejora la luz y vuelve a fotografiarla.");
             } catch (error) {
               setMessage(error.message || "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.");
             } finally {
@@ -264,7 +265,7 @@ export default function Scanner({
           marginVertical: 8,
         }}
       />
-      {button("Buscar lista completa", () => {
+      {button("Buscar materiales de la lista", () => {
         if (listText.trim()) onList(listText.trim());
         else setMessage("Escribe al menos un material.");
       })}

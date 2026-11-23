@@ -42,7 +42,8 @@
           "barcodeScannerEnabled": true
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      "../../plugins/withBundledTextRecognition"
     ],
     "icon": "../../packages/mobile/assets/aluformix-icon.png",
     "extra": {
