@@ -68,7 +68,7 @@ export function createFirebaseClient({
       auth: initializeAuth(app, { persistence }),
       db: initializeFirestore(
         app,
-        forceLongPolling ? { experimentalForceLongPolling: true } : {},
+        forceLongPolling ? { experimentalForceLongPolling: true, experimentalLongPollingOptions: { timeoutSeconds: 25 } } : {},
       ),
     });
   }
@@ -84,7 +84,7 @@ export function createFirebaseClient({
     const staffSnapshot = await getDoc(roleDoc(user.uid)).catch((error) => {
       if (error.code === "unavailable" || error.code === "deadline-exceeded") {
         throw new Error(
-          "No pudimos verificar tu cuenta en Firestore. Cambia entre Wi-Fi y datos móviles y vuelve a intentarlo.",
+          "No pudimos conectar con la base de datos. Si usas Wi-Fi de la universidad, abre el navegador y completa el acceso a la red. Después vuelve a intentar. Si continúa, la red puede estar restringiendo Firebase.",
         );
       }
       throw error;

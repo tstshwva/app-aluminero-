@@ -12,10 +12,11 @@ export function useAppUpdates() {
     async function check() {
       if (checking || Date.now() - lastCheck < 300000) return;
       checking = true;
-      lastCheck = Date.now();
+
       try {
         const network = await Network.getNetworkStateAsync();
-        if (network.type !== Network.NetworkStateType.WIFI) return;
+        if (network.type !== Network.NetworkStateType.WIFI || !network.isConnected || network.isInternetReachable === false) return;
+        lastCheck = Date.now();
         const update = await Updates.checkForUpdateAsync();
         if (!active || !update.isAvailable) return;
         Alert.alert(
@@ -62,8 +63,12 @@ export function useAppUpdates() {
     const listener = AppState.addEventListener("change", (state) => {
       if (state === "active") void check();
     });
+    const networkListener = Network.addNetworkStateListener(network => {
+      if (network.type === Network.NetworkStateType.WIFI && network.isConnected && network.isInternetReachable !== false) void check();
+    });
     return () => {
       active = false;
+      networkListener.remove();
       listener.remove();
     };
   }, []);
