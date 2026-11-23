@@ -1,7 +1,13 @@
+import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View, Image } from "react-native";
 
 export default function AssistantChat({ client, messages, onMessages, dark, onCatalog, onCamera }) {
+  const [permission, requestPermission] = useCameraPermissions();
+  const camera = useRef(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [capturing, setCapturing] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -22,7 +28,7 @@ export default function AssistantChat({ client, messages, onMessages, dark, onCa
     setError("");
     try {
       if (!client.assistant) throw new Error("El asistente no está disponible en esta versión.");
-      const result = await client.assistant(question, undefined, messages.slice(-12));
+      const result = await client.assistant(question, photo?.base64, messages.slice(-12), { visualChat: true });
       if (!result?.answer?.trim()) throw new Error("No llegó una respuesta. Intenta de nuevo.");
       onMessages([...messages, { role: "user", text: question }, { role: "assistant", text: result.answer }].slice(-40));
       setDraft("");
@@ -55,6 +61,34 @@ export default function AssistantChat({ client, messages, onMessages, dark, onCa
       <ActivityIndicator color="#007bff" /><Text style={{ color: muted }}>Preparando respuesta…</Text>
     </View>}
     {!!error && <Text accessibilityRole="alert" style={{ color: dark ? "#ffb4b4" : "#a51d36", padding: 12 }}>{error}</Text>}
+    {cameraOpen && permission?.granted && <>
+      <CameraView ref={camera} facing="back" style={{ height: 280, borderRadius: 16 }}
+        onMountError={() => { setCameraOpen(false); setError("No se pudo abrir la cámara. Intenta otra vez."); }} />
+      {button(capturing ? "Tomando foto…" : "Usar esta foto", async () => {
+        if (capturing) return;
+        setCapturing(true);
+        try {
+          const picture = await camera.current.takePictureAsync({ base64: true, quality: 0.4 });
+          setPhoto(picture);
+          setCameraOpen(false);
+          if (!draft.trim()) setDraft("¿Qué materiales me recomiendas para algo como lo de esta foto?");
+        } catch { setError("No se pudo tomar la foto. Intenta otra vez."); }
+        finally { setCapturing(false); }
+      }, capturing)}
+      {button("Cerrar cámara", () => setCameraOpen(false), capturing)}
+    </>}
+    {!!photo && <>
+      <Image accessibilityLabel="Foto adjunta para consultar" source={{ uri: photo.uri }} style={{ height: 180, borderRadius: 16 }} resizeMode="contain" />
+      {button("Quitar foto", () => setPhoto(null), sending)}
+    </>}
+    {button("Adjuntar foto de mi proyecto", async () => {
+      try {
+        const access = permission?.granted ? permission : await requestPermission();
+        if (!access.granted) { setError("Habilita el permiso de cámara en Ajustes para adjuntar una foto."); return; }
+        setError("");
+        setCameraOpen(true);
+      } catch { setError("No se pudo solicitar el permiso de cámara."); }
+    }, sending)}
     <TextInput accessibilityLabel="Escribe tu mensaje al asistente" multiline maxLength={1000}
       editable={!sending} value={draft} onChangeText={setDraft} placeholder="Escribe tu pregunta…"
       placeholderTextColor={muted} style={{ color: ink, borderColor: "#879bac", borderWidth: 1, borderRadius: 16, padding: 15, minHeight: 90, textAlignVertical: "top" }} />
