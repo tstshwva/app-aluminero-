@@ -1120,7 +1120,7 @@ export default function BusinessApp({
       ? "Consultar precio"
       : "$" +
         p.price +
-        (client.demo ? " de ejemplo" : company ? " sin IVA" : " estimado");
+        (client.demo ? "" : company ? " sin IVA" : " estimado");
   const productRow = (p) => {
     const { subcategory } = classify(p, categoryNameOf(p));
     const info = catalogInfo(p.code);
@@ -2063,14 +2063,7 @@ export default function BusinessApp({
                   </Text>
                 </View>
               ) : (
-                <>
-                  <Text style={s.price}>${data.product.price}</Text>
-                  {client.demo && (
-                    <Text style={s.subtitle}>
-                      Precio de ejemplo de la demostración; no es real.
-                    </Text>
-                  )}
-                </>
+                <Text style={s.price}>${data.product.price}</Text>
               )}
               {company && (
                 <View style={s.metrics}>
@@ -4078,7 +4071,7 @@ const baseStyles = {
     borderBottomWidth: 8,
   },
   price: { color: "#0071d9", fontSize: 25, fontWeight: "800" },
-  priceSmall: { color: "#102c46", fontWeight: "800", fontSize: 13 },
+  priceSmall: { color: "#0071d9", fontWeight: "800", fontSize: 16 },
   total: { color: "#0071d9", fontWeight: "800", fontSize: 20 },
   productDetail: { gap: 7 },
   stepper: {
