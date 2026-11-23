@@ -1,4 +1,4 @@
-module.exports = ({ config }) => config;
+module.exports = ({ config }) => ({ ...config, plugins: [...(config.plugins ?? []), "@react-native-firebase/app"], android: { ...config.android, googleServicesFile: "./google-services.json" } });
 
 const originalConfig = module.exports;
 module.exports = (context) => {

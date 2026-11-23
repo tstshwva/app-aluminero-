@@ -495,6 +495,7 @@ export default function BusinessApp({
       await fn();
     });
   const tabCache = useRef(new Map());
+  const tabLoadedAt = useRef(new Map());
   const navigationVersion = useRef(0);
   async function load(next, query = "") {
     const version = ++navigationVersion.current;
@@ -614,6 +615,7 @@ export default function BusinessApp({
       )
     )
       tabCache.current.set(cacheKey, result);
+    tabLoadedAt.current.set(cacheKey, Date.now());
     if (alive.current && navigationVersion.current === version) {
       setData(result);
       setScreen(next);
@@ -641,7 +643,17 @@ export default function BusinessApp({
         }),
     );
   }, [client, company, screen, filter]);
-  const go = (next, query = "") => perform(() => load(next, query));
+  const go = (next, query = "") => {
+    const key = next + ":" + query;
+    const cached = tabCache.current.get(key);
+    if (cached && Date.now() - (tabLoadedAt.current.get(key) ?? 0) < 15000) {
+      navigationVersion.current++;
+      setData(cached);
+      setScreen(next);
+      return Promise.resolve();
+    }
+    return perform(() => load(next, query));
+  };
   // Los favoritos solo existen para compradores; si fallan, el catálogo se muestra igual.
   async function loadFavorites() {
     if (company) return [];
