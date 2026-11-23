@@ -1,3 +1,5 @@
+import { enterpriseOperations } from "./enterpriseFirebase.js";
+import { decimal, text } from "./enterpriseDomain.js";
 import { readStaffOverHttps } from "./staffLookup.js";
 import { CustomProvider, initializeAppCheck } from "firebase/app-check";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
@@ -98,8 +100,11 @@ export function createFirebaseClient({
       } catch (failure) {
         if (["permission-denied", "unauthenticated"].includes(failure.code))
           throw failure;
-        throw new Error(
-          "No pudimos verificar tu cuenta con el servidor. Comprueba el acceso a internet y vuelve a intentar.",
+        throw Object.assign(
+          new Error(
+            "No pudimos verificar tu cuenta con el servidor. Comprueba el acceso a internet y vuelve a intentar.",
+          ),
+          { code: "unavailable" },
         );
       }
     }
@@ -134,7 +139,16 @@ export function createFirebaseClient({
     return {
       ...value,
       id: snapshot.id,
-      user_id: value.ownerUid,
+      user_id: value.walkIn ? null : value.ownerUid,
+      customer_id: value.customerId ?? value.ownerUid,
+      customer_name:
+        value.customerName ??
+        value.notes?.match(/(?:^|\n)Contacto: ([^\n]+)/)?.[1] ??
+        "",
+      customer_phone:
+        value.customerPhone ??
+        value.notes?.match(/(?:^|\n)Teléfono: ([^\n]+)/)?.[1] ??
+        "",
       created_at: value.createdAt?.toDate()?.toISOString() ?? null,
       delivery_address: value.deliveryAddress || null,
     };
@@ -172,12 +186,24 @@ export function createFirebaseClient({
     const snapshot = await getDoc(doc(orders, String(id)));
     if (!snapshot.exists()) throw new Error("El pedido no existe.");
     const order = readOrder(snapshot);
+    const allProducts = await catalog();
+    const productMap = new Map(
+      allProducts.map((product) => [String(product.id), product]),
+    );
     return {
       order,
       items: order.items.map((item, index) => ({
         ...item,
         id: String(index + 1),
         product_id: item.productId,
+        product_name:
+          productMap.get(String(item.productId))?.name ??
+          "Producto no disponible",
+        product_code: productMap.get(String(item.productId))?.code ?? "",
+        unit_price:
+          item.unitPrice ??
+          productMap.get(String(item.productId))?.price ??
+          "0.00",
         cut_length_mm: item.cutLengthMm ?? null,
       })),
       quote: order.quote ?? null,
@@ -209,7 +235,14 @@ export function createFirebaseClient({
     };
   }
 
+  const operations = enterpriseOperations({
+    db,
+    auth,
+    config,
+    invalidate: () => cachedReads.clear(),
+  });
   return {
+    ...operations,
     cloud: true,
     async offlineIdentity() {
       await auth.authStateReady();
@@ -452,9 +485,29 @@ export function createFirebaseClient({
       deliveryAddress,
       notes,
       items,
+      customerId,
     }) {
-      if (company || !auth.currentUser)
-        throw new Error("Inicia sesión como comprador.");
+      if (!auth.currentUser) throw new Error("Inicia sesión como comprador.");
+      if (!/^[0-9a-fA-F-]{36}$/.test(requestKey ?? ""))
+        throw new Error("El identificador del encargo no es válido.");
+      if (!["Entrega", "Recoger"].includes(fulfillment))
+        throw new Error("Elige cómo recibir el encargo.");
+      text(notes, "las indicaciones", 2000, true);
+      text(deliveryAddress, "la dirección", 500, fulfillment !== "Entrega");
+      if (!Array.isArray(items) || !items.length || items.length > 50)
+        throw new Error("Selecciona entre 1 y 50 materiales.");
+      for (const item of items) {
+        text(item.productId, "el producto", 150);
+        if (decimal(item.quantity, 3) <= 0)
+          throw new Error("La cantidad debe ser mayor que cero.");
+      }
+      let customer;
+      if (company) {
+        customer = (await operations.customers()).find(
+          (item) => item.id === String(customerId),
+        );
+        if (!customer) throw new Error("Selecciona un cliente registrado.");
+      }
       const ref = doc(orders, requestKey);
       const ownerUid = auth.currentUser.uid;
       if (expectedOwnerUid && expectedOwnerUid !== ownerUid)
@@ -464,6 +517,14 @@ export function createFirebaseClient({
         if (!existing.exists()) {
           transaction.set(ref, {
             ownerUid,
+            ...(company
+              ? {
+                  walkIn: true,
+                  customerId: customer.id,
+                  customerName: customer.name,
+                  customerPhone: customer.phone ?? "",
+                }
+              : {}),
             fulfillment,
             deliveryAddress:
               fulfillment === "Entrega" ? (deliveryAddress ?? "").trim() : "",

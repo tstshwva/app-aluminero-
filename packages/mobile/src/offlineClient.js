@@ -23,6 +23,7 @@ export function withOfflineData(base, store, isOnline) {
     "company",
     "notifications",
     "favorites",
+    "movements",
   ];
   const api = { ...base, offlineStore: store };
   let syncing;
@@ -119,7 +120,26 @@ export function withOfflineData(base, store, isOnline) {
       return value;
     };
   }
-  for (const name of ["assistant", "register", "recovery"]) {
+  for (const name of [
+    "assistant",
+    "register",
+    "recovery",
+    "createOrder",
+    "saveCompany",
+    "createCategory",
+    "saveProduct",
+    "inventory",
+    "adjustment",
+    "createCustomer",
+    "quote",
+    "acceptQuote",
+    "orderStatus",
+    "payment",
+    "readNotification",
+    "registerPush",
+    "disablePush",
+    "createStaff",
+  ]) {
     if (!base[name]) continue;
     api[name] = async (...args) => {
       if (!(await isOnline()))

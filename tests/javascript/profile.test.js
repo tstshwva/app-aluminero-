@@ -25,7 +25,7 @@ test("Perfil de Firebase: solo guarda datos de contacto válidos", async () => {
   });
   // La regla permite exactamente los mismos campos.
   const rules = await readFile("firestore.rules", "utf8");
-  const allowed = /function profileKeys\(\) \{\s*return \[([^\]]*)\]/.exec(
+  const allowed = /function profileKeys\(\)\s*\{\s*return\s*\[([^\]]*)\]/.exec(
     rules,
   )[1];
   assert.deepEqual(

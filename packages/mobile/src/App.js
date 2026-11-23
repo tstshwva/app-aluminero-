@@ -71,8 +71,7 @@ function AppContent({ audience }) {
               audience,
               storage,
               forceLongPolling: Platform.OS === "android",
-              getAssistantAppCheckToken:
-                audience === "cliente" ? getAssistantAppCheckToken : undefined,
+              getAssistantAppCheckToken,
               config: {
                 projectId: "alumineroapp-9244c",
                 apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,

@@ -1,98 +1,73 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function staff() {
-      return signedIn() &&
-        get(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.active == true;
-    }
-
-    function invitePath(code) {
-      return /databases/$(database)/documents/aluf_invites/$(code);
-    }
-
-    match /aluf_staff/{uid} {
-      allow get: if signedIn() && request.auth.uid == uid;
-      allow create: if signedIn() && request.auth.uid == uid &&
-        request.resource.data.keys().hasOnly(['active', 'role', 'inviteCode']) &&
-        request.resource.data.active == true &&
-        request.resource.data.role == "Operador" &&
-        request.resource.data.inviteCode.matches('^[a-f0-9]{32}$') &&
-        get(invitePath(request.resource.data.inviteCode)).data.usedBy == null &&
-        getAfter(invitePath(request.resource.data.inviteCode)).data.usedBy == uid;
-    }
-
-    match /aluf_invites/{code} {
-      allow update: if signedIn() &&
-        resource.data.usedBy == null &&
-        resource.data.expiresAt > request.time &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']) &&
-        request.resource.data.usedBy == request.auth.uid &&
-        getAfter(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.inviteCode == code;
-    }
-
-    match /categorias/{categoryId} {
-      allow get, list: if signedIn();
-    }
-
-    match /catalogo/{productoId} {
-      allow get, list: if signedIn();
-    }
-
-    // Datos de contacto que cada comprador guarda de sí mismo. El rol no vive
-    // aquí (ver aluf_staff) y ningún otro campo puede crearse ni cambiarse.
-    function profileKeys() {
-      return ['phone', 'business_name', 'tax_id', 'address'];
-    }
-
-    function validProfile(d) {
-      return d.keys().hasAll(profileKeys()) &&
-        d.phone is string && d.phone.matches('^[0-9 +()-]{10,25}$') &&
-        d.business_name is string && d.business_name.size() <= 160 &&
-        d.tax_id is string && d.tax_id.size() <= 13 &&
-        d.address is string && d.address.size() <= 500;
-    }
-
-    match /usuarios/{uid} {
-      allow get: if signedIn() && request.auth.uid == uid;
-      allow create: if signedIn() && request.auth.uid == uid &&
-        request.resource.data.keys().hasOnly(profileKeys()) &&
-        validProfile(request.resource.data);
-      allow update: if signedIn() && request.auth.uid == uid &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(profileKeys()) &&
-        validProfile(request.resource.data);
-    }
-
-    match /pedidos/{pedidoId} {
-      allow get: if signedIn() && resource == null;
-      allow get, list: if signedIn() &&
-        (resource.data.ownerUid == request.auth.uid || staff());
-
-      allow create: if signedIn() &&
-        pedidoId.matches('^[0-9a-fA-F-]{36}$') &&
-        request.resource.data.keys().hasAll(
-          ['ownerUid', 'status', 'fulfillment', 'deliveryAddress', 'notes', 'items', 'createdAt']
-        ) &&
-        request.resource.data.keys().hasOnly(
-          ['ownerUid', 'status', 'fulfillment', 'deliveryAddress', 'notes', 'items', 'createdAt']
-        ) &&
-        request.resource.data.ownerUid == request.auth.uid &&
-        request.resource.data.status == 'Solicitado' &&
-        request.resource.data.createdAt == request.time &&
-        request.resource.data.notes is string &&
-        request.resource.data.notes.size() <= 2000 &&
-        request.resource.data.deliveryAddress is string &&
-        request.resource.data.deliveryAddress.size() <= 500 &&
-        ((request.resource.data.fulfillment == 'Recoger' &&
-          request.resource.data.deliveryAddress == '') ||
-         (request.resource.data.fulfillment == 'Entrega' &&
-          request.resource.data.deliveryAddress.size() > 0)) &&
-        request.resource.data.items is list &&
-        request.resource.data.items.size() > 0 &&
-        request.resource.data.items.size() <= 50;
-    }
+ match /databases/{database}/documents {
+  function signedIn(){return request.auth != null;}
+  function staff(){return signedIn() && get(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.active == true && get(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.role in ['Administrador','Operador'];}
+  function admin(){return staff() && get(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.role == 'Administrador';}
+  function invitePath(code){return /databases/$(database)/documents/aluf_invites/$(code);}
+  match /aluf_staff/{uid} {
+   allow get: if signedIn() && request.auth.uid == uid;
+   allow create: if (admin() && uid != request.auth.uid && request.resource.data.keys().hasOnly(['active','role']) && request.resource.data.active == true && request.resource.data.role in ['Administrador','Operador']) ||
+    (signedIn() && request.auth.uid == uid && request.resource.data.keys().hasOnly(['active','role','inviteCode']) && request.resource.data.active == true && request.resource.data.role == 'Operador' && request.resource.data.inviteCode.matches('^[a-f0-9]{32}$') && get(invitePath(request.resource.data.inviteCode)).data.usedBy == null && getAfter(invitePath(request.resource.data.inviteCode)).data.usedBy == uid);
   }
+  match /aluf_invites/{code} {
+   allow update: if signedIn() && resource.data.usedBy == null && resource.data.expiresAt > request.time && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']) && request.resource.data.usedBy == request.auth.uid && getAfter(/databases/$(database)/documents/aluf_staff/$(request.auth.uid)).data.inviteCode == code;
+  }
+  function bounded(s,n){return s is string && s.size()>0 && s.size()<=n;}
+  function stockValid(d){return d.stock is number && d.reserved is number && d.stock>=0 && d.stock<=999999999.999 && d.reserved>=0 && d.reserved<=d.stock;}
+  function productValid(d){return bounded(d.code,40) && bounded(d.name,160) && bounded(d.category_id,150) && bounded(d.unit,30) && bounded(d.finish,60) && d.description is string && d.description.size()<=2000 && d.price is string && d.price.matches('^[0-9]{1,9}[.][0-9]{2}$') && d.minimum_stock is number && d.minimum_stock>=0 && d.minimum_stock<=999999999.999 && (d.length_mm==null || (d.length_mm is number && d.length_mm>0 && d.length_mm<=999999999.999)) && d.image_url is string && d.image_url.size()<=1000 && (d.image_url=='' || d.image_url.matches('^https://.*')) && d.active in [0,1] && stockValid(d);}
+  match /categorias/{id} {
+   allow read: if signedIn();
+   allow create: if admin() && request.resource.data.keys().hasOnly(['nombre']) && bounded(request.resource.data.nombre,80);
+  }
+  match /catalogo/{id} {
+   allow read: if signedIn();
+   allow create: if admin() && request.resource.data.keys().hasOnly(['code','name','description','category_id','unit','finish','price','minimum_stock','length_mm','image_url','active','stock','reserved','updatedAt']) && productValid(request.resource.data) && request.resource.data.stock==0 && request.resource.data.reserved==0 && request.resource.data.updatedAt==request.time;
+   allow update: if request.resource.data.updatedAt==request.time &&
+    ((admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['code','name','description','category_id','unit','finish','price','minimum_stock','length_mm','image_url','active','stock','reserved','updatedAt']) && productValid(request.resource.data)) ||
+     (staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','reserved','updatedAt']) && stockValid(request.resource.data)));
+   match /movimientos/{movementId} {
+    allow read: if staff();
+    allow create: if staff() && request.resource.data.keys().hasOnly(['type','quantity','reason','actorUid','createdAt']) && request.resource.data.type in ['Entrada','Ajuste','Reserva','Salida','Liberación'] && request.resource.data.quantity is number && bounded(request.resource.data.reason,255) && request.resource.data.actorUid==request.auth.uid && request.resource.data.createdAt==request.time;
+   }
+  }
+  match /empresa/{id} {
+   allow get: if signedIn() && id=='configuracion';
+   allow create,update: if admin() && id=='configuracion' && request.resource.data.keys().hasOnly(['name','phone','address','tax_rate','updatedAt']) && bounded(request.resource.data.name,160) && request.resource.data.phone is string && request.resource.data.phone.size()<=25 && request.resource.data.address is string && request.resource.data.address.size()<=500 && request.resource.data.tax_rate is string && request.resource.data.tax_rate.matches('^(0([.][0-9]{1,4})?|1([.]0{1,4})?)$') && request.resource.data.updatedAt==request.time;
+  }
+  match /clientes/{id} {
+   allow read: if staff();
+   allow create: if staff() && request.resource.data.keys().hasOnly(['name','phone','business_name','createdAt']) && bounded(request.resource.data.name,120) && request.resource.data.phone.matches('^[0-9 +()-]{10,25}$') && request.resource.data.business_name=='' && request.resource.data.createdAt==request.time;
+  }
+  function profileKeys(){return ['phone','business_name','tax_id','address'];}
+  function validProfile(d){return d.keys().hasAll(profileKeys()) && d.phone is string && d.phone.matches('^[0-9 +()-]{10,25}$') && d.business_name is string && d.business_name.size()<=160 && d.tax_id is string && d.tax_id.size()<=13 && d.address is string && d.address.size()<=500;}
+  match /usuarios/{uid} {
+   allow get: if signedIn() && request.auth.uid==uid;
+   allow create: if signedIn() && request.auth.uid==uid && request.resource.data.keys().hasOnly(profileKeys()) && validProfile(request.resource.data);
+   allow update: if signedIn() && request.auth.uid==uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(profileKeys()) && validProfile(request.resource.data);
+   match /avisosLeidos/{id} {
+    allow read: if signedIn() && request.auth.uid==uid;
+    allow create,update: if signedIn() && request.auth.uid==uid && request.resource.data.keys().hasOnly(['readAt']) && request.resource.data.readAt==request.time;
+   }
+  }
+  match /dispositivos/{id} {
+   allow create: if signedIn() && request.resource.data.ownerUid==request.auth.uid && request.resource.data.keys().hasOnly(['ownerUid','token','updatedAt']) && bounded(request.resource.data.token,300) && request.resource.data.updatedAt==request.time;
+   allow update: if signedIn() && resource.data.ownerUid==request.auth.uid && request.resource.data.ownerUid==request.auth.uid && request.resource.data.keys().hasOnly(['ownerUid','token','updatedAt']) && bounded(request.resource.data.token,300) && request.resource.data.updatedAt==request.time;
+   allow delete: if signedIn() && resource.data.ownerUid==request.auth.uid;
+  }
+  function quoteValid(d){return !d.keys().hasAny(['quote']) || (d.quote is map && d.quote.revision is int && d.quote.revision>0 && d.quote.total is string && d.quote.total.matches('^[0-9]{1,9}[.][0-9]{2}$') && d.quote.paid is string && d.quote.paid.matches('^[0-9]{1,9}[.][0-9]{2}$') && d.quote.balance is string && d.quote.balance.matches('^[0-9]{1,9}[.][0-9]{2}$'));}
+  function staffTransition(before,after){return before==after || (before=='Solicitado' && after in ['Cotizado','Cancelado']) || (before=='Cotizado' && after in ['Confirmado','Cancelado']) || (before=='Confirmado' && after in ['Preparando','Cancelado']) || (before=='Preparando' && after in ['Listo','Cancelado']) || (before=='Listo' && after in ['Entregado','Cancelado']);}
+  match /pedidos/{id} {
+   allow get: if signedIn() && resource==null;
+   allow read: if signedIn() && (resource.data.ownerUid==request.auth.uid || staff());
+   allow create: if signedIn() && id.matches('^[0-9a-fA-F-]{36}$') && request.resource.data.keys().hasAll(['ownerUid','status','fulfillment','deliveryAddress','notes','items','createdAt']) &&
+    ((request.resource.data.keys().hasOnly(['ownerUid','status','fulfillment','deliveryAddress','notes','items','createdAt'])) ||
+     (staff() && request.resource.data.keys().hasOnly(['ownerUid','status','fulfillment','deliveryAddress','notes','items','createdAt','walkIn','customerId','customerName','customerPhone']) && request.resource.data.walkIn==true && bounded(request.resource.data.customerId,150) && bounded(request.resource.data.customerName,160) && request.resource.data.customerPhone is string && request.resource.data.customerPhone.size()<=25)) &&
+    request.resource.data.ownerUid==request.auth.uid && request.resource.data.status=='Solicitado' && request.resource.data.createdAt==request.time && request.resource.data.notes is string && request.resource.data.notes.size()<=2000 && request.resource.data.deliveryAddress is string && request.resource.data.deliveryAddress.size()<=500 && ((request.resource.data.fulfillment=='Recoger' && request.resource.data.deliveryAddress=='') || (request.resource.data.fulfillment=='Entrega' && request.resource.data.deliveryAddress.size()>0)) && request.resource.data.items is list && request.resource.data.items.size()>0 && request.resource.data.items.size()<=50;
+   allow update: if signedIn() && request.resource.data.updatedAt==request.time &&
+    ((staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','quote','items','payments','history','inventoryReserved','updatedAt']) && staffTransition(resource.data.status,request.resource.data.status) && (request.resource.data.status!='Confirmado' || resource.data.status=='Confirmado' || resource.data.get('walkIn',false)) && quoteValid(request.resource.data) && request.resource.data.items is list && request.resource.data.items.size()>0 && request.resource.data.items.size()<=50 && request.resource.data.get('history',[]).size()<=200 && request.resource.data.get('payments',[]).size()<=200) ||
+     (resource.data.ownerUid==request.auth.uid && resource.data.status in ['Solicitado','Cotizado'] && request.resource.data.status=='Cancelado' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])) ||
+     (resource.data.ownerUid==request.auth.uid && resource.data.status=='Cotizado' && request.resource.data.status=='Confirmado' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','quote','updatedAt']) && request.resource.data.quote.diff(resource.data.quote).affectedKeys().hasOnly(['status']) && request.resource.data.quote.status=='Aceptada'));
+  }
+ }
 }

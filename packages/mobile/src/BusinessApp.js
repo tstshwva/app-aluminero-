@@ -699,10 +699,34 @@ export default function BusinessApp({
     };
   }, []);
   useEffect(() => {
-    if (!company || screen !== "encargos" || !client.subscribeOrders) return;
+    if (
+      !company ||
+      !["inicio", "encargos"].includes(screen) ||
+      !client.subscribeOrders
+    )
+      return;
     return client.subscribeOrders(
-      filter,
-      (orders) => setData((current) => ({ ...current, orders })),
+      screen === "encargos" ? filter : "",
+      (orders) =>
+        setData((current) => {
+          if (screen === "encargos") return { ...current, orders };
+          const counts = new Map();
+          for (const order of orders)
+            counts.set(order.status, (counts.get(order.status) ?? 0) + 1);
+          return {
+            ...current,
+            recent: orders.slice(0, 3),
+            dashboard: {
+              ...current.dashboard,
+              lowStock: current.dashboard?.lowStock ?? [],
+              total: orders.length,
+              orders: Array.from(counts, ([status, count]) => ({
+                status,
+                count,
+              })),
+            },
+          };
+        }),
       () =>
         perform(async () => {
           throw new Error("No se pudo actualizar la lista de encargos.");
