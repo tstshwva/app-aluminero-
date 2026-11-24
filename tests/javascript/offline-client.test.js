@@ -161,3 +161,45 @@ test("Firebase inaccesible sin caché conserva el motivo y no afirma que falta i
     return true;
   });
 });
+
+test("El escáner busca solo datos descargados aunque el teléfono indique conexión", async () => {
+  const s = setup();
+  await s.client.products();
+  let networkChecks = 0,
+    reads = 0;
+  const base = {
+    offlineIdentity: async () => "a",
+    products: async () => {
+      reads++;
+      throw failure();
+    },
+  };
+  const client = withOfflineData(base, s.store, async () => {
+    networkChecks++;
+    return true;
+  });
+  assert.equal((await client.offlineProducts())[0].id, "1");
+  assert.equal(reads, 0);
+  assert.equal(networkChecks, 0);
+});
+test("El escáner no inventa catálogo ni comparte la copia entre usuarios", async () => {
+  const s = setup();
+  await s.client.products();
+  s.setUid("b");
+  await assert.rejects(s.client.offlineProducts(), /catálogo con conexión/);
+  await assert.rejects(s.client.offlineCategories(), /catálogo con conexión/);
+});
+test("El escáner rechaza un cambio de cuenta durante la lectura local", async () => {
+  let uid = "a";
+  const client = withOfflineData(
+    { offlineIdentity: async () => uid },
+    {
+      get: async () => {
+        uid = "b";
+        return [{ id: "privado" }];
+      },
+    },
+    async () => true,
+  );
+  await assert.rejects(client.offlineProducts(), /sesión cambió/);
+});

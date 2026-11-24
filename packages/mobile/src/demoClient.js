@@ -159,7 +159,9 @@ function seed() {
         // Precio inventado, solo para la demostración: las fuentes del catálogo
         // no traen precios. No usar en la app conectada.
         price: money(
-          p.grupo === "Perfiles" ? 180 + ((i * 37) % 60) * 10 : 25 + ((i * 13) % 40) * 5,
+          p.grupo === "Perfiles"
+            ? 180 + ((i * 37) % 60) * 10
+            : 25 + ((i * 13) % 40) * 5,
         ),
         // Existencias de ejemplo: casi todo surtido y uno de cada 20 por
         // debajo del mínimo, para que «Stock bajo» se vea como en una tienda.
@@ -456,6 +458,12 @@ export function createDemoClient(audience) {
             (!text || `${p.name} ${p.code}`.toLowerCase().includes(text)),
         )
         .map(view);
+    },
+    async offlineProducts() {
+      return db.products.filter((p) => company() || p.active).map(view);
+    },
+    async offlineCategories() {
+      return copy(db.categories);
     },
     async product(id) {
       await delay();

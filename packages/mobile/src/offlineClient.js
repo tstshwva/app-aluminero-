@@ -45,6 +45,25 @@ export function withOfflineData(base, store, isOnline) {
       throw error;
     }
   };
+  // El escáner consulta únicamente la copia de esta cuenta, sin esperas de red.
+  async function offlineList(name) {
+    const uid = await identity();
+    if (!uid) throw new Error("Inicia sesión para continuar.");
+    const value =
+      name === "products"
+        ? ((await store.get(scoped(uid, name, [""]))) ??
+          (await store.get(scoped(uid, name, []))))
+        : await store.get(scoped(uid, name, []));
+    if ((await identity()) !== uid)
+      throw new Error("La sesión cambió. Vuelve a abrir el escáner.");
+    if (value === null)
+      throw new Error(
+        "Abre el catálogo con conexión una vez para guardar los materiales en este teléfono. Después podrás buscarlos sin internet.",
+      );
+    return value;
+  }
+  api.offlineProducts = () => offlineList("products");
+  api.offlineCategories = () => offlineList("categories");
   api.login = async (...args) => {
     if (!(await isOnline()))
       throw new Error(

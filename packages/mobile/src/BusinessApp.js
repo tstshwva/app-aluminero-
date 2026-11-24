@@ -782,8 +782,8 @@ export default function BusinessApp({
   async function showSheet(text) {
     const version = ++navigationVersion.current;
     const [products, categories] = await Promise.all([
-      client.products(""),
-      client.categories(),
+      client.offlineProducts(),
+      client.offlineCategories(),
     ]);
     if (!alive.current || navigationVersion.current !== version) return;
     const names = new Map(categories.map((c) => [String(c.id), c.name]));

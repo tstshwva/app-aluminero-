@@ -4,7 +4,7 @@ import * as Updates from "expo-updates";
 import * as Network from "expo-network";
 import { canAttemptNetwork } from "./networkState";
 
-export const appRevision = "24 nov · 2";
+export const appRevision = "24 nov · 3";
 
 export function useAppUpdates() {
   const native = Updates.useUpdates();
