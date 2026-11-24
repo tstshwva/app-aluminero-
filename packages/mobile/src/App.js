@@ -3,6 +3,7 @@ import { canAttemptNetwork } from "./networkState";
 import { createOfflineStore } from "./offlineStorage";
 import { withOfflineData } from "./offlineClient";
 import { useAppUpdates } from "./useAppUpdates";
+import { UpdateStatus } from "./UpdateStatus";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -37,12 +38,18 @@ const demo = process.env.EXPO_PUBLIC_DEMO === "1";
 if (Platform.OS === "web" && typeof document !== "undefined")
   document.documentElement.lang = "es-MX";
 
+// El progreso de descarga no vuelve a renderizar las pantallas del negocio.
+const StableAppContent = React.memo(AppContent);
+
 export default function AluformixApp({ audience }) {
-  useAppUpdates();
+  const update = useAppUpdates();
   if (!useAppFonts()) return null;
   return (
     <SafeAreaProvider>
-      <AppContent audience={audience} />
+      <View style={{ flex: 1 }}>
+        <StableAppContent audience={audience} />
+        <UpdateStatus update={update} />
+      </View>
     </SafeAreaProvider>
   );
 }
