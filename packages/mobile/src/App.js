@@ -369,8 +369,9 @@ function AppContent({ audience }) {
               padding: 10,
             }}
           >
-            Sin conexión. Mostramos los datos descargados. Los encargos
-            pendientes se enviarán al recuperar internet.
+            {audience === "empresa"
+              ? "Sin conexión. Mostramos los datos descargados. Conéctate para guardar cambios de administración."
+              : "Sin conexión. Mostramos los datos descargados. Los encargos pendientes se enviarán al recuperar internet."}
           </Text>
         )}
         <BusinessApp

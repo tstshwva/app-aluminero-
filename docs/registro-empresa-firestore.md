@@ -28,3 +28,11 @@ npx firebase-tools@15.36.0 emulators:exec --only firestore --project demo-alufor
 `firebase.test.json` solo configura el emulador de pruebas. Las apps siguen conectándose al proyecto real `alumineroapp-9244c` y no utilizan ese archivo ni sus puertos.
 
 Las pruebas del emulador no prueban un teléfono físico ni el acceso a la red de la universidad. Quedan pendientes la comprobación visual en Android, la creación real de una cuenta de personal y la lectura de fotos en la instalación de Empresa. El registro de un dispositivo para avisos no incluye un servicio automático de entrega de notificaciones push; los avisos de encargos están disponibles dentro de la app. El asistente requiere conexión y App Check válido.
+
+## Separación de las aplicaciones
+
+Se retiraron de Empresa los accesos al carrito, creación de compras, selección de acabados y cortes para comprar, repetición de encargos, escaneo de cotizaciones del comprador y chat de orientación de materiales. Esas funciones permanecen en Cliente. Las pantallas de compra no se renderizan para Empresa y sus accesos programáticos también se bloquean.
+
+Empresa conserva inventario, registro y edición de productos para Administrador, clientes, solicitudes recibidas, cotizaciones, pagos, seguimiento, entregas, configuración y permisos. El inicio ofrece Registrar producto en lugar de Nuevo encargo y Entregas en lugar de Escanear cotización. El Operador ve atención de encargos; los controles de edición de productos se reservan al Administrador. La ayuda y el aviso sin conexión también distinguen las dos apps.
+
+Verificación: 60 pruebas generales. La prueba de navegación renderiza la interfaz de Empresa, entra al inventario y al detalle de un producto, y comprueba que no estén los botones de compra, cámara, chat o favoritos, conservando la edición de productos y la entrada de inventario. Las pruebas existentes del Cliente siguen verificando su carrito y solicitud de encargos.

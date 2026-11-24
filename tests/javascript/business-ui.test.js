@@ -13,7 +13,10 @@ async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
-    .replace('import AssistantChat from "./AssistantChat";', "const AssistantChat=()=>null;")
+    .replace(
+      'import AssistantChat from "./AssistantChat";',
+      "const AssistantChat=()=>null;",
+    )
     .replace(
       'import { useOrderOutbox } from "./orderOutbox";',
       "const useOrderOutbox=()=>({});",
@@ -234,9 +237,7 @@ test("Pantallas del comprador conectan catálogo, carrito, solicitud y aceptaci�
   const contact = (label) =>
     renderer.root.findByProps({ accessibilityLabel: label });
   assert.equal(contact("Nombre o contacto").props.value, "Comprador");
-  await act(async () =>
-    contact("Teléfono de contacto").props.onChangeText(""),
-  );
+  await act(async () => contact("Teléfono de contacto").props.onChangeText(""));
   await assert.rejects(
     () => press("Enviar solicitud"),
     (e) => e.field === "contactPhone",
@@ -654,5 +655,104 @@ test("Perfil: el interruptor de modo oscuro cambia el tema", async () => {
   );
   assert.equal(toggle().props.accessibilityState.checked, true);
   assert.equal(shellColor(), "#000000");
+  await act(async () => renderer.unmount());
+});
+
+test("Empresa muestra administración y oculta las herramientas de compra del Cliente", async () => {
+  const BusinessApp = await component();
+  const product = {
+    id: "p",
+    category_id: "cat",
+    code: "R1",
+    name: "Riel",
+    unit: "barra",
+    finish: "Natural, Negro",
+    price: "100.00",
+    length_mm: 6000,
+    active: 1,
+    stock: 10,
+    reserved: 0,
+  };
+  const client = {
+    dashboard: async () => ({ orders: [], lowStock: [] }),
+    orders: async () => [],
+    products: async () => [product],
+    categories: async () => [{ id: "cat", name: "Perfiles" }],
+    product: async () => product,
+  };
+  let renderer;
+  await act(async () => {
+    renderer = TestRenderer.create(
+      React.createElement(BusinessApp, {
+        client,
+        user: { id: "admin", name: "Empresa", role: "Administrador" },
+        audience: "empresa",
+        busy: false,
+        run: async (action) => action(),
+        onUser() {},
+        onPassword() {},
+        onLogout() {},
+        onDismissIssue() {},
+      }),
+    );
+  });
+  const labels = () =>
+    renderer.root.findAllByType("Pressable").map(
+      (node) =>
+        node.props.accessibilityLabel ??
+        node
+          .findAllByType("Text")
+          .map((text) => text.children.join(""))
+          .join(""),
+    );
+  const absent = () => {
+    for (const label of [
+      "Mi encargo",
+      "Nuevo encargo",
+      "Escanear cotización",
+      "Chatea con tu asistente",
+      "Asistente de materiales",
+      "Agregar al encargo",
+      "Repetir como nuevo encargo",
+      "Mis favoritos",
+    ])
+      assert.ok(
+        !labels().some((value) => value.startsWith(label)),
+        "No debe aparecer en Empresa: " + label,
+      );
+  };
+  const press = async (label) => {
+    const node = renderer.root
+      .findAllByType("Pressable")
+      .find(
+        (node) =>
+          node.props.accessibilityLabel === label ||
+          node
+            .findAllByType("Text")
+            .some((text) => text.children.join("") === label),
+      );
+    assert.ok(node, "Disponible: " + label);
+    await act(async () => {
+      await node.props.onPress();
+    });
+  };
+  absent();
+  assert.ok(labels().includes("Registrar producto"));
+  await press("Inventario");
+  await press("Ver R1");
+  absent();
+  assert.ok(labels().includes("Editar producto"));
+  assert.ok(labels().includes("Registrar entrada"));
+  assert.equal(
+    renderer.root
+      .findAllByType("TextInput")
+      .filter(
+        (node) => node.props.placeholder === "Cantidad de esta presentación",
+      ).length,
+    0,
+  );
+  await press("Más");
+  absent();
+  assert.ok(labels().some((value) => value.startsWith("Configuración")));
   await act(async () => renderer.unmount());
 });

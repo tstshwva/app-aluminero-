@@ -185,7 +185,7 @@ const help = [
   ],
   [
     "¿Cuándo se reserva el material?",
-    "Al aceptar la cotización se comprueban y reservan existencias. Enviar una solicitud no garantiza disponibilidad.",
+    "Aceptar la cotización confirma tu encargo. La empresa comprueba y reserva existencias al empezar a prepararlo. Enviar una solicitud no garantiza disponibilidad.",
   ],
   [
     "¿Cómo funciona el pago?",
@@ -863,6 +863,8 @@ export default function BusinessApp({
     setScreen("encargo");
   }
   function add(product) {
+    if (company)
+      throw new Error("Los encargos se solicitan desde la app Cliente.");
     const quantity = orderQuantity(form.quantity ?? "1", "quantity");
     if (!Number(product.active))
       throw new Error("Este producto está desactivado.");
@@ -1090,7 +1092,7 @@ export default function BusinessApp({
       "catalogo",
       company ? "inventory" : "catalog",
     ],
-    ["Encargos", "encargos", company ? "cart" : "orders"],
+    ["Encargos", "encargos", "orders"],
     [
       company ? "Más" : "Perfil",
       company ? "mas" : "perfil",
@@ -1098,16 +1100,19 @@ export default function BusinessApp({
     ],
   ];
   const openCart = () => {
+    if (company) return;
     onDismissIssue?.();
     setForm({});
     setScreen("carrito");
   };
   const openAssistant = () => {
+    if (company) return;
     onDismissIssue?.();
     setForm({ question: "" });
     setScreen("ia");
   };
   const openCamera = () => {
+    if (company) return;
     onDismissIssue?.();
     setSheet({ text: "", lines: [], picks: {} });
     setScreen("camara");
@@ -1518,7 +1523,7 @@ export default function BusinessApp({
         </View>
         <View style={[s.headerSide, s.headerActions]}>
           {iconButton("Notificaciones", "bell", () => go("notificaciones"))}
-          {iconButton("Escanear cotización", "camera", openCamera)}
+          {!company && iconButton("Escanear cotización", "camera", openCamera)}
           {!company && iconButton("Mi encargo", "cart", openCart, cart.length)}
         </View>
       </View>
@@ -1624,11 +1629,18 @@ export default function BusinessApp({
                 <Text style={s.sectionTitle}>Accesos rápidos</Text>
                 <View style={s.quickRow}>
                   {button("Inventario", () => go("catalogo"), true, s.grow)}
-                  {button("Nuevo encargo", openCart, true, s.grow)}
+                  {admin
+                    ? button(
+                        "Registrar producto",
+                        () => perform(() => editProduct()),
+                        true,
+                        s.grow,
+                      )
+                    : button("Ver encargos", () => goOrders(), true, s.grow)}
                 </View>
                 <View style={s.quickRow}>
                   {button("Clientes", () => go("clientes"), true, s.grow)}
-                  {button("Escanear cotización", openCamera, true, s.grow)}
+                  {button("Entregas", () => go("entregas"), true, s.grow)}
                 </View>
                 <Text style={s.sectionTitle}>Actividad reciente</Text>
                 {data.recent?.map((o) =>
@@ -1652,7 +1664,7 @@ export default function BusinessApp({
                 )}
               </>
             )}
-            {button("Chatea con tu asistente", openAssistant)}
+            {!company && button("Chatea con tu asistente", openAssistant)}
           </View>
         )}
         {screen === "mas" && (
@@ -1714,15 +1726,19 @@ export default function BusinessApp({
                 go("favoritos"),
               )
             )}
-            {menuRow(
-              "Escanear cotización",
-              "Hoja escrita, código QR o de barras",
-              openCamera,
-            )}
-            {menuRow(
-              "Asistente de materiales",
-              "Orientación sobre el catálogo",
-              openAssistant,
+            {!company && (
+              <>
+                {menuRow(
+                  "Escanear cotización",
+                  "Hoja escrita, código QR o de barras",
+                  openCamera,
+                )}
+                {menuRow(
+                  "Asistente de materiales",
+                  "Orientación sobre el catálogo",
+                  openAssistant,
+                )}
+              </>
             )}
             {menuRow("Mi perfil", "Datos de la cuenta y seguridad", () =>
               go("perfil"),
@@ -2237,53 +2253,63 @@ export default function BusinessApp({
                       .join(" · "),
                   )}
               </View>
-              {finishesOf(data.product).length > 1 && (
+              {!company && (
                 <>
-                  <Text style={s.label}>Acabado</Text>
-                  <FieldIssue
-                    dark={dark}
-                    message={issue?.field === "finish" ? issue.message : null}
-                  />
-                  <View
-                    style={[
-                      s.quickRow,
-                      issue?.field === "finish" && validationStyles.invalid,
-                    ]}
+                  {finishesOf(data.product).length > 1 && (
+                    <>
+                      <Text style={s.label}>Acabado</Text>
+                      <FieldIssue
+                        dark={dark}
+                        message={
+                          issue?.field === "finish" ? issue.message : null
+                        }
+                      />
+                      <View
+                        style={[
+                          s.quickRow,
+                          issue?.field === "finish" && validationStyles.invalid,
+                        ]}
+                      >
+                        {finishesOf(data.product).map((option) =>
+                          chip(option, form.finish === option, () =>
+                            change("finish", option),
+                          ),
+                        )}
+                      </View>
+                    </>
+                  )}
+                  {field("quantity", "Cantidad de esta presentación", {
+                    decimal: true,
+                  })}
+                  {data.product.length_mm ? (
+                    <>
+                      <Text style={s.subtitle}>
+                        Deja el corte vacío para pedir la presentación completa.
+                        Largo disponible:{" "}
+                        {displayLength(data.product.length_mm)}.
+                      </Text>
+                      {measureField(
+                        "cutLengthMm",
+                        "Longitud del corte (opcional)",
+                      )}
+                    </>
+                  ) : (
+                    <Text style={s.subtitle}>
+                      Solicita la presentación completa. Confirma con la empresa
+                      si admite cortes.
+                    </Text>
+                  )}
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Agregar al encargo"
+                    disabled={busy}
+                    onPress={() => perform(async () => add(data.product))}
+                    style={[s.button, busy && { opacity: 0.5 }]}
                   >
-                    {finishesOf(data.product).map((option) =>
-                      chip(option, form.finish === option, () =>
-                        change("finish", option),
-                      ),
-                    )}
-                  </View>
+                    <Text style={s.buttonText}>AGREGAR A ENCARGO</Text>
+                  </Pressable>
                 </>
               )}
-              {field("quantity", "Cantidad de esta presentación", {
-                decimal: true,
-              })}
-              {data.product.length_mm ? (
-                <>
-                  <Text style={s.subtitle}>
-                    Deja el corte vacío para pedir la presentación completa.
-                    Largo disponible: {displayLength(data.product.length_mm)}.
-                  </Text>
-                  {measureField("cutLengthMm", "Longitud del corte (opcional)")}
-                </>
-              ) : (
-                <Text style={s.subtitle}>
-                  Solicita la presentación completa. Confirma con la empresa si
-                  admite cortes.
-                </Text>
-              )}
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Agregar al encargo"
-                disabled={busy}
-                onPress={() => perform(async () => add(data.product))}
-                style={[s.button, busy && { opacity: 0.5 }]}
-              >
-                <Text style={s.buttonText}>AGREGAR A ENCARGO</Text>
-              </Pressable>
               {!company &&
                 button(
                   favoriteIds.has(String(data.product.id))
@@ -2293,6 +2319,7 @@ export default function BusinessApp({
                   true,
                 )}
               {company &&
+                admin &&
                 button(
                   "Editar producto",
                   () => perform(() => editProduct(data.product)),
@@ -2319,7 +2346,7 @@ export default function BusinessApp({
             </View>
           </View>
         )}
-        {screen === "carrito" && (
+        {!company && screen === "carrito" && (
           <View>
             {heading(
               "Mi encargo",
@@ -2440,7 +2467,7 @@ export default function BusinessApp({
             {button("Agregar materiales", () => go("catalogo"), true)}
           </View>
         )}
-        {screen === "checkout" && (
+        {!company && screen === "checkout" && (
           <View>
             {heading("Revisa tu encargo", "Elige cómo recibir tus materiales.")}
             <View style={s.quickRow}>
@@ -2593,7 +2620,8 @@ export default function BusinessApp({
             {button("Volver al carrito", () => setScreen("carrito"), true)}
           </View>
         )}
-        {screen === "confirmacion" &&
+        {!company &&
+          screen === "confirmacion" &&
           card(
             "confirmacion",
             <>
@@ -3004,32 +3032,33 @@ export default function BusinessApp({
                 }),
               true,
             )}
-            {button(
-              "Repetir como nuevo encargo",
-              () =>
-                perform(async () => {
-                  const next = [];
-                  for (const i of data.items) {
-                    const p = await client.product(i.product_id);
-                    if (!Number(p.active))
-                      throw new Error(
-                        "Un material está desactivado. Revisa el catálogo.",
-                      );
-                    next.push({
-                      productId: String(p.id),
-                      quantity: i.quantity,
-                      cutLengthMm: i.cut_length_mm,
-                      finish: finishesOf(p).includes(i.finish)
-                        ? i.finish
-                        : null,
-                      product: p,
-                    });
-                  }
-                  cartChange(next);
-                  setScreen("carrito");
-                }),
-              true,
-            )}
+            {!company &&
+              button(
+                "Repetir como nuevo encargo",
+                () =>
+                  perform(async () => {
+                    const next = [];
+                    for (const i of data.items) {
+                      const p = await client.product(i.product_id);
+                      if (!Number(p.active))
+                        throw new Error(
+                          "Un material está desactivado. Revisa el catálogo.",
+                        );
+                      next.push({
+                        productId: String(p.id),
+                        quantity: i.quantity,
+                        cutLengthMm: i.cut_length_mm,
+                        finish: finishesOf(p).includes(i.finish)
+                          ? i.finish
+                          : null,
+                        product: p,
+                      });
+                    }
+                    cartChange(next);
+                    setScreen("carrito");
+                  }),
+                true,
+              )}
           </View>
         )}
         {screen === "editarproducto" && (
@@ -3291,14 +3320,6 @@ export default function BusinessApp({
                 )}
               </>,
             )}
-            {button("Nuevo encargo del cliente", () => {
-              setCheckout((current) => ({
-                ...current,
-                customerId: String(data.customer.id),
-              }));
-              cartKey.current = randomUUID();
-              go("catalogo");
-            })}
             <Text style={s.sectionTitle}>Historial de encargos</Text>
             {!data.orders.length && (
               <Text style={s.body}>
@@ -3626,7 +3647,7 @@ export default function BusinessApp({
             )}
           </View>
         )}
-        {screen === "lista" && (
+        {!company && screen === "lista" && (
           <View>
             {heading(
               "Materiales de tu hoja",
@@ -3738,7 +3759,7 @@ export default function BusinessApp({
             {button("Escanear otra hoja", openCamera, true)}
           </View>
         )}
-        {screen === "camara" && (
+        {!company && screen === "camara" && (
           <Scanner
             dark={dark}
             onReadList={
@@ -3764,7 +3785,7 @@ export default function BusinessApp({
             }}
           />
         )}
-        {screen === "ia" && (
+        {!company && screen === "ia" && (
           <AssistantChat
             client={client}
             messages={chatMessages}
@@ -3777,7 +3798,31 @@ export default function BusinessApp({
         {screen === "ayuda" && (
           <View>
             {heading("Ayuda", "Consulta cómo funciona Aluformix.")}
-            {help.map(([title, body]) =>
+            {(company
+              ? [
+                  [
+                    "Administrar productos",
+                    "El administrador registra productos, imágenes, precios y categorías. El catálogo publicado se consulta desde la app Cliente.",
+                  ],
+                  [
+                    "Atender encargos",
+                    "Revisa las solicitudes recibidas, envía cotizaciones y actualiza la preparación y entrega. Los compradores crean sus encargos en la app Cliente.",
+                  ],
+                  [
+                    "Controlar inventario",
+                    "Registra entradas y consulta movimientos. La preparación reserva material, la cancelación libera la reserva y la entrega descuenta existencias.",
+                  ],
+                  [
+                    "Registrar pagos",
+                    "Registra pagos ya recibidos y su referencia. La app no realiza cobros bancarios.",
+                  ],
+                  [
+                    "Usuarios y permisos",
+                    "El administrador configura el negocio y crea personal. Los operadores atienden encargos e inventario sin cambiar precios ni permisos.",
+                  ],
+                ]
+              : help
+            ).map(([title, body]) =>
               card(
                 title,
                 <>
