@@ -3654,7 +3654,7 @@ export default function BusinessApp({
               sheet.lines.filter((l) => l.options.length).length +
                 " de " +
                 sheet.lines.length +
-                " renglones reconocidos",
+                " materiales con coincidencias en el catálogo",
             )}
             {!!sheet.removed && (
               <View style={s.sheetUndo}>
@@ -3713,7 +3713,9 @@ export default function BusinessApp({
                     </View>
                     {!chosen && (
                       <Text style={s.notice}>
-                        No encontramos este material en el catálogo.
+                        No hay una coincidencia segura. Revisa la lectura con
+                        «Corregir lista» o toma una foto más cerca, enfocando
+                        solo la hoja.
                       </Text>
                     )}
                     {!!chosen && productRow(chosen)}

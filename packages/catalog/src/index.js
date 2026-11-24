@@ -220,9 +220,147 @@ const TRAILING_QTY = new RegExp(
   "\\s+(?:[-–:]\\s*)?(\\d{1,4})\\s*(?:pzas?|pz|piezas?|barras?|tramos?)\\.?$",
   "i",
 );
+// Solo para listas OCR. Las aproximaciones siempre requieren confirmación.
+function editDistance(a, b, limit) {
+  if (Math.abs(a.length - b.length) > limit) return Infinity;
+  let row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const next = [i];
+    for (let j = 1; j <= b.length; j++)
+      next[j] = Math.min(
+        next[j - 1] + 1,
+        row[j] + 1,
+        row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    if (Math.min(...next) > limit) return Infinity;
+    row = next;
+  }
+  return row[b.length] <= limit ? row[b.length] : Infinity;
+}
+function suggestListProducts(term, index) {
+  let tokens = queryTokens(
+    term
+      .replace(/([a-záéíóúñ])\.(?=[a-záéíóúñ])/gi, "$1")
+      .replace(/\bde(?=\d)/gi, "de "),
+  ).flatMap((t) => t.split(" "));
+  if (!tokens.length || tokens.length > 12) return [];
+  const names = new Set(index.flatMap((item) => item.nameWords));
+  const joined = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const parts = tokens.slice(i, i + 3);
+    if (
+      parts.length === 3 &&
+      parts.every((p) => /^[a-z]+$/.test(p)) &&
+      (names.has(parts.join("")) ||
+        (parts.every((p) => p.length <= 3) && parts.join("").length >= 5))
+    ) {
+      joined.push(parts.join(""));
+      i += 2;
+      continue;
+    }
+    const a = tokens[i],
+      b = tokens[i + 1],
+      combined = a + (b ?? "");
+    if (
+      b &&
+      /^[a-z]+$/.test(combined) &&
+      (names.has(combined) ||
+        ((a.length <= 3 || b.length <= 3) &&
+          combined.length >= 5 &&
+          [...names].some((word) => editDistance(combined, word, 1) <= 1)))
+    ) {
+      joined.push(combined);
+      i++;
+    } else joined.push(a);
+  }
+  tokens = joined;
+  const cache = new Map();
+  const cost = (token, words, loose = false) => {
+    if (matchesWord(words, token)) return 0;
+    if (/\d/.test(token) || token.length < 4) return Infinity;
+    let best = Infinity;
+    for (const word of words) {
+      if (/\d/.test(word) || word.length < 4) continue;
+      const limit = loose
+        ? Math.floor(Math.max(token.length, word.length) * 0.55)
+        : token.length >= 6
+          ? 2
+          : 1;
+      const key = token + "|" + word + "|" + limit;
+      if (!cache.has(key)) cache.set(key, editDistance(token, word, limit));
+      best = Math.min(
+        best,
+        cache.get(key) / Math.max(token.length, word.length),
+      );
+    }
+    return best;
+  };
+  const strict = [],
+    fallback = [];
+  for (const item of index) {
+    const scores = tokens.map((token) => cost(token, item.words));
+    const primary = tokens.map((token) => cost(token, item.nameWords));
+    if (scores.every(Number.isFinite) && primary.some(Number.isFinite)) {
+      strict.push({
+        p: item.p,
+        score:
+          scores.reduce((a, b) => a + b, 0) +
+          primary.filter(Number.isFinite).reduce((a, b) => a + b, 0) +
+          (tokens.length - primary.filter(Number.isFinite).length) * 0.5 +
+          Math.max(
+            0,
+            item.nameWords.filter((w) => !STOP.has(w)).length - tokens.length,
+          ) *
+            0.025,
+      });
+      continue;
+    }
+    let missing = tokens.filter((_, i) => !Number.isFinite(scores[i]));
+    const positions = tokens
+      .map((_, i) => i)
+      .filter((i) => !Number.isFinite(scores[i]));
+    if (
+      missing.length >= 2 &&
+      missing.length <= 3 &&
+      missing.every((t) => /^[a-z]{1,4}$/.test(t)) &&
+      positions.at(-1) - positions[0] + 1 === missing.length &&
+      missing.join("").length >= 5
+    )
+      missing = [missing.join("")];
+    const anchor = tokens.some(
+      (token) =>
+        token.length >= 6 &&
+        !/\d/.test(token) &&
+        matchesWord(item.nameWords, token),
+    );
+    if (
+      tokens.length >= 2 &&
+      missing.length === 1 &&
+      anchor &&
+      !/\d/.test(missing[0])
+    ) {
+      const weak = cost(missing[0], item.nameWords, true);
+      if (weak <= 0.55)
+        fallback.push({
+          p: item.p,
+          score:
+            weak + scores.filter(Number.isFinite).reduce((a, b) => a + b, 0),
+        });
+    }
+  }
+  return (strict.length ? strict : fallback)
+    .sort((a, b) => a.score - b.score)
+    .map((item) => item.p);
+}
+
 export function matchList(text, products, categoryNameOf = () => "") {
   const active = products.filter((p) => Number(p.active ?? 1));
   const codes = new Set(active.map((p) => String(p.code).toLowerCase()));
+  const ocrIndex = active.map((p) => ({
+    p,
+    words: [...new Set(searchText(p, categoryNameOf(p)).split(" "))],
+    nameWords: normalizeText(p.name).split(" "),
+  }));
   return String(text ?? "")
     .split(/\r?\n/)
     .map((raw) => raw.replace(/^\s*(?:[-*•·]|\d{1,2}[.)](?=\s))\s*/, "").trim())
@@ -256,12 +394,17 @@ export function matchList(text, products, categoryNameOf = () => "") {
       const words = term.split(/\s+/);
       if (!found.length && words.length >= 3) {
         const seen = new Map();
-        words.forEach((_, i) => {
+        words.forEach((word, i) => {
+          if (/\d/.test(word)) return;
           const rest = words.filter((__, j) => j !== i).join(" ");
           if (queryTokens(rest).length >= 2)
             find(rest).forEach((p) => seen.set(p.id, p));
         });
         found = [...seen.values()];
+        approximate = found.length > 0;
+      }
+      if (!found.length) {
+        found = suggestListProducts(term, ocrIndex);
         approximate = found.length > 0;
       }
       const exact =

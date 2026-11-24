@@ -1,4 +1,8 @@
-import { localTextAvailable, readLocalText } from "./localTextReader";
+import {
+  localTextAvailable,
+  readLocalText,
+  readPhotoBase64,
+} from "./localTextReader";
 import React, { useRef, useState } from "react";
 import { Image, Linking, Pressable, View } from "react-native";
 import { Text, TextInput } from "./Typography";
@@ -18,6 +22,8 @@ export default function Scanner({
     scanned = useRef(false);
   const camera = useRef(null);
   const [reading, setReading] = useState(false);
+  const [photoForReview, setPhotoForReview] = useState(null);
+  const [improving, setImproving] = useState(false);
   const [listText, setListText] = useState(initialText);
   const [message, setMessage] = useState("");
   const [cameraFailed, setCameraFailed] = useState(false);
@@ -107,8 +113,15 @@ export default function Scanner({
           marginVertical: 8,
         }}
       >
-        Fotografía la hoja con buena luz. Revisa el texto reconocido antes de buscar los materiales en el catálogo.
+        Enfoca solo la hoja, con buena luz y sin objetos encima. Revisa cada
+        renglón antes de buscar los materiales en el catálogo.
       </Text>
+      {!localTextAvailable && !!onReadList && (
+        <Text style={{ color: note }}>
+          En esta instalación, fotografiar envía la foto para leerla con
+          internet. También puedes escribir la lista manualmente.
+        </Text>
+      )}
       {!permission?.granted && (
         <View
           style={{
@@ -214,7 +227,11 @@ export default function Scanner({
         permission?.granted &&
         !cameraFailed &&
         button(
-          reading ? "Leyendo hoja…" : "Fotografiar hoja escrita",
+          improving
+            ? "Mejorando lectura…"
+            : reading
+              ? "Leyendo hoja…"
+              : "Fotografiar hoja escrita",
           async () => {
             if (reading) return;
             setReading(true);
@@ -224,18 +241,62 @@ export default function Scanner({
                 base64: !localTextAvailable,
                 quality: 0.8,
               });
+              setPhotoForReview(photo);
               const text = localTextAvailable
                 ? await readLocalText(photo.uri)
                 : String(await onReadList(photo.base64)).trim();
               setListText(text);
-              if (!text) setMessage("No encontramos texto legible. Acerca la hoja, mejora la luz y vuelve a fotografiarla.");
+              if (!text)
+                setMessage(
+                  "No encontramos texto legible. Acerca la hoja, mejora la luz y vuelve a fotografiarla.",
+                );
             } catch (error) {
-              setMessage(error.message || "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.");
+              setMessage(
+                error.message ||
+                  "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.",
+              );
             } finally {
               setReading(false);
             }
           },
         )}
+      {!!photoForReview && !!onReadList && (
+        <>
+          <Text style={{ color: note, marginTop: 8 }}>
+            {localTextAvailable
+              ? "Si la letra salió mal, puedes releer esta misma foto con internet. Solo al elegir esta opción se enviará la foto para mejorar la lectura y se reemplazará el texto."
+              : "Puedes volver a leer esta foto con internet. Se enviará la imagen y se reemplazará el texto actual."}
+          </Text>
+          {button(
+            "Mejorar letra manuscrita (usa internet)",
+            async () => {
+              if (reading) return;
+              setReading(true);
+              setImproving(true);
+              setMessage("");
+              try {
+                const text = String(
+                  await onReadList(await readPhotoBase64(photoForReview)),
+                ).trim();
+                if (!text)
+                  throw new Error(
+                    "No se pudo distinguir la letra. Acerca la hoja o corrige el texto manualmente.",
+                  );
+                setListText(text);
+              } catch (error) {
+                setMessage(
+                  error.message ||
+                    "No se pudo mejorar la foto. Tu lectura anterior sigue disponible.",
+                );
+              } finally {
+                setReading(false);
+                setImproving(false);
+              }
+            },
+            true,
+          )}
+        </>
+      )}
       {!!sampleList &&
         button(
           "Ver ejemplo",
@@ -249,6 +310,7 @@ export default function Scanner({
       </Text>
       <TextInput
         multiline
+        editable={!reading}
         value={listText}
         onChangeText={setListText}
         maxLength={4000}

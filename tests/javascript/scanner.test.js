@@ -12,7 +12,10 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manual", async () => {
   const source = (await readFile("packages/mobile/src/Scanner.js", "utf8"))
-    .replace('import { localTextAvailable, readLocalText } from "./localTextReader";', "const localTextAvailable=false,readLocalText=async()=>'';")
+    .replace(
+      /import\s*\{[^}]*\}\s*from "\.\/localTextReader";/,
+      "const localTextAvailable=false,readLocalText=async()=>'',readPhotoBase64=async photo=>photo.base64;",
+    )
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(
       'from "react";',
@@ -121,7 +124,13 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
       );
   await act(async () => photo().props.onPress());
   assert.deepEqual(sheets, []);
-  const searchList = screen.root.findAllByType("Pressable").find(node => node.findByType("Text").props.children === "Buscar materiales de la lista");
+  const searchList = screen.root
+    .findAllByType("Pressable")
+    .find(
+      (node) =>
+        node.findByType("Text").props.children ===
+        "Buscar materiales de la lista",
+    );
   await act(async () => searchList.props.onPress());
   assert.deepEqual(sheets, ["2 tubos\n1 vidrio"]);
   answer = "  ";
