@@ -13,3 +13,5 @@ La revisión visible de Cliente pasa a 24 nov · 3. La empresa mantiene las func
 Por instrucción del usuario se deja el trabajo de precios para después: no se modificaron importes, reglas de precio ni productos de Firebase.
 
 Validación: 81 pruebas JavaScript correctas. Las regresiones nuevas comprueban que la búsqueda local no llama a la red, que no inventa datos cuando falta la copia y que no mezcla cuentas. Pendiente verificar la experiencia en un teléfono físico.
+
+Publicación completada en cliente-production para las cuatro versiones nativas compatibles. Grupo del APK más reciente: 7dc205ac-f154-4db1-9e9b-278da930cadc. La consulta remota confirmó manifiesto y bundle HTTP 200, SHA256 correcto y marcador Revisión 24 nov · 3. Empresa mantiene la revisión 2. Esto confirma distribución, no instalación en el teléfono. Los APK del 24 nov con revisión 2 pueden recibir esta actualización de JavaScript; no se generó otro instalador en este cambio.
