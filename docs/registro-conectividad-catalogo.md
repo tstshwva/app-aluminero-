@@ -9,3 +9,5 @@ El catálogo completo comparte clave de caché para products() y products(""). S
 El comprobador de actualizaciones usa el mismo criterio. La descarga con datos móviles sigue pidiendo confirmación. La preferencia de sincronización de pedidos solo por Wi-Fi se conserva.
 
 Pruebas de regresión: enlace activo con alcance negativo en Wi-Fi y datos, desconexión explícita, estado desconocido, caché entre inicio y catálogo, error remoto sin copia, permisos, separación de cuentas y descarga de actualizaciones con consentimiento. Pendiente verificar la red específica del teléfono: esta corrección no elimina restricciones de red ni interrupciones de Firebase.
+
+Validación: pasaron las 71 pruebas JavaScript. Publicación OTA completada en cliente-production para cuatro versiones nativas y empresa-production para tres. Grupos actuales: Cliente 7f05cb2d-f570-4df5-9733-f9edf8794a3e; Empresa 8c60c344-f915-40d0-9cfc-ef6e86787a31. La publicación no confirma que el teléfono haya descargado o aplicado la actualización.
