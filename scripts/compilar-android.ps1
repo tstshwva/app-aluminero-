@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory, ParameterSetName = 'Demo')][switch]$Demo,
     [ValidateSet('cliente','empresa')][string[]]$Apps = @('cliente','empresa'),
     [string]$Output = (Join-Path $PSScriptRoot '../.local/apk'),
+    [string]$NativeBuildRoot = (Join-Path $env:USERPROFILE 'g'),
     [string]$BuildToolsVersion = '37.0.0'
 )
 
@@ -86,8 +87,7 @@ try {
 
             # Evita rutas largas en los objetos generados por Ninja en Windows.
             $gradleFile = Join-Path $PWD 'android/app/build.gradle'
-            $nativeRoot = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' }
-            $nativeDir = Join-Path $nativeRoot "af/$app"
+            $nativeDir = Join-Path $NativeBuildRoot $app
             $gradle = [IO.File]::ReadAllText($gradleFile)
             $gradle = $gradle -replace '(?m)^android \{ defaultConfig \{ externalNativeBuild \{ cmake \{ arguments "-DCMAKE_OBJECT_PATH_MAX=240" \} \} \} \}\s*$', ''
             if (-not $gradle.Contains('aluformixNativeDir')) {
