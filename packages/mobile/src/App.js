@@ -1,4 +1,5 @@
 import * as Network from "expo-network";
+import { canAttemptNetwork } from "./networkState";
 import { createOfflineStore } from "./offlineStorage";
 import { withOfflineData } from "./offlineClient";
 import { useAppUpdates } from "./useAppUpdates";
@@ -81,9 +82,7 @@ function AppContent({ audience }) {
             offlineStore,
             async () => {
               const network = await Network.getNetworkStateAsync();
-              return (
-                !!network.isConnected && network.isInternetReachable !== false
-              );
+              return canAttemptNetwork(network);
             },
           ),
     [storage, audience, offlineStore],
@@ -94,8 +93,7 @@ function AppContent({ audience }) {
     const refresh = async () => {
       const network = await Network.getNetworkStateAsync();
       if (!active) return;
-      const connected =
-        network.isConnected && network.isInternetReachable !== false;
+      const connected = canAttemptNetwork(network);
       setOffline(!connected);
       if (connected) void client.syncOffline?.().catch(() => {});
     };

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Alert, AppState } from "react-native";
 import * as Updates from "expo-updates";
 import * as Network from "expo-network";
+import { canAttemptNetwork } from "./networkState";
 
 export function useAppUpdates() {
   useEffect(() => {
@@ -10,7 +11,7 @@ export function useAppUpdates() {
     let checking = false;
     let prompting = false;
     let lastCheck = 0;
-    const connected = network => network.isConnected && network.isInternetReachable !== false;
+    const connected = canAttemptNetwork;
     async function check() {
       if (checking || prompting || Date.now() - lastCheck < 300000) return;
       checking = true;

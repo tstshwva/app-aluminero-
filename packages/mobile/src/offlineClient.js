@@ -59,7 +59,11 @@ export function withOfflineData(base, store, isOnline) {
     api[name] = async (...args) => {
       const uid = await identity();
       if (!uid) throw new Error("Inicia sesión para continuar.");
-      const cacheKey = scoped(uid, name, args);
+      // products() y products("") consultan el mismo catálogo completo.
+      const normalizedArgs =
+        name === "products" ? [String(args[0] ?? "").trim()] : args;
+      const cacheKey = scoped(uid, name, normalizedArgs);
+      let remoteError;
       if (name === "profile") {
         const pending = await store.get(scoped(uid, "pendingProfile"));
         if (pending)
@@ -83,6 +87,7 @@ export function withOfflineData(base, store, isOnline) {
           return value;
         } catch (error) {
           if (!networkFailure(error)) throw error;
+          remoteError = error;
         }
       }
       let value = await store.get(cacheKey);
@@ -116,7 +121,16 @@ export function withOfflineData(base, store, isOnline) {
         if (all) value = all.filter((order) => order.status === args[0]);
       }
       if (value === null && name === "profile") value = await session();
-      if (value === null) throw missing();
+      if (value === null) {
+        if (remoteError)
+          throw Object.assign(
+            new Error(
+              "No pudimos actualizar esta sección desde Firebase y todavía no hay una copia descargada. Reintenta; tener internet no garantiza acceso al servicio.",
+            ),
+            { code: remoteError.code, cause: remoteError },
+          );
+        throw missing();
+      }
       return value;
     };
   }

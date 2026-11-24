@@ -139,3 +139,25 @@ test("Un snapshot temporal vacío no borra los encargos descargados", async () =
   assert.equal((await client.orders())[0].id, "guardado");
   stop();
 });
+
+test("El catálogo completo comparte caché con y sin argumento vacío", async () => {
+  const s = setup();
+  await s.client.products();
+  s.setOnline(false);
+  assert.equal((await s.client.products(""))[0].id, "1");
+  assert.equal(s.calls(), 1);
+});
+
+test("Firebase inaccesible sin caché conserva el motivo y no afirma que falta internet", async () => {
+  const s = setup();
+  s.base.products = async () => {
+    throw failure();
+  };
+  await assert.rejects(s.client.products(), (error) => {
+    assert.equal(error.code, "unavailable");
+    assert.match(error.message, /Firebase/);
+    assert.doesNotMatch(error.message, /^Sin conexión/);
+    assert.equal(error.cause.message, "offline");
+    return true;
+  });
+});
