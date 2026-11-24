@@ -1,0 +1,21 @@
+{
+  "tag": "android-actualizados-2026-11-23",
+  "fecha": "2026-11-23",
+  "aplicaciones": [
+    {
+      "app": "empresa",
+      "package": "com.aluformix.empresa",
+      "runtime": "0cbe0fb47c7682fddf15caf15b3b30737ed81a2a",
+      "bytes": 80976092,
+      "sha256": "B80BCEABA276C91BD3259E0F9F75225DFE66EEB713301C8F1D5B5D729DD64A61"
+    },
+    {
+      "app": "cliente",
+      "package": "com.aluformix.cliente",
+      "runtime": "10eefa459b95252ad59941156fdb6c24134680eb",
+      "bytes": 80976092,
+      "sha256": "45365B13A86667573607962FE9E77A422B80A3B0BFB37E2D48B50BB54FF3645C"
+    }
+  ],
+  "firmaSHA256": "9fc1c6d142a20f6d2211c8a79760f3fc54945a9be1c59987a5418cb20fa55ed7"
+}

@@ -36,3 +36,11 @@ Se retiraron de Empresa los accesos al carrito, creación de compras, selección
 Empresa conserva inventario, registro y edición de productos para Administrador, clientes, solicitudes recibidas, cotizaciones, pagos, seguimiento, entregas, configuración y permisos. El inicio ofrece Registrar producto en lugar de Nuevo encargo y Entregas en lugar de Escanear cotización. El Operador ve atención de encargos; los controles de edición de productos se reservan al Administrador. La ayuda y el aviso sin conexión también distinguen las dos apps.
 
 Verificación: 60 pruebas generales. La prueba de navegación renderiza la interfaz de Empresa, entra al inventario y al detalle de un producto, y comprueba que no estén los botones de compra, cámara, chat o favoritos, conservando la edición de productos y la entrada de inventario. Las pruebas existentes del Cliente siguen verificando su carrito y solicitud de encargos.
+
+## APK actualizados del 23 de noviembre de 2026
+
+Se compilaron y firmaron Empresa y Cliente con los cambios incorporados. Se verificaron la firma v2/v3, alineación, paquetes independientes, configuración nativa y JavaScript de Firebase, código del menú separado y modelo local de lectura. Las huellas y versiones nativas se registran en `apks-2026-11-23.json` para comprobar descargas y compatibilidad de actualizaciones de Expo.
+
+Se corrigió `scripts/compilar-android.ps1`: selecciona la configuración de Firebase por aplicación. También utiliza un proceso Gradle por compilación para liberar los archivos temporales al terminar, evitando el bloqueo de classes.jar observado al compilar ambas apps consecutivamente en Windows. La compilación de Cliente se reanudó conservando los resultados válidos después de liberar ese bloqueo.
+
+Ambos APK utilizan la clave de firma anterior y se distribuyen como actualizaciones. No se borraron datos de la base real. La comprobación física en Android sigue pendiente.

@@ -27,14 +27,17 @@ function Confirmar-Codigo([string]$etapa) {
 }
 
 $suffix = if ($Demo) { 'demo' } else { 'firebase' }
-$firebaseConfig = $null
+$firebaseByApp = @{}
 if (!$Demo) {
-    $configFile = Join-Path $root 'apps/cliente/google-services.json'
-    if (!(Test-Path -LiteralPath $configFile)) { throw 'Falta el archivo de configuración de Firebase de Cliente.' }
-    $config = Get-Content -LiteralPath $configFile -Raw | ConvertFrom-Json
-    $firebaseConfig = $config.client | Where-Object { $_.client_info.android_client_info.package_name -eq 'com.aluformix.cliente' }
-    if ($config.project_info.project_id -ne 'alumineroapp-9244c' -or !$firebaseConfig.api_key[0].current_key -or !$firebaseConfig.client_info.mobilesdk_app_id) {
-        throw 'La configuración de Firebase no corresponde a Aluformix.'
+    foreach ($app in $Apps) {
+        $configFile = Join-Path $root "apps/$app/google-services.json"
+        if (!(Test-Path -LiteralPath $configFile)) { throw "Falta la configuración de Firebase de $app." }
+        $config = Get-Content -LiteralPath $configFile -Raw | ConvertFrom-Json
+        $selected = $config.client | Where-Object { $_.client_info.android_client_info.package_name -eq "com.aluformix.$app" } | Select-Object -First 1
+        if ($config.project_info.project_id -ne 'alumineroapp-9244c' -or !$selected.api_key[0].current_key -or !$selected.client_info.mobilesdk_app_id) {
+            throw "La configuración de Firebase no corresponde a $app."
+        }
+        $firebaseByApp[$app] = $selected
     }
 }
 
@@ -68,14 +71,14 @@ try {
     }
     $signingPassword = $env:ALUFORMIX_APK_SIGNING_PASSWORD
     Remove-Item Env:ALUFORMIX_APK_SIGNING_PASSWORD
-    if (!$Demo) {
-        $env:EXPO_PUBLIC_FIREBASE_API_KEY = $firebaseConfig.api_key[0].current_key
-        $env:EXPO_PUBLIC_FIREBASE_APP_ID = $firebaseConfig.client_info.mobilesdk_app_id
-    }
     $env:EXPO_PUBLIC_DEMO = if ($Demo) { '1' } else { '0' }
     $env:CI = '1'
     $expo = Join-Path $root 'node_modules/expo/bin/cli'
     foreach ($app in $Apps) {
+        if (!$Demo) {
+            $env:EXPO_PUBLIC_FIREBASE_API_KEY = $firebaseByApp[$app].api_key[0].current_key
+            $env:EXPO_PUBLIC_FIREBASE_APP_ID = $firebaseByApp[$app].client_info.mobilesdk_app_id
+        }
         Push-Location (Join-Path $root "apps/$app")
         try {
             & $node $expo prebuild --platform android --no-install --clean
@@ -111,7 +114,7 @@ if (project.hasProperty("aluformixNativeDir")) {
             Push-Location android
             try {
                 # Fuerza el bundle porque incluye código compartido fuera del directorio de la app.
-                & .\gradlew.bat :app:createBundleReleaseJsAndAssets --rerun :app:assembleRelease --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64' "-PaluformixNativeDir=$nativeDir"
+                & .\gradlew.bat :app:createBundleReleaseJsAndAssets --rerun :app:assembleRelease --no-daemon --console=plain --max-workers=3 '-PreactNativeArchitectures=arm64-v8a,x86_64' "-PaluformixNativeDir=$nativeDir"
                 Confirmar-Codigo "Compilación de $app"
                 $source = (Resolve-Path 'app/build/outputs/apk/release/app-release.apk').Path
             } finally { Pop-Location }
