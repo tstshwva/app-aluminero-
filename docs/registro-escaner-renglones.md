@@ -15,3 +15,9 @@ El resultado indica cuántos materiales tienen coincidencias en el catálogo, en
 Las pruebas cubren posiciones desordenadas, ejemplos de las capturas, fragmentos de palabras, medidas distintas, texto ajeno al catálogo, cantidades y consentimiento para relectura remota. No sustituyen una prueba de cámara con una hoja real en Android. La letra poco legible puede requerir una nueva foto o corrección manual.
 
 El orden por coordenadas requiere instalar el APK que incorpora el nuevo método nativo. Las mejoras de búsqueda y la relectura opcional también son compatibles con el APK anterior mediante actualización de Expo.
+
+Validación y distribución (23 de noviembre de 2026): pasaron las 66 pruebas JavaScript. El APK Android se compiló correctamente y se verificaron la firma v2/v3, Firebase de Cliente, el modelo OCR incluido y la presencia de extractTextLinesFromImage en DEX. Runtime: 4e0ff4053cc281eefb3abdeeaf8f162cda50f2d1. SHA256: 2FFA95A0F72E7E7B3B8CA05DBE92798F10FAE2B0ABA6802B85E21F9DBA9B6217.
+
+La consulta de solo lectura al catálogo real (124 productos activos) confirmó sugerencias para las tres lecturas de la captura: Adaptador mosquitero (72015), Cabezal de 1750 (9207) y Cabezal y zoclo (11837/15311). No se modificó el catálogo. Esto valida la búsqueda con texto defectuoso, no la precisión de la cámara física.
+
+APK publicado: https://github.com/tstshwva/app-aluminero-/releases/tag/android-escaner-2026-11-23-c59090e. GitHub confirmó el mismo SHA256 del archivo local. Instalar este APK como actualización para disponer de coordenadas nativas. Pendiente verificar la fotografía original en un teléfono físico y la relectura remota en esa red.
