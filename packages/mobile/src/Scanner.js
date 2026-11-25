@@ -26,6 +26,7 @@ export default function Scanner({
   const [improving, setImproving] = useState(false);
   const [listText, setListText] = useState(initialText);
   const [message, setMessage] = useState("");
+  const [torch, setTorch] = useState(false);
   const [cameraFailed, setCameraFailed] = useState(false);
   const ink = dark ? "#f2f2f2" : "#102c46";
   // Colores secundarios que también se adaptan al modo oscuro.
@@ -184,6 +185,7 @@ export default function Scanner({
             overflow: "hidden",
           }}
           facing="back"
+          enableTorch={torch}
           onMountError={() => {
             setCameraFailed(true);
             setMessage(
@@ -223,6 +225,19 @@ export default function Scanner({
         onDismiss={() => setMessage("")}
         dark={dark}
       />
+      {permission?.granted && !cameraFailed && (
+        <>
+          <Text style={{ color: note }}>
+            Para leer mejor: llena el cuadro con la hoja, sosténla de frente,
+            con buena luz y sin sombras.
+          </Text>
+          {button(
+            torch ? "Apagar luz" : "Encender luz",
+            () => setTorch(!torch),
+            true,
+          )}
+        </>
+      )}
       {(localTextAvailable || !!onReadList) &&
         permission?.granted &&
         !cameraFailed &&

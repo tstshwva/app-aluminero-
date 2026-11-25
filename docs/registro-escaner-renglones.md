@@ -21,3 +21,10 @@ Validación y distribución (23 de noviembre de 2026): pasaron las 66 pruebas Ja
 La consulta de solo lectura al catálogo real (124 productos activos) confirmó sugerencias para las tres lecturas de la captura: Adaptador mosquitero (72015), Cabezal de 1750 (9207) y Cabezal y zoclo (11837/15311). No se modificó el catálogo. Esto valida la búsqueda con texto defectuoso, no la precisión de la cámara física.
 
 APK publicado: https://github.com/tstshwva/app-aluminero-/releases/tag/android-escaner-2026-11-23-c59090e. GitHub confirmó el mismo SHA256 del archivo local. Instalar este APK como actualización para disponer de coordenadas nativas. Pendiente verificar la fotografía original en un teléfono físico y la relectura remota en esa red.
+
+## Hojas inclinadas y letras confundidas (25 de noviembre de 2026)
+
+- Reproducido: con 6 grados o más de inclinación los renglones se mezclaban. ocrLines.js endereza las posiciones solo si los recuadros lo respaldan; ante la duda conserva la foto como está.
+- Reproducido: l750, 175O, O7333, 153l1 y Tub0 no encontraban producto (153l1 se tomaba como cantidad 153). La corrección solo se usa para buscar, únicamente si el resultado existe en el catálogo, y siempre pide revisión. El renglón leído se muestra sin cambios.
+- La relectura con internet espera hasta 60 s. La cámara incluye luz y consejos de encuadre.
+- 84 pruebas correctas y bundle Android exportado. Las posiciones de prueba son simuladas: falta comprobar con hojas reales en un teléfono. No se publicó OTA ni APK.

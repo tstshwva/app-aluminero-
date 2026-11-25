@@ -353,6 +353,63 @@ function suggestListProducts(term, index) {
     .map((item) => item.p);
 }
 
+// Confusiones habituales entre letras y números al leer una foto. Solo se
+// corrigen si el resultado existe en el catálogo y siempre se piden revisar.
+const AS_DIGIT = {
+  o: "0",
+  q: "0",
+  d: "0",
+  i: "1",
+  l: "1",
+  "|": "1",
+  "!": "1",
+  z: "2",
+  s: "5",
+  b: "8",
+  g: "9",
+};
+const AS_LETTER = { 0: "o", 3: "e", 4: "a", 5: "s", 8: "b" };
+const toDigits = (text) =>
+  [...text.toLowerCase()].map((c) => AS_DIGIT[c] ?? c).join("");
+function repairOcr(line, codes, numbers, vocabulary) {
+  // «l0 pzas»: la cantidad solo se corrige si va seguida de una unidad.
+  let text = line.replace(
+    /^([\dlIO|]{1,4})(?=\s*(?:pzas?|pz|piezas?|barras?|tramos?)\b)/,
+    (value) => (/[lIO|]/.test(value) ? toDigits(value) : value),
+  );
+  // «1 5 3 1 1»: cifras separadas que juntas forman un código.
+  text = text.replace(/(?<!\S)\w(?: \w){2,7}(?!\S)/g, (value) => {
+    const code = toDigits(value.replace(/ /g, ""));
+    return codes.has(code) ? code : value;
+  });
+  return text
+    .split(/(\s+)/)
+    .map((word) => {
+      const core = word.replace(/^[^\w|!]+|[^\w|!]+$/g, "");
+      if (core.length < 3 || codes.has(core.toLowerCase())) return word;
+      const digits = toDigits(core);
+      if (
+        digits !== core &&
+        /\d/.test(core) &&
+        /^\d{3,}$/.test(digits) &&
+        (codes.has(digits) || numbers.has(digits))
+      )
+        return word.replace(core, digits);
+      if (/^[a-z\d]+$/i.test(core) && /[a-z]/i.test(core) && /\d/.test(core))
+        // «1» puede ser «l» o «i»: se prueba cada lectura.
+        for (const one of ["l", "i"]) {
+          const letters = [...core]
+            .map((c) => (c === "1" ? one : (AS_LETTER[c] ?? c)))
+            .join("");
+          const key = normalizeText(letters);
+          if (/^[a-z]+$/.test(key) && vocabulary.has(key))
+            return word.replace(core, letters);
+        }
+      return word;
+    })
+    .join("");
+}
+
 export function matchList(text, products, categoryNameOf = () => "") {
   const active = products.filter((p) => Number(p.active ?? 1));
   const codes = new Set(active.map((p) => String(p.code).toLowerCase()));
@@ -361,22 +418,34 @@ export function matchList(text, products, categoryNameOf = () => "") {
     words: [...new Set(searchText(p, categoryNameOf(p)).split(" "))],
     nameWords: normalizeText(p.name).split(" "),
   }));
+  const nameWords = ocrIndex.flatMap((item) => item.nameWords);
+  const vocabulary = new Set(nameWords.filter((w) => /^[a-z]{3,}$/.test(w)));
+  const numbers = new Set(nameWords.filter((w) => /^\d{3,}$/.test(w)));
   return String(text ?? "")
     .split(/\r?\n/)
     .map((raw) => raw.replace(/^\s*(?:[-*•·]|\d{1,2}[.)](?=\s))\s*/, "").trim())
     .filter((line) => queryTokens(line).length)
     .slice(0, 60)
     .map((line) => {
-      let term = line,
+      // Se muestra lo que se leyó; la corrección solo sirve para buscar.
+      let fixed = repairOcr(line, codes, numbers, vocabulary);
+      let repaired = fixed !== line;
+      // «2 - Riel»: puede ser cantidad o numeración, por eso se pide revisar.
+      const dashed = /^(\d{1,3})\s*[-–]\s*(?=[a-záéíóúñ]{3})/i.exec(fixed);
+      if (dashed && !codes.has(dashed[1])) {
+        fixed = dashed[1] + " " + fixed.slice(dashed[0].length);
+        repaired = true;
+      }
+      let term = fixed,
         quantity = null;
-      const lead = LEADING_QTY.exec(line);
-      const tail = TRAILING_QTY.exec(line);
+      const lead = LEADING_QTY.exec(fixed);
+      const tail = TRAILING_QTY.exec(fixed);
       if (lead && !codes.has(lead[1].toLowerCase())) {
         quantity = lead[1].replace(",", ".");
-        term = line.slice(lead[0].length).trim();
+        term = fixed.slice(lead[0].length).trim();
       } else if (tail) {
         quantity = tail[1];
-        term = line.slice(0, tail.index).trim();
+        term = fixed.slice(0, tail.index).trim();
       }
       const find = (query) =>
         queryTokens(query).length
@@ -416,7 +485,7 @@ export function matchList(text, products, categoryNameOf = () => "") {
         quantity,
         options: found.slice(0, 5),
         total: found.length,
-        review: found.length > 0 && (approximate || !exact),
+        review: found.length > 0 && (repaired || approximate || !exact),
       };
     });
 }
