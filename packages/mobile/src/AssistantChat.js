@@ -3,6 +3,79 @@ import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View, Image } from "react-native";
 import { Text, TextInput } from "./Typography";
 
+const ChatMessage = React.memo(function ChatMessage({
+  message,
+  dark,
+  onProduct,
+  disabled,
+}) {
+  const ink = dark ? "#f2f2f2" : "#102c46",
+    muted = dark ? "#b9c9d8" : "#526b82";
+  return (
+    <View
+      style={{
+        alignSelf: message.role === "user" ? "flex-end" : "flex-start",
+        maxWidth: "94%",
+        padding: 15,
+        borderRadius: 18,
+        backgroundColor:
+          message.role === "user" ? "#006fe5" : dark ? "#19344b" : "#e1effc",
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 12,
+          marginBottom: 5,
+          color: message.role === "user" ? "white" : muted,
+        }}
+      >
+        {message.role === "user"
+          ? "Tú"
+          : message.source === "guide"
+            ? "Guía de Aluformix · sin conexión"
+            : "Asistente"}
+      </Text>
+      <Text
+        selectable
+        style={{
+          fontSize: 16,
+          lineHeight: 24,
+          color: message.role === "user" ? "white" : ink,
+        }}
+      >
+        {message.text}
+      </Text>
+      {message.role === "assistant" &&
+        (message.products ?? []).map((product) => (
+          <Pressable
+            key={product.id}
+            accessibilityRole="button"
+            accessibilityLabel={"Ver " + product.name}
+            disabled={disabled || !onProduct}
+            onPress={() => onProduct?.(product)}
+            style={{
+              padding: 12,
+              marginTop: 8,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: muted,
+            }}
+          >
+            <Text style={{ color: ink, fontWeight: "700" }}>
+              {product.name}
+            </Text>
+            <Text style={{ color: muted }}>
+              Código {product.code} · {product.unit}
+            </Text>
+            <Text style={{ color: dark ? "#8ec8ff" : "#0066bd" }}>
+              Ver material →
+            </Text>
+          </Pressable>
+        ))}
+    </View>
+  );
+});
+
 export default function AssistantChat({
   client,
   messages,
@@ -10,16 +83,20 @@ export default function AssistantChat({
   dark,
   onCatalog,
   onCamera,
+  onProduct,
 }) {
   const [permission, requestPermission] = useCameraPermissions();
   const camera = useRef(null);
   const mounted = useRef(true);
+  const request = useRef(null);
+  const [partial, setPartial] = useState("");
   const captureLock = useRef(false);
   const [cameraReady, setCameraReady] = useState(false);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      request.current?.abort();
     };
   }, []);
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -54,27 +131,47 @@ export default function AssistantChat({
     locked.current = true;
     setSending(true);
     setError("");
+    setPartial("");
+    const controller = new AbortController();
+    request.current = controller;
     try {
       if (!client.assistant)
         throw new Error("El asistente no está disponible en esta versión.");
-      const result = await client.assistant(
-        question,
-        photo?.base64,
-        messages.slice(-12),
-        { visualChat: true },
-      );
+      const result = await client.assistant(question, photo?.base64, messages, {
+        visualChat: true,
+        signal: controller.signal,
+        onPartial: (text) => {
+          if (
+            mounted.current &&
+            request.current === controller &&
+            !controller.signal.aborted
+          )
+            setPartial(text);
+        },
+      });
       if (!mounted.current) return;
+      if (controller.signal.aborted)
+        throw new Error(
+          "La respuesta se detuvo. Tu pregunta sigue disponible.",
+        );
       if (!result?.answer?.trim())
         throw new Error("No llegó una respuesta. Intenta de nuevo.");
       onMessages(
         [
           ...messages,
           { role: "user", text: question },
-          { role: "assistant", text: result.answer },
+          {
+            role: "assistant",
+            text: result.answer,
+            products: result.products ?? [],
+            suggestions: result.suggestions ?? [],
+            source: result.source ?? "cloud",
+          },
         ].slice(-40),
       );
       setDraft("");
       setPhoto(null);
+      setPartial("");
     } catch (failure) {
       if (!mounted.current) return;
       setError(
@@ -82,6 +179,7 @@ export default function AssistantChat({
           "No se pudo enviar. Tu pregunta sigue escrita para reintentar.",
       );
     } finally {
+      if (request.current === controller) request.current = null;
       locked.current = false;
       if (mounted.current) setSending(false);
     }
@@ -123,51 +221,64 @@ export default function AssistantChat({
         </View>
       )}
       {messages.map((message, index) => (
-        <View
+        <ChatMessage
           key={index}
+          message={message}
+          dark={dark}
+          onProduct={onProduct}
+          disabled={sending}
+        />
+      ))}
+      {!sending && messages.at(-1)?.role === "assistant" && (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {(messages.at(-1).suggestions ?? []).slice(0, 3).map((question) => (
+            <Pressable
+              key={question}
+              accessibilityRole="button"
+              onPress={() => setDraft(question)}
+              style={{
+                padding: 10,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: muted,
+              }}
+            >
+              <Text style={{ color: ink }}>{question}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+      {!!partial && (
+        <View
           style={{
-            alignSelf: message.role === "user" ? "flex-end" : "flex-start",
-            maxWidth: "94%",
             padding: 15,
             borderRadius: 18,
-            backgroundColor:
-              message.role === "user"
-                ? "#006fe5"
-                : dark
-                  ? "#19344b"
-                  : "#e1effc",
+            backgroundColor: dark ? "#19344b" : "#e1effc",
           }}
         >
-          <Text
-            style={{
-              fontSize: 12,
-              marginBottom: 5,
-              color: message.role === "user" ? "white" : muted,
-            }}
-          >
-            {message.role === "user" ? "Tú" : "Asistente"}
+          <Text style={{ color: muted, fontSize: 12 }}>
+            {sending
+              ? "Asistente · respondiendo"
+              : "Respuesta parcial, sin completar"}
           </Text>
           <Text
             selectable
-            style={{
-              fontSize: 16,
-              lineHeight: 24,
-              color: message.role === "user" ? "white" : ink,
-            }}
+            style={{ color: ink, fontSize: 16, lineHeight: 24, marginTop: 5 }}
           >
-            {message.text}
+            {partial}
           </Text>
         </View>
-      ))}
+      )}
       {sending && (
         <View
           accessibilityLiveRegion="polite"
           style={{ flexDirection: "row", gap: 8 }}
         >
           <ActivityIndicator color="#007bff" />
-          <Text style={{ color: muted }}>Preparando respuesta…</Text>
+          <Text style={{ color: muted }}>Buscando una respuesta para ti…</Text>
         </View>
       )}
+      {sending && button("Detener respuesta", () => request.current?.abort())}
       {!!error && (
         <Text
           accessibilityRole="alert"
@@ -284,8 +395,9 @@ export default function AssistantChat({
         sending || !draft.trim(),
       )}
       <Text style={{ color: muted, fontSize: 12 }}>
-        Necesita internet. La conversación se procesa en un servicio externo.
-        Evita compartir contraseñas o datos personales.
+        La guía de uso funciona sin internet. Las consultas y fotos necesitan
+        conexión y se procesan en un servicio externo. Evita compartir
+        contraseñas o datos personales.
       </Text>
       {button("Buscar materiales en el catálogo", onCatalog, sending)}
       {button("Leer lista con la cámara", onCamera, sending)}
@@ -297,6 +409,7 @@ export default function AssistantChat({
             setDraft("");
             setError("");
             setPhoto(null);
+            setPartial("");
           },
           sending,
         )}

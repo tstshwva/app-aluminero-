@@ -1,3 +1,4 @@
+import { localAssistantHelp } from "../../client/src/assistantContext.js";
 const networkFailure = (error) =>
   ["unavailable", "deadline-exceeded", "auth/network-request-failed"].includes(
     error?.code,
@@ -154,7 +155,6 @@ export function withOfflineData(base, store, isOnline) {
     };
   }
   for (const name of [
-    "assistant",
     "register",
     "recovery",
     "createOrder",
@@ -184,6 +184,37 @@ export function withOfflineData(base, store, isOnline) {
       return base[name](...args);
     };
   }
+  if (base.assistant)
+    api.assistant = async (question, image, history = [], options = {}) => {
+      const uid = await identity();
+      if (!uid) throw new Error("Inicia sesión para continuar.");
+      if (
+        typeof question !== "string" ||
+        !question.trim() ||
+        question.trim().length > 1000
+      )
+        throw new Error("Escribe una pregunta de hasta 1000 caracteres.");
+      if (!image && typeof question === "string") {
+        const help = localAssistantHelp(question);
+        if (help) return help;
+      }
+      if (!(await isOnline()))
+        throw new Error(
+          "El chat necesita internet. Puedes usar la guía de la app, el catálogo descargado y el lector local.",
+        );
+      const snapshot =
+        (await store.get(scoped(uid, "products", [""]))) ??
+        (await store.get(scoped(uid, "products", [])));
+      if ((await identity()) !== uid)
+        throw new Error("La sesión cambió. Vuelve a abrir el asistente.");
+      const result = await base.assistant(question, image, history, {
+        ...options,
+        catalogSnapshot: snapshot ?? undefined,
+      });
+      if ((await identity()) !== uid)
+        throw new Error("La sesión cambió. Vuelve a abrir el asistente.");
+      return result;
+    };
   const originalSave = base.saveProfile;
   if (originalSave)
     api.saveProfile = async (body) => {

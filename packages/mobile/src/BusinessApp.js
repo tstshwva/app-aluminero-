@@ -3795,6 +3795,7 @@ export default function BusinessApp({
             dark={dark}
             onCatalog={() => go("catalogo")}
             onCamera={openCamera}
+            onProduct={(product) => perform(() => openProduct(product.id))}
           />
         )}
         {screen === "ayuda" && (

@@ -10,7 +10,12 @@ const require = createRequire(import.meta.url);
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function mount(
   client,
-  { messages = [], granted = false, onMessages = () => {} } = {},
+  {
+    messages = [],
+    granted = false,
+    onMessages = () => {},
+    onProduct = () => {},
+  } = {},
 ) {
   let source = await readFile("packages/mobile/src/AssistantChat.js", "utf8");
   source = source
@@ -41,7 +46,7 @@ async function mount(
   let tree;
   await act(async () => {
     tree = Renderer.create(
-      React.createElement(Chat, { client, messages, onMessages }),
+      React.createElement(Chat, { client, messages, onMessages, onProduct }),
       {
         createNodeMock: (n) =>
           n.type === "CameraView"
@@ -175,4 +180,79 @@ test("Una respuesta que llega después de cerrar el chat no modifica la conversa
   finish({ answer: "Respuesta tardía" });
   await pending;
   assert.equal(saved, 0);
+});
+
+test("El chat muestra progreso y permite detener sin guardar respuestas parciales", async () => {
+  let pending,
+    options,
+    saved = 0;
+  const s = await mount(
+    {
+      assistant: async (q, image, h, o) => {
+        options = o;
+        return new Promise((resolve, reject) =>
+          o.signal.addEventListener(
+            "abort",
+            () => reject(new Error("Respuesta detenida")),
+            { once: true },
+          ),
+        );
+      },
+    },
+    { onMessages: () => saved++ },
+  );
+  await s.write("Ayúdame a elegir una ventana");
+  await act(async () => {
+    pending = s.button(/Enviar mensaje/).props.onPress();
+    await new Promise((r) => setImmediate(r));
+  });
+  await act(async () => options.onPartial("Primero necesitamos las medidas."));
+  assert.ok(
+    s.tree.root
+      .findAllByType("Text")
+      .some((n) => n.props.children === "Primero necesitamos las medidas."),
+  );
+  await s.press(/Detener respuesta/);
+  await pending;
+  assert.equal(options.signal.aborted, true);
+  assert.equal(saved, 0);
+  assert.equal(
+    s.tree.root.findByType("TextInput").props.value,
+    "Ayúdame a elegir una ventana",
+  );
+  await s.close();
+});
+test("Las recomendaciones abren el producto elegido y las sugerencias no se envían solas", async () => {
+  const product = { id: "p1", name: "Riel", code: "100", unit: "barra" };
+  let opened,
+    calls = 0;
+  const s = await mount(
+    {
+      assistant: async () => {
+        calls++;
+      },
+    },
+    {
+      messages: [
+        {
+          role: "assistant",
+          text: "Puedes revisar el código 100.",
+          products: [product],
+          suggestions: ["¿Qué medidas debo tomar?"],
+        },
+      ],
+      onProduct: (p) => {
+        opened = p;
+      },
+    },
+  );
+  await s.press(/Ver material/);
+  assert.deepEqual(opened, product);
+  await s.press(/¿Qué medidas debo tomar/);
+  assert.equal(
+    s.tree.root.findByType("TextInput").props.value,
+    "¿Qué medidas debo tomar?",
+  );
+  assert.equal(calls, 0);
+  await s.close();
 });

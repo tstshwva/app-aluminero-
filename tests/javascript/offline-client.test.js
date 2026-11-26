@@ -203,3 +203,32 @@ test("El escáner rechaza un cambio de cuenta durante la lectura local", async (
   );
   await assert.rejects(client.offlineProducts(), /sesión cambió/);
 });
+
+test("La guía del chat funciona sin internet sin invocar el proveedor", async () => {
+  const s = setup();
+  s.setOnline(false);
+  let calls = 0;
+  s.base.assistant = async () => {
+    calls++;
+  };
+  const r = await s.client.assistant("¿Cómo hago un encargo?");
+  assert.equal(r.source, "guide");
+  assert.match(r.answer, /carrito/);
+  assert.equal(calls, 0);
+});
+test("El chat reutiliza solo el catálogo descargado de la cuenta actual", async () => {
+  const s = setup();
+  await s.client.products();
+  s.base.assistant = async (q, image, history, options) => {
+    assert.equal(options.catalogSnapshot[0].id, "1");
+    return { answer: "ok" };
+  };
+  assert.equal((await s.client.assistant("Busco riel")).answer, "ok");
+  s.setUid("b");
+  s.base.assistant = async (q, image, history, options) => {
+    assert.equal(options.catalogSnapshot, undefined);
+    s.setUid("c");
+    return { answer: "old" };
+  };
+  await assert.rejects(s.client.assistant("Busco riel"), /sesión cambió/);
+});
