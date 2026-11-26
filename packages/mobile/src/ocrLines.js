@@ -96,9 +96,19 @@ function bestRows(fragments) {
 
 // Reconstruye renglones a partir de posiciones, aunque ML Kit devuelva bloques en otro orden.
 export function joinRecognizedLines(input) {
+  if (!Array.isArray(input))
+    throw new Error(
+      "El lector no devolvió una lista válida. Vuelve a fotografiar la hoja.",
+    );
+  if (input.length > 400)
+    throw new Error(
+      "Hay demasiado texto. Fotografía una parte de la hoja para leerla con mayor rapidez.",
+    );
   const located = [],
     unlocated = [];
+  const seen = new Set();
   for (const entry of input ?? []) {
+    if (typeof entry?.text !== "string") continue;
     const text = String(entry?.text ?? "")
       .replace(/\s+/g, " ")
       .trim();
@@ -107,15 +117,25 @@ export function joinRecognizedLines(input) {
       !["x", "y", "width", "height"].every(
         (key) => typeof entry[key] === "number" && Number.isFinite(entry[key]),
       ) ||
-      entry.height <= 0
+      entry.height <= 0 ||
+      entry.width <= 0
     ) {
       unlocated.push(text);
       continue;
     }
+    const key = JSON.stringify([
+      text,
+      entry.x,
+      entry.y,
+      entry.width,
+      entry.height,
+    ]);
+    if (seen.has(key)) continue;
+    seen.add(key);
     located.push({ ...entry, text, center: entry.y + entry.height / 2 });
   }
   const rows = bestRows(located);
-  return [
+  const text = [
     ...rows
       .sort((a, b) => a.center - b.center)
       .map((row) =>
@@ -128,4 +148,9 @@ export function joinRecognizedLines(input) {
   ]
     .join("\n")
     .trim();
+  if (text.length > 4000)
+    throw new Error(
+      "La lectura es muy larga. Fotografía una parte de la lista.",
+    );
+  return text;
 }

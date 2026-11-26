@@ -3,6 +3,7 @@ import { firebaseConfiguration } from "./firebaseConfiguration";
 import { canAttemptNetwork } from "./networkState";
 import { createOfflineStore } from "./offlineStorage";
 import { withOfflineData } from "./offlineClient";
+import { withMaterialGuide } from "./materialGuide";
 import { useAppUpdates } from "./useAppUpdates";
 import { UpdateStatus } from "./UpdateStatus";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -27,7 +28,6 @@ import BusinessApp from "./BusinessApp";
 import { loadDarkMode, saveDarkMode } from "./preferences";
 import { createDemoClient } from "./demoClient";
 import "./dialogs";
-import { getAssistantAppCheckToken } from "./assistantAppCheck";
 import { FieldIssue, formError, Notice, validationStyles } from "./Feedback";
 
 // Modo demostración: solo con EXPO_PUBLIC_DEMO=1 en el .env de la app.
@@ -75,25 +75,26 @@ function AppContent({ audience }) {
     () =>
       demo
         ? createDemoClient(audience)
-        : withOfflineData(
-            createFirebaseClient({
-              audience,
-              storage,
-              forceLongPolling: Platform.OS === "android",
-              getAssistantAppCheckToken,
-              config: firebaseConfiguration(Platform.OS, {
-                projectId: "alumineroapp-9244c",
-                apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-                appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-                iosApiKey: process.env.EXPO_PUBLIC_FIREBASE_IOS_API_KEY,
-                iosAppId: process.env.EXPO_PUBLIC_FIREBASE_IOS_APP_ID,
+        : withMaterialGuide(
+            withOfflineData(
+              createFirebaseClient({
+                audience,
+                storage,
+                forceLongPolling: Platform.OS === "android",
+                config: firebaseConfiguration(Platform.OS, {
+                  projectId: "alumineroapp-9244c",
+                  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+                  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+                  iosApiKey: process.env.EXPO_PUBLIC_FIREBASE_IOS_API_KEY,
+                  iosAppId: process.env.EXPO_PUBLIC_FIREBASE_IOS_APP_ID,
+                }),
               }),
-            }),
-            offlineStore,
-            async () => {
-              const network = await Network.getNetworkStateAsync();
-              return canAttemptNetwork(network);
-            },
+              offlineStore,
+              async () => {
+                const network = await Network.getNetworkStateAsync();
+                return canAttemptNetwork(network);
+              },
+            ),
           ),
     [storage, audience, offlineStore],
   );

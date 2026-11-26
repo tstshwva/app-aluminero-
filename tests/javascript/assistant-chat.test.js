@@ -19,6 +19,10 @@ async function mount(
 ) {
   let source = await readFile("packages/mobile/src/AssistantChat.js", "utf8");
   source = source
+    .replace(
+      'import { localTextAvailable, readLocalText } from "./localTextReader";',
+      'const localTextAvailable=true,readLocalText=async()=>"Adaptador mosquitero";',
+    )
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(
       'import { CameraView, useCameraPermissions } from "expo-camera";',
@@ -254,5 +258,38 @@ test("Las recomendaciones abren el producto elegido y las sugerencias no se env�
     "¿Qué medidas debo tomar?",
   );
   assert.equal(calls, 0);
+  await s.close();
+});
+
+test("Modo local lee con OCR, permite corregir y envía texto sin foto base64", async () => {
+  let sent;
+  const s = await mount(
+    {
+      assistantMode: "local-ocr",
+      assistant: async (q, image, h, options) => {
+        sent = { image, text: options.recognizedText };
+        return { answer: "Posibles materiales", source: "local" };
+      },
+    },
+    { granted: true },
+  );
+  await s.press(/Fotografiar lista de materiales/);
+  await act(async () =>
+    s.tree.root.findByType("CameraView").props.onCameraReady(),
+  );
+  await s.press(/Usar esta foto/);
+  const input = s.tree.root
+    .findAllByType("TextInput")
+    .find((n) => n.props.accessibilityLabel === "Texto leído de la foto");
+  assert.equal(input.props.value, "Adaptador mosquitero");
+  await act(async () =>
+    input.props.onChangeText("2 pzas Adaptador mosquitero"),
+  );
+  await s.press(/Enviar mensaje/);
+  assert.deepEqual(sent, {
+    image: undefined,
+    text: "2 pzas Adaptador mosquitero",
+  });
+  assert.equal(s.tree.root.findAllByType("Image").length, 0);
   await s.close();
 });

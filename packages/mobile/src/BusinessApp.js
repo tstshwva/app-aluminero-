@@ -3765,7 +3765,7 @@ export default function BusinessApp({
           <Scanner
             dark={dark}
             onReadList={
-              client.cloud
+              client.cloud && client.assistantMode !== "local-ocr"
                 ? async (image) =>
                     (
                       await client.assistant(

@@ -1,4 +1,5 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { localTextAvailable, readLocalText } from "./localTextReader";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View, Image } from "react-native";
 import { Text, TextInput } from "./Typography";
@@ -31,7 +32,7 @@ const ChatMessage = React.memo(function ChatMessage({
       >
         {message.role === "user"
           ? "Tú"
-          : message.source === "guide"
+          : ["guide", "local"].includes(message.source)
             ? "Guía de Aluformix · sin conexión"
             : "Asistente"}
       </Text>
@@ -67,6 +68,9 @@ const ChatMessage = React.memo(function ChatMessage({
             <Text style={{ color: muted }}>
               Código {product.code} · {product.unit}
             </Text>
+            {product.review && (
+              <Text style={{ color: muted }}>Coincidencia por confirmar</Text>
+            )}
             <Text style={{ color: dark ? "#8ec8ff" : "#0066bd" }}>
               Ver material →
             </Text>
@@ -86,6 +90,7 @@ export default function AssistantChat({
   onProduct,
 }) {
   const [permission, requestPermission] = useCameraPermissions();
+  const local = client.assistantMode === "local-ocr";
   const camera = useRef(null);
   const mounted = useRef(true);
   const request = useRef(null);
@@ -137,18 +142,24 @@ export default function AssistantChat({
     try {
       if (!client.assistant)
         throw new Error("El asistente no está disponible en esta versión.");
-      const result = await client.assistant(question, photo?.base64, messages, {
-        visualChat: true,
-        signal: controller.signal,
-        onPartial: (text) => {
-          if (
-            mounted.current &&
-            request.current === controller &&
-            !controller.signal.aborted
-          )
-            setPartial(text);
+      const result = await client.assistant(
+        question,
+        local ? undefined : photo?.base64,
+        messages,
+        {
+          recognizedText: local ? photo?.recognizedText : undefined,
+          visualChat: true,
+          signal: controller.signal,
+          onPartial: (text) => {
+            if (
+              mounted.current &&
+              request.current === controller &&
+              !controller.signal.aborted
+            )
+              setPartial(text);
+          },
         },
-      });
+      );
       if (!mounted.current) return;
       if (controller.signal.aborted)
         throw new Error(
@@ -187,11 +198,12 @@ export default function AssistantChat({
   return (
     <View style={{ gap: 10 }}>
       <Text style={{ fontSize: 27, fontWeight: "800", color: ink }}>
-        Tu asistente Aluformix
+        {local ? "Guía de materiales" : "Tu asistente Aluformix"}
       </Text>
       <Text style={{ color: muted }}>
-        Pregunta sobre materiales, tu proyecto o cómo usar la app. Podemos
-        resolverlo paso a paso.
+        {local
+          ? "Lee tu lista en el teléfono y busca materiales en tu catálogo guardado. También te orientamos para usar la app."
+          : "Pregunta sobre materiales, tu proyecto o cómo usar la app. Podemos resolverlo paso a paso."}
       </Text>
       {!messages.length && (
         <View
@@ -309,19 +321,38 @@ export default function AssistantChat({
               setCapturing(true);
               try {
                 const picture = await camera.current.takePictureAsync({
-                  base64: true,
-                  quality: 0.4,
+                  base64: !local,
+                  quality: local ? 0.8 : 0.4,
                 });
                 if (!mounted.current) return;
-                setPhoto(picture);
+                const recognizedText = local
+                  ? await readLocalText(picture.uri)
+                  : undefined;
+                if (!mounted.current) return;
+                if (local && !recognizedText.trim())
+                  throw new Error(
+                    "No se encontró texto legible. Enfoca solo la hoja, con buena luz, o escribe la lista.",
+                  );
+                if (local && recognizedText.length > 4000)
+                  throw new Error(
+                    "La hoja contiene demasiado texto. Fotografía una parte de la lista.",
+                  );
+                setPhoto({ ...picture, recognizedText });
                 setCameraOpen(false);
                 if (!draft.trim())
                   setDraft(
-                    "¿Qué materiales me recomiendas para algo como lo de esta foto?",
+                    local
+                      ? "Busca los materiales de esta lista"
+                      : "¿Qué materiales me recomiendas para algo como lo de esta foto?",
                   );
-              } catch {
+              } catch (failure) {
                 if (mounted.current)
-                  setError("No se pudo tomar la foto. Intenta otra vez.");
+                  setError(
+                    local
+                      ? failure.message ||
+                          "No se pudo leer la hoja. Intenta otra vez."
+                      : "No se pudo tomar la foto. Intenta otra vez.",
+                  );
               } finally {
                 captureLock.current = false;
                 if (mounted.current) setCapturing(false);
@@ -341,12 +372,48 @@ export default function AssistantChat({
             resizeMode="contain"
           />
           {button("Quitar foto", () => setPhoto(null), sending)}
+          {local && (
+            <>
+              <Text style={{ color: muted }}>
+                Revisa y corrige el texto antes de consultar. La foto permanece
+                en el teléfono.
+              </Text>
+              <TextInput
+                accessibilityLabel="Texto leído de la foto"
+                multiline
+                maxLength={4000}
+                editable={!sending}
+                value={photo.recognizedText}
+                onChangeText={(text) =>
+                  setPhoto((previous) =>
+                    previous ? { ...previous, recognizedText: text } : previous,
+                  )
+                }
+                style={{
+                  color: ink,
+                  borderColor: muted,
+                  borderWidth: 1,
+                  padding: 12,
+                  borderRadius: 12,
+                  minHeight: 100,
+                }}
+              />
+            </>
+          )}
         </>
       )}
       {button(
-        "Adjuntar foto de mi proyecto",
+        local
+          ? "Fotografiar lista de materiales"
+          : "Adjuntar foto de mi proyecto",
         async () => {
           try {
+            if (local && !localTextAvailable) {
+              setError(
+                "Esta instalación no tiene lector local. Instala el APK actualizado o escribe los materiales.",
+              );
+              return;
+            }
             const access = permission?.granted
               ? permission
               : await requestPermission();
@@ -395,9 +462,9 @@ export default function AssistantChat({
         sending || !draft.trim(),
       )}
       <Text style={{ color: muted, fontSize: 12 }}>
-        La guía de uso funciona sin internet. Las consultas y fotos necesitan
-        conexión y se procesan en un servicio externo. Evita compartir
-        contraseñas o datos personales.
+        {local
+          ? "La lectura y la guía se procesan en este teléfono. Descarga el catálogo una vez con internet. No enviamos preguntas ni fotos a un servicio generativo. Revisa las coincidencias; esta guía no responde preguntas generales."
+          : "La guía de uso funciona sin internet. Las consultas y fotos necesitan conexión y se procesan en un servicio externo. Evita compartir contraseñas o datos personales."}
       </Text>
       {button("Buscar materiales en el catálogo", onCatalog, sending)}
       {button("Leer lista con la cámara", onCamera, sending)}

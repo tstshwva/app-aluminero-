@@ -11,6 +11,19 @@ const products = catalogProducts.map((p) => ({
   name: p.nombre,
   active: 1,
 }));
+
+test("Evita duplicados del lector sin borrar dos renglones iguales y limita hojas excesivas", () => {
+  const box = { text: "Riel", x: 0, y: 0, width: 100, height: 20 };
+  assert.equal(
+    joinRecognizedLines([box, { ...box }, { ...box, y: 60 }]),
+    "Riel\nRiel",
+  );
+  assert.throws(
+    () => joinRecognizedLines(Array(401).fill(box)),
+    /demasiado texto/,
+  );
+  assert.throws(() => joinRecognizedLines(null), /lista válida/);
+});
 test("Reconstruye la hoja por posición, aunque los bloques lleguen como columnas desordenadas", () => {
   const box = (text, x, y, width = 160) => ({ text, x, y, width, height: 30 });
   const result = joinRecognizedLines([
