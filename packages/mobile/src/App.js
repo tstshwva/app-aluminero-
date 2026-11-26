@@ -1,4 +1,5 @@
 import * as Network from "expo-network";
+import { firebaseConfiguration } from "./firebaseConfiguration";
 import { canAttemptNetwork } from "./networkState";
 import { createOfflineStore } from "./offlineStorage";
 import { withOfflineData } from "./offlineClient";
@@ -80,11 +81,13 @@ function AppContent({ audience }) {
               storage,
               forceLongPolling: Platform.OS === "android",
               getAssistantAppCheckToken,
-              config: {
+              config: firebaseConfiguration(Platform.OS, {
                 projectId: "alumineroapp-9244c",
                 apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
                 appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-              },
+                iosApiKey: process.env.EXPO_PUBLIC_FIREBASE_IOS_API_KEY,
+                iosAppId: process.env.EXPO_PUBLIC_FIREBASE_IOS_APP_ID,
+              }),
             }),
             offlineStore,
             async () => {

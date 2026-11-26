@@ -1,4 +1,8 @@
-module.exports = ({ config }) => ({ ...config, plugins: [...(config.plugins ?? []), "@react-native-firebase/app"], android: { ...config.android, googleServicesFile: "./google-services.json" } });
+module.exports = ({ config }) => ({
+  ...config,
+  plugins: [...(config.plugins ?? []), "@react-native-firebase/app"],
+  android: { ...config.android, googleServicesFile: "./google-services.json" },
+});
 
 const originalConfig = module.exports;
 module.exports = (context) => {
@@ -23,3 +27,8 @@ module.exports = (context) => {
     },
   };
 };
+
+const withIOSFirebase = require("../../plugins/withIOSFirebase");
+const platformConfig = module.exports;
+module.exports = (context) =>
+  withIOSFirebase(platformConfig(context), __dirname);

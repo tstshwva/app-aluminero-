@@ -37,3 +37,8 @@ module.exports = (context) => {
     },
   };
 };
+
+const withIOSFirebase = require("../../plugins/withIOSFirebase");
+const platformConfig = module.exports;
+module.exports = (context) =>
+  withIOSFirebase(platformConfig(context), __dirname);

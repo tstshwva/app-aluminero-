@@ -12,6 +12,9 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": false
         }
+      },
+      "entitlements": {
+        "com.apple.developer.devicecheck.appattest-environment": "production"
       }
     },
     "android": {
@@ -31,6 +34,9 @@
         {
           "android": {
             "usesCleartextTraffic": false
+          },
+          "ios": {
+            "useFrameworks": "static"
           }
         }
       ],
@@ -39,7 +45,8 @@
         {
           "cameraPermission": "Permite que Aluformix escanee el código del material.",
           "recordAudioAndroid": false,
-          "barcodeScannerEnabled": true
+          "barcodeScannerEnabled": true,
+          "microphonePermission": false
         }
       ],
       "expo-notifications",

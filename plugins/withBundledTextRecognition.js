@@ -3,8 +3,8 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 
 // Incluye el modelo en el APK para reconocer texto desde la primera apertura.
-module.exports = (config) =>
-  withDangerousMod(config, [
+module.exports = (config) => {
+  config = withDangerousMod(config, [
     "android",
     async (config) => {
       const packageRoot = path.dirname(
@@ -42,3 +42,21 @@ module.exports = (config) =>
       return config;
     },
   ]);
+  return withDangerousMod(config, [
+    "ios",
+    async (config) => {
+      const packageRoot = path.dirname(
+        require.resolve("expo-text-extractor/package.json"),
+      );
+      const swift = await fs.readFile(
+        path.join(__dirname, "native", "ExpoTextExtractorModule.swift"),
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join(packageRoot, "ios", "ExpoTextExtractorModule.swift"),
+        swift,
+      );
+      return config;
+    },
+  ]);
+};

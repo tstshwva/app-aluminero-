@@ -25,3 +25,8 @@ database/backups/
 *.keystore
 google-services.json
 GoogleService-Info.plist
+
+*.ipa
+*.p8
+*.mobileprovision
+*.xcarchive/

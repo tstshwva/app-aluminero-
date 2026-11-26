@@ -12,6 +12,25 @@
       "env": {
         "EXPO_PUBLIC_DEMO": "1"
       }
+    },
+    "ios-production": {
+      "channel": "cliente-production",
+      "distribution": "store",
+      "env": {
+        "EXPO_PUBLIC_DEMO": "0"
+      },
+      "environment": "production"
+    },
+    "ios-simulator": {
+      "ios": {
+        "simulator": true
+      },
+      "channel": "cliente-production",
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_DEMO": "0"
+      },
+      "environment": "production"
     }
   }
 }
