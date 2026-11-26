@@ -23,7 +23,7 @@ jobs:
           echo "/tmp/aluformix-gradle/gradle-8.11.1/bin" >> "$GITHUB_PATH"
       - name: Compilar proyecto aislado sin credenciales
         run: |
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
           gradle -p tests/android-ocr :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
       - name: Ejecutar lector local sobre imágenes impresas sintéticas
         uses: ReactiveCircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
