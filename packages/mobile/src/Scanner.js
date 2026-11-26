@@ -193,6 +193,13 @@ export default function Scanner({
           },
           true,
         )
+      ) : photoForReview ? (
+        <Image
+          source={{ uri: photoForReview.uri }}
+          accessibilityLabel="Foto de la hoja para revisar"
+          resizeMode="contain"
+          style={{ height: 300, marginVertical: 8, borderRadius: 14 }}
+        />
       ) : (
         <CameraView
           ref={camera}
@@ -233,7 +240,7 @@ export default function Scanner({
               setMessage("Enfoca un código de catálogo válido.");
               return;
             }
-            if (!scanned.current && !reading) {
+            if (!scanned.current && !reading && !readLock.current) {
               scanned.current = true;
               onScan(code);
             }
@@ -245,7 +252,7 @@ export default function Scanner({
         onDismiss={() => setMessage("")}
         dark={dark}
       />
-      {permission?.granted && !cameraFailed && (
+      {permission?.granted && !cameraFailed && !photoForReview && (
         <>
           <Text style={{ color: note }}>
             Para leer mejor: llena el cuadro con la hoja, sosténla de frente,
@@ -280,6 +287,8 @@ export default function Scanner({
               });
               if (!mounted.current) return;
               setPhotoForReview(photo);
+              setCameraReady(false);
+              setTorch(false);
               setProposedText(null);
               const text = localTextAvailable
                 ? await readLocalText(photo.uri)
@@ -305,6 +314,23 @@ export default function Scanner({
           undefined,
           undefined,
           !cameraReady || reading,
+        )}
+      {!!photoForReview &&
+        button(
+          "Volver a enfocar",
+          () => {
+            if (readLock.current) return;
+            setPhotoForReview(null);
+            setProposedText(null);
+            setCameraReady(false);
+            setCameraFailed(false);
+            scanned.current = false;
+            setMessage("");
+          },
+          true,
+          undefined,
+          undefined,
+          reading,
         )}
       {!!photoForReview && !!onReadList && (
         <>

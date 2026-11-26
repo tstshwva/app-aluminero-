@@ -109,6 +109,7 @@ export default function AssistantChat({
   const [capturing, setCapturing] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const busy = sending || capturing;
   const [error, setError] = useState("");
   const locked = useRef(false);
   const ink = dark ? "#f2f2f2" : "#102c46";
@@ -132,7 +133,7 @@ export default function AssistantChat({
   );
   async function send() {
     const question = draft.trim();
-    if (!question || locked.current) return;
+    if (!question || locked.current || captureLock.current) return;
     locked.current = true;
     setSending(true);
     setError("");
@@ -238,7 +239,7 @@ export default function AssistantChat({
           message={message}
           dark={dark}
           onProduct={onProduct}
-          disabled={sending}
+          disabled={busy}
         />
       ))}
       {!sending && messages.at(-1)?.role === "assistant" && (
@@ -291,6 +292,17 @@ export default function AssistantChat({
         </View>
       )}
       {sending && button("Detener respuesta", () => request.current?.abort())}
+      {capturing && (
+        <View
+          accessibilityLiveRegion="polite"
+          style={{ flexDirection: "row", gap: 8 }}
+        >
+          <ActivityIndicator color="#007bff" />
+          <Text style={{ color: muted }}>
+            Leyendo el texto de la foto en este teléfono…
+          </Text>
+        </View>
+      )}
       {!!error && (
         <Text
           accessibilityRole="alert"
@@ -325,6 +337,7 @@ export default function AssistantChat({
                   quality: local ? 0.8 : 0.4,
                 });
                 if (!mounted.current) return;
+                setCameraOpen(false);
                 const recognizedText = local
                   ? await readLocalText(picture.uri)
                   : undefined;
@@ -339,12 +352,13 @@ export default function AssistantChat({
                   );
                 setPhoto({ ...picture, recognizedText });
                 setCameraOpen(false);
-                if (!draft.trim())
-                  setDraft(
-                    local
+                setDraft((current) =>
+                  current.trim()
+                    ? current
+                    : local
                       ? "Busca los materiales de esta lista"
                       : "¿Qué materiales me recomiendas para algo como lo de esta foto?",
-                  );
+                );
               } catch (failure) {
                 if (mounted.current)
                   setError(
@@ -371,7 +385,7 @@ export default function AssistantChat({
             style={{ height: 180, borderRadius: 16 }}
             resizeMode="contain"
           />
-          {button("Quitar foto", () => setPhoto(null), sending)}
+          {button("Quitar foto", () => setPhoto(null), busy)}
           {local && (
             <>
               <Text style={{ color: muted }}>
@@ -382,7 +396,7 @@ export default function AssistantChat({
                 accessibilityLabel="Texto leído de la foto"
                 multiline
                 maxLength={4000}
-                editable={!sending}
+                editable={!busy}
                 value={photo.recognizedText}
                 onChangeText={(text) =>
                   setPhoto((previous) =>
@@ -431,13 +445,13 @@ export default function AssistantChat({
             setError("No se pudo solicitar el permiso de cámara.");
           }
         },
-        sending,
+        busy,
       )}
       <TextInput
         accessibilityLabel="Escribe tu mensaje al asistente"
         multiline
         maxLength={1000}
-        editable={!sending}
+        editable={!busy}
         value={draft}
         onChangeText={setDraft}
         placeholder="Escribe tu pregunta…"
@@ -459,15 +473,15 @@ export default function AssistantChat({
             ? "Reintentar envío"
             : "Enviar mensaje",
         send,
-        sending || !draft.trim(),
+        busy || !draft.trim(),
       )}
       <Text style={{ color: muted, fontSize: 12 }}>
         {local
           ? "La lectura y la guía se procesan en este teléfono. Descarga el catálogo una vez con internet. No enviamos preguntas ni fotos a un servicio generativo. Revisa las coincidencias; esta guía no responde preguntas generales."
           : "La guía de uso funciona sin internet. Las consultas y fotos necesitan conexión y se procesan en un servicio externo. Evita compartir contraseñas o datos personales."}
       </Text>
-      {button("Buscar materiales en el catálogo", onCatalog, sending)}
-      {button("Leer lista con la cámara", onCamera, sending)}
+      {button("Buscar materiales en el catálogo", onCatalog, busy)}
+      {button("Leer lista con la cámara", onCamera, busy)}
       {!!messages.length &&
         button(
           "Nueva conversación",
@@ -478,7 +492,7 @@ export default function AssistantChat({
             setPhoto(null);
             setPartial("");
           },
-          sending,
+          busy,
         )}
     </View>
   );

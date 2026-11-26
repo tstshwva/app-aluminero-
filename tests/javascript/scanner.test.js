@@ -163,6 +163,13 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
     "Nueva lectura",
   );
   answer = "  ";
+  const retake = screen.root
+    .findAllByType("Pressable")
+    .find((n) => n.findByType("Text").props.children === "Volver a enfocar");
+  await act(async () => retake.props.onPress());
+  await act(async () =>
+    screen.root.findByType("CameraView").props.onCameraReady(),
+  );
   await act(async () => photo().props.onPress());
   assert.equal(sheets.length, 1, "Una hoja ilegible no muestra productos");
   assert.equal(

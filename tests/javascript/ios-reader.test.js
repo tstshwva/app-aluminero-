@@ -2,15 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { joinRecognizedLines } from "../../packages/mobile/src/ocrLines.js";
+import { localOcrDeadline } from "../../packages/mobile/src/localOcrDeadline.js";
 async function reader(native) {
-  globalThis.__iosReader = { native, joinRecognizedLines };
+  globalThis.__iosReader = { native, joinRecognizedLines, localOcrDeadline };
   let source = await readFile(
     "packages/mobile/src/localTextReader.ios.js",
     "utf8",
   );
   source = source.replace(/import[^;]+;/g, "");
   source =
-    "const {native,joinRecognizedLines}=globalThis.__iosReader;const requireOptionalNativeModule=()=>native;const File=class {};\n" +
+    "const {native,joinRecognizedLines,localOcrDeadline}=globalThis.__iosReader;const requireOptionalNativeModule=()=>native;const File=class {};\n" +
     source;
   return import(
     "data:text/javascript;base64," +

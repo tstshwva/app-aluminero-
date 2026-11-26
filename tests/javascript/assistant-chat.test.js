@@ -15,13 +15,15 @@ async function mount(
     granted = false,
     onMessages = () => {},
     onProduct = () => {},
+    readText = async () => "Adaptador mosquitero",
   } = {},
 ) {
   let source = await readFile("packages/mobile/src/AssistantChat.js", "utf8");
+  globalThis.__chatReadText = readText;
   source = source
     .replace(
       'import { localTextAvailable, readLocalText } from "./localTextReader";',
-      'const localTextAvailable=true,readLocalText=async()=>"Adaptador mosquitero";',
+      "const localTextAvailable=true,readLocalText=globalThis.__chatReadText;",
     )
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(
@@ -291,5 +293,44 @@ test("Modo local lee con OCR, permite corregir y envía texto sin foto base64", 
     text: "2 pzas Adaptador mosquitero",
   });
   assert.equal(s.tree.root.findAllByType("Image").length, 0);
+  await s.close();
+});
+
+test("No envía un mensaje ni mantiene cámara activa mientras ML Kit está leyendo", async () => {
+  let finish,
+    pending,
+    calls = 0;
+  const s = await mount(
+    {
+      assistantMode: "local-ocr",
+      assistant: async () => {
+        calls++;
+        return { answer: "ok" };
+      },
+    },
+    {
+      granted: true,
+      readText: () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    },
+  );
+  await s.write("Busca esta lista");
+  await s.press(/Fotografiar lista/);
+  await act(async () =>
+    s.tree.root.findByType("CameraView").props.onCameraReady(),
+  );
+  await act(async () => {
+    pending = s.button(/Usar esta foto/).props.onPress();
+    await new Promise((resolve) => setImmediate(resolve));
+  });
+  assert.equal(s.tree.root.findAllByType("CameraView").length, 0);
+  assert.equal(s.button(/Enviar mensaje/).props.disabled, true);
+  await s.press(/Enviar mensaje/);
+  assert.equal(calls, 0);
+  finish("Adaptador mosquitero");
+  await act(async () => pending);
+  assert.equal(s.button(/Enviar mensaje/).props.disabled, false);
   await s.close();
 });

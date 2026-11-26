@@ -30,3 +30,8 @@ GoogleService-Info.plist
 *.p8
 *.mobileprovision
 *.xcarchive/
+
+# Resultados del proyecto aislado de pruebas Android
+/tests/android-ocr/.gradle/
+/tests/android-ocr/**/build/
+/tests/android-ocr/ocr-evidence/

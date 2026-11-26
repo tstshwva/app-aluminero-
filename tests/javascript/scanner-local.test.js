@@ -103,6 +103,12 @@ async function mount(
 test("La foto local no se envía ni busca hasta la confirmación; relectura remota es explícita", async () => {
   const s = await mount();
   await s.press("Fotografiar hoja escrita");
+  assert.equal(
+    s.tree.root.findAllByType("CameraView").length,
+    0,
+    "No mantiene la cámara activa durante la revisión",
+  );
+  assert.equal(s.tree.root.findAllByType("Image").length, 1);
   assert.equal(s.cloud(), 0);
   assert.deepEqual(s.submitted, []);
   assert.equal(s.tree.root.findByType("TextInput").props.value, "2 rieles");
