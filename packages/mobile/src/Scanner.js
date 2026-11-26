@@ -3,7 +3,7 @@ import {
   readLocalText,
   readPhotoBase64,
 } from "./localTextReader";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Image, Linking, Pressable, View } from "react-native";
 import { Text, TextInput } from "./Typography";
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -21,6 +21,15 @@ export default function Scanner({
   const [permission, requestPermission] = useCameraPermissions(),
     scanned = useRef(false);
   const camera = useRef(null);
+  const readLock = useRef(false);
+  const mounted = useRef(true);
+  const [cameraReady, setCameraReady] = useState(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const [reading, setReading] = useState(false);
   const [photoForReview, setPhotoForReview] = useState(null);
   const [improving, setImproving] = useState(false);
@@ -40,9 +49,17 @@ export default function Scanner({
       setMessage("Abre Ajustes y habilita Cámara para Aluformix."),
     );
   // Verde: paso para empezar. Solo borde: opcional.
-  const button = (label, action, secondary = false, kind, icon) => (
+  const button = (
+    label,
+    action,
+    secondary = false,
+    kind,
+    icon,
+    disabled = false,
+  ) => (
     <Pressable
       onPress={action}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
       style={{
@@ -186,7 +203,9 @@ export default function Scanner({
           }}
           facing="back"
           enableTorch={torch}
+          onCameraReady={() => setCameraReady(true)}
           onMountError={() => {
+            setCameraReady(false);
             setCameraFailed(true);
             setMessage(
               "La cámara no pudo iniciarse. Reintenta o busca el código manualmente.",
@@ -248,7 +267,9 @@ export default function Scanner({
               ? "Leyendo hoja…"
               : "Fotografiar hoja escrita",
           async () => {
-            if (reading) return;
+            if (reading || readLock.current || !cameraReady || !camera.current)
+              return;
+            readLock.current = true;
             setReading(true);
             setMessage("");
             try {
@@ -256,24 +277,32 @@ export default function Scanner({
                 base64: !localTextAvailable,
                 quality: 0.8,
               });
+              if (!mounted.current) return;
               setPhotoForReview(photo);
               const text = localTextAvailable
                 ? await readLocalText(photo.uri)
                 : String(await onReadList(photo.base64)).trim();
+              if (!mounted.current) return;
               setListText(text);
               if (!text)
                 setMessage(
                   "No encontramos texto legible. Acerca la hoja, mejora la luz y vuelve a fotografiarla.",
                 );
             } catch (error) {
+              if (!mounted.current) return;
               setMessage(
                 error.message ||
                   "No se pudo leer la lista. Revisa la conexión o escribe los materiales abajo.",
               );
             } finally {
-              setReading(false);
+              readLock.current = false;
+              if (mounted.current) setReading(false);
             }
           },
+          false,
+          undefined,
+          undefined,
+          !cameraReady || reading,
         )}
       {!!photoForReview && !!onReadList && (
         <>
@@ -285,7 +314,8 @@ export default function Scanner({
           {button(
             "Mejorar letra manuscrita (usa internet)",
             async () => {
-              if (reading) return;
+              if (reading || readLock.current) return;
+              readLock.current = true;
               setReading(true);
               setImproving(true);
               setMessage("");
@@ -297,15 +327,18 @@ export default function Scanner({
                   throw new Error(
                     "No se pudo distinguir la letra. Acerca la hoja o corrige el texto manualmente.",
                   );
+                if (!mounted.current) return;
                 setListText(text);
               } catch (error) {
+                if (!mounted.current) return;
                 setMessage(
                   error.message ||
                     "No se pudo mejorar la foto. Tu lectura anterior sigue disponible.",
                 );
               } finally {
-                setReading(false);
-                setImproving(false);
+                readLock.current = false;
+                if (mounted.current) setReading(false);
+                if (mounted.current) setImproving(false);
               }
             },
             true,

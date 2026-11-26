@@ -8,7 +8,10 @@ import React, { act } from "react";
 import Renderer from "react-test-renderer";
 const require = createRequire(import.meta.url);
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-async function mount(cloudResult = "Adaptador mosquitero\nCabezal de 1750") {
+async function mount(
+  cloudResult = "Adaptador mosquitero\nCabezal de 1750",
+  ready = true,
+) {
   let source = await readFile("packages/mobile/src/Scanner.js", "utf8");
   source = source
     .replace(
@@ -45,6 +48,7 @@ async function mount(cloudResult = "Adaptador mosquitero\nCabezal de 1750") {
   ).default;
   let tree,
     cloud = 0,
+    captures = 0,
     submitted = [];
   await act(async () => {
     tree = Renderer.create(
@@ -62,6 +66,7 @@ async function mount(cloudResult = "Adaptador mosquitero\nCabezal de 1750") {
           node.type === "CameraView"
             ? {
                 takePictureAsync: async (options) => {
+                  captures++;
                   assert.equal(options.base64, false);
                   return { uri: "file:///hoja.jpg" };
                 },
@@ -70,6 +75,10 @@ async function mount(cloudResult = "Adaptador mosquitero\nCabezal de 1750") {
       },
     );
   });
+  if (ready)
+    await act(async () =>
+      tree.root.findByType("CameraView").props.onCameraReady(),
+    );
   const press = async (label) => {
     await act(async () => {
       await tree.root
@@ -87,6 +96,7 @@ async function mount(cloudResult = "Adaptador mosquitero\nCabezal de 1750") {
     press,
     submitted,
     cloud: () => cloud,
+    captures: () => captures,
     close: () => act(async () => tree.unmount()),
   };
 }
@@ -117,4 +127,42 @@ test("Si falla la relectura o no devuelve texto, se conserva la lectura local", 
     assert.deepEqual(s.submitted, []);
     await s.close();
   }
+});
+
+test("No captura antes de preparar la cámara y evita dobles pulsaciones", async () => {
+  const s = await mount(undefined, false);
+  const photo = () =>
+    s.tree.root
+      .findAllByType("Pressable")
+      .find((n) =>
+        n
+          .findAllByType("Text")
+          .some((t) => t.props.children === "Fotografiar hoja escrita"),
+      );
+  assert.equal(photo().props.disabled, true);
+  await s.press("Fotografiar hoja escrita");
+  assert.equal(s.captures(), 0);
+  await act(async () =>
+    s.tree.root.findByType("CameraView").props.onCameraReady(),
+  );
+  assert.equal(photo().props.disabled, false);
+  const capture = photo().props.onPress;
+  await act(async () => Promise.all([capture(), capture()]));
+  assert.equal(s.captures(), 1);
+  await s.close();
+});
+
+test("La linterna cambia de estado y un fallo de cámara deja la lista editable", async () => {
+  const s = await mount();
+  assert.equal(s.tree.root.findByType("CameraView").props.enableTorch, false);
+  await s.press("Encender luz");
+  assert.equal(s.tree.root.findByType("CameraView").props.enableTorch, true);
+  await s.press("Apagar luz");
+  assert.equal(s.tree.root.findByType("CameraView").props.enableTorch, false);
+  await act(async () =>
+    s.tree.root.findByType("CameraView").props.onMountError(),
+  );
+  assert.ok(s.tree.root.findByType("Notice").props.issue.message);
+  assert.equal(s.tree.root.findByType("TextInput").props.editable, true);
+  await s.close();
 });

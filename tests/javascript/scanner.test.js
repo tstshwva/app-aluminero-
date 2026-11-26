@@ -115,6 +115,9 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
       },
     );
   });
+  await act(async () =>
+    screen.root.findByType("CameraView").props.onCameraReady(),
+  );
   const photo = () =>
     screen.root
       .findAllByType("Pressable")

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, Platform } from "react-native";
 import * as Network from "expo-network";
+import { canAttemptNetwork } from "./networkState";
 import * as SecureStore from "expo-secure-store";
 
 export function useOrderOutbox(client, ownerUid, enabled) {
@@ -60,8 +61,7 @@ export function useOrderOutbox(client, ownerUid, enabled) {
           const onlyWifi = await SecureStore.getItemAsync(preference);
           if (
             !active ||
-            !network.isConnected ||
-            network.isInternetReachable === false ||
+            !canAttemptNetwork(network) ||
             (onlyWifi === "true" &&
               network.type !== Network.NetworkStateType.WIFI)
           )
