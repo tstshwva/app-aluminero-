@@ -34,8 +34,7 @@ jobs:
           disable-animations: true
           script: |
             gradle -p tests/android-ocr :app:connectedDebugAndroidTest --no-daemon
-            adb pull /sdcard/Android/data/com.aluformix.ocrprobe/files tests/android-ocr/ocr-evidence
-      - name: Guardar informes e imágenes sintéticas
+      - name: Guardar informes del reconocimiento real
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -43,5 +42,4 @@ jobs:
           path: |
             tests/android-ocr/app/build/reports/androidTests
             tests/android-ocr/app/build/outputs/androidTest-results
-            tests/android-ocr/ocr-evidence
           retention-days: 7

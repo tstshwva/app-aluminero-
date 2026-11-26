@@ -16,8 +16,14 @@ Se repitió el flujo remoto de conexiones: https://github.com/tstshwva/app-alumi
 
 `.github/workflows/ocr-android.yml` compila y ejecuta un proyecto de prueba independiente en un emulador Android API 30 x86_64 de GitHub. Usa exactamente `com.google.mlkit:text-recognition:16.0.1`, incluido por el plugin de la app. El paquete de prueba no tiene permiso de internet y no lleva configuración de Firebase, credenciales ni productos personales.
 
-`tests/android-ocr` genera imágenes impresas sintéticas con nombres, cantidad y código con cero inicial; ejecuta ML Kit real sobre una hoja recta, otra inclinada y otra vacía. Comprueba que no haya permiso de internet y guarda imágenes, texto reconocido e informes JUnit como evidencia temporal en Actions.
+`tests/android-ocr` genera imágenes impresas sintéticas con nombres, cantidad y código con cero inicial; ejecuta ML Kit real sobre una hoja recta, otra inclinada y otra vacía. Comprueba que no haya permiso de internet y guarda texto reconocido e informes JUnit como evidencia temporal en Actions. Las imágenes se generan desde código dentro de Android; sus archivos privados no se exportan porque Gradle desinstala el paquete de prueba y elimina esos archivos al terminar.
 
 No es una prueba de la app completa, del puente Expo, de una cámara física, del enfoque/lente del teléfono del usuario ni de escritura manuscrita. Una imagen tipográfica reconocida no demuestra que toda letra a mano se lea correctamente. El comportamiento de cámara y pantalla se prueba por separado con simulaciones de UI. No se publican fotos del usuario ni se cambian reglas de producción.
 
 Los resultados y la distribución se añaden después de verificarlos.
+
+## Conexiones y regresiones aprobadas
+
+La revisión final de la UI pasó en https://github.com/tstshwva/app-aluminero-/actions/runs/45826984566: 133 pruebas JavaScript, 8 de Firestore aislado y 5 sondas HTTPS reales aprobadas. No se comprobó un inicio de sesión de una cuenta real en el Wi-Fi de la universidad.
+
+La primera compilación del proyecto Android de prueba se detuvo porque `sdkmanager` no estaba en PATH del runner. Se corrigió su ruta, sin cambiar el motor OCR ni los criterios de reconocimiento. El segundo intento está en https://github.com/tstshwva/app-aluminero-/actions/runs/45827096492.
