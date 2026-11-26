@@ -26,3 +26,16 @@ Fuentes oficiales consultadas:
 
 - https://developers.google.com/ml-kit/vision/text-recognition/v2/android
 - https://developers.google.com/ml-kit/genai
+
+## Evidencia remota
+
+Ejecución aprobada: https://github.com/tstshwva/app-aluminero-/actions/runs/45824277600, commit 7d41bfa. En GitHub pasaron las 130 pruebas JavaScript, 8 de Firestore aislado y las 5 sondas HTTPS de Auth/Firestore/Expo. No se crearon cuentas ni pedidos reales. Es una comprobación de código, reglas y servicios desde un runner, no una prueba de precisión ML Kit en un teléfono. Los modelos de cámara se simulan en las pruebas de UI.
+
+## Publicación completada
+
+La revisión 26 nov · 3 se publicó para siete runtimes Android conocidos (cuatro Cliente, tres Empresa). Se verificaron HTTP 200, SHA-256 y presencia del modo local y la revisión en los dos bundles más recientes. La verificación de distribución se hizo desde la herramienta local, separada de las pruebas remotas. No se generó un APK nuevo ni se afirmó instalación física.
+
+- Cliente actual: grupo 2f017e3f-beeb-4c64-a2bf-7334afab6340, update 01a217ef-5435-784a-b13a-d398dbd66463.
+- Empresa actual: grupo cbdc3730-d620-4470-87b6-25319fb74eff, update 01a217f0-21da-7e36-ac17-4be2c5ecce2b.
+- Cliente anteriores: 077deca6-8c5f-4e9a-903a-e99d835a7d99, 0e686414-4feb-4cd6-8324-28741b65113d, db203d76-4f98-422d-9634-aeeea5063a8f.
+- Empresa anteriores: ef8fbad9-1bd9-45d1-a1dc-db3c9e5afd63, dd7b0ad8-6357-49b0-9497-ed3c81d63b03.
