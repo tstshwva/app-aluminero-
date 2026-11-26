@@ -111,7 +111,7 @@ test("Preguntas generales no descargan el catálogo y no generan recomendaciones
   assert.equal(r.source, "cloud");
   assert.deepEqual(r.products, []);
 });
-test("OCR mantiene el modelo ligero y no incluye historial ni catálogo", async () => {
+test("OCR usa Flash para manuscritos y no incluye historial ni catálogo", async () => {
   const p = provider("Cabezal de 1750");
   await answerAssistant({
     question: "Lee esta lista",
@@ -320,4 +320,13 @@ test("Una pregunta sobre cálculos del pedido no se confunde con la guía de env
   });
   assert.equal(r.source, "cloud");
   assert.equal(p.calls.length, 1);
+});
+
+test("Chat recupera errores OCR como candidatos sin modificar el catálogo", () => {
+  const before = JSON.stringify(products);
+  const result = retrieveMaterials(products, "Necesito adaptado moqule");
+  assert.equal(result[0].code, "72015");
+  assert.equal(materialFacts(result)[0].requiereConfirmacion, true);
+  assert.equal(JSON.stringify(products), before);
+  assert.deepEqual(retrieveMaterials(products, "Permanent Mark"), []);
 });

@@ -169,7 +169,7 @@ export async function answerAssistant({
         model: ocr ? OCR_MODEL : CHAT_MODEL,
         generationConfig: {
           maxOutputTokens: ocr ? 1500 : 1600,
-          ...(!ocr ? { thinkingConfig: { thinkingLevel: "LOW" } } : {}),
+          thinkingConfig: { thinkingLevel: "LOW" },
         },
         systemInstruction: ocr ? OCR_INSTRUCTION : CHAT_INSTRUCTION,
       },

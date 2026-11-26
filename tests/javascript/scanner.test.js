@@ -136,8 +136,38 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
     );
   await act(async () => searchList.props.onPress());
   assert.deepEqual(sheets, ["2 tubos\n1 vidrio"]);
+  await act(async () =>
+    screen.root
+      .findByType("TextInput")
+      .props.onChangeText("Mi lista corregida"),
+  );
+  answer = "Nueva lectura";
+  const improve = screen.root
+    .findAllByType("Pressable")
+    .find(
+      (n) =>
+        n.findByType("Text").props.children ===
+        "Mejorar letra manuscrita (usa internet)",
+    );
+  await act(async () => improve.props.onPress());
+  assert.equal(
+    screen.root.findByType("TextInput").props.value,
+    "Mi lista corregida",
+  );
+  const accept = screen.root
+    .findAllByType("Pressable")
+    .find((n) => n.findByType("Text").props.children === "Usar esta lectura");
+  await act(async () => accept.props.onPress());
+  assert.equal(
+    screen.root.findByType("TextInput").props.value,
+    "Nueva lectura",
+  );
   answer = "  ";
   await act(async () => photo().props.onPress());
   assert.equal(sheets.length, 1, "Una hoja ilegible no muestra productos");
+  assert.equal(
+    screen.root.findByType("TextInput").props.value,
+    "Nueva lectura",
+  );
   await act(async () => screen.unmount());
 });

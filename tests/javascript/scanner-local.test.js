@@ -109,6 +109,11 @@ test("La foto local no se envía ni busca hasta la confirmación; relectura remo
   await s.press("Mejorar letra manuscrita (usa internet)");
   assert.equal(s.cloud(), 1);
   assert.deepEqual(s.submitted, []);
+  assert.equal(s.tree.root.findByType("TextInput").props.value, "2 rieles");
+  await s.press("Conservar mi lista");
+  assert.equal(s.tree.root.findByType("TextInput").props.value, "2 rieles");
+  await s.press("Mejorar letra manuscrita (usa internet)");
+  await s.press("Usar esta lectura");
   assert.equal(
     s.tree.root.findByType("TextInput").props.value,
     "Adaptador mosquitero\nCabezal de 1750",

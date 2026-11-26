@@ -32,6 +32,7 @@ export default function Scanner({
   }, []);
   const [reading, setReading] = useState(false);
   const [photoForReview, setPhotoForReview] = useState(null);
+  const [proposedText, setProposedText] = useState(null);
   const [improving, setImproving] = useState(false);
   const [listText, setListText] = useState(initialText);
   const [message, setMessage] = useState("");
@@ -279,11 +280,12 @@ export default function Scanner({
               });
               if (!mounted.current) return;
               setPhotoForReview(photo);
+              setProposedText(null);
               const text = localTextAvailable
                 ? await readLocalText(photo.uri)
                 : String(await onReadList(photo.base64)).trim();
               if (!mounted.current) return;
-              setListText(text);
+              if (text) setListText(text);
               if (!text)
                 setMessage(
                   "No encontramos texto legible. Acerca la hoja, mejora la luz y vuelve a fotografiarla.",
@@ -308,8 +310,8 @@ export default function Scanner({
         <>
           <Text style={{ color: note, marginTop: 8 }}>
             {localTextAvailable
-              ? "Si la letra salió mal, puedes releer esta misma foto con internet. Solo al elegir esta opción se enviará la foto para mejorar la lectura y se reemplazará el texto."
-              : "Puedes volver a leer esta foto con internet. Se enviará la imagen y se reemplazará el texto actual."}
+              ? "Si la letra salió mal, puedes releer esta misma foto con internet. Solo al elegir esta opción se enviará la foto para mejorar la lectura y podrás revisar el resultado antes de reemplazar tu texto."
+              : "Puedes volver a leer esta foto con internet. Se enviará la imagen y podrás revisar el resultado antes de reemplazar tu texto actual."}
           </Text>
           {button(
             "Mejorar letra manuscrita (usa internet)",
@@ -328,7 +330,7 @@ export default function Scanner({
                     "No se pudo distinguir la letra. Acerca la hoja o corrige el texto manualmente.",
                   );
                 if (!mounted.current) return;
-                setListText(text);
+                setProposedText(text);
               } catch (error) {
                 if (!mounted.current) return;
                 setMessage(
@@ -344,6 +346,25 @@ export default function Scanner({
             true,
           )}
         </>
+      )}
+      {proposedText !== null && (
+        <View style={{ backgroundColor: soft, padding: 12, borderRadius: 12 }}>
+          <Text style={{ color: ink, fontWeight: "700" }}>
+            Revisa la nueva lectura
+          </Text>
+          <Text style={{ color: note }}>
+            Tu lista actual se conserva hasta que aceptes. Revisa códigos,
+            cantidades y medidas.
+          </Text>
+          <Text selectable style={{ color: ink, marginVertical: 12 }}>
+            {proposedText}
+          </Text>
+          {button("Usar esta lectura", () => {
+            setListText(proposedText);
+            setProposedText(null);
+          })}
+          {button("Conservar mi lista", () => setProposedText(null), true)}
+        </View>
       )}
       {!!sampleList &&
         button(
@@ -376,6 +397,7 @@ export default function Scanner({
         }}
       />
       {button("Buscar materiales de la lista", () => {
+        if (reading) return;
         if (listText.trim()) onList(listText.trim());
         else setMessage("Escribe al menos un material.");
       })}
