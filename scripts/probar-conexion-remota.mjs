@@ -51,7 +51,7 @@ await check("Firestore HTTPS rechaza lectura sin autenticar", async () => {
   const r = await request(
     "https://firestore.googleapis.com/v1/projects/" +
       project +
-      "/databases/(default)/documents/usuarios/__connection_probe__",
+      "/databases/(default)/documents/usuarios/connection-probe-check",
   );
   const body = await r.json();
   console.log(JSON.stringify({ firestoreHttp: r.status, firestoreStatus: /^[A-Z_]+$/.test(body.error?.status ?? "") ? body.error.status : "otro" }));
