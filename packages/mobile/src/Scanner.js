@@ -83,6 +83,7 @@ export default function Scanner({
                 : "#006fe5",
         borderRadius: 12,
         marginVertical: 8,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       {!!icon && (
@@ -252,6 +253,11 @@ export default function Scanner({
         onDismiss={() => setMessage("")}
         dark={dark}
       />
+      {reading && (
+        <Text accessibilityLiveRegion="polite" style={{ color: note }}>
+          {improving ? "Mejorando lectura…" : "Leyendo hoja en este teléfono…"}
+        </Text>
+      )}
       {permission?.granted && !cameraFailed && !photoForReview && (
         <>
           <Text style={{ color: note }}>
@@ -268,6 +274,7 @@ export default function Scanner({
       {(localTextAvailable || !!onReadList) &&
         permission?.granted &&
         !cameraFailed &&
+        !photoForReview &&
         button(
           improving
             ? "Mejorando lectura…"
