@@ -27,3 +27,12 @@ Referencias oficiales consultadas:
 - https://github.com/naptha/tesseract.js
 
 Distribución: revisión 26 nov · 1. La publicación OTA se verifica aparte; guardar código en Git no equivale a tenerlo instalado en el celular.
+
+Resultado: 118 pruebas JavaScript aprobadas. Código publicado en main, commit cdda475. Se publicaron las siete variantes Android compatibles (cuatro Cliente, tres Empresa). Los manifiestos y bundles de las dos variantes más recientes devolvieron HTTP 200, revisión 26 nov · 1 y hash SHA-256 coincidente. Esto verifica distribución, no instalación física ni calidad real de OCR.
+
+Grupos OTA publicados:
+
+- Cliente actual: 58ca24b9-d859-4736-9c43-dbe2b681e338
+- Empresa actual: ce3eb2b6-22bb-42c2-8a02-ccbde8cf0d2b
+- Cliente anteriores: 8c13769d-e5ea-4663-9cd3-cd12f48b3826, b2df42c2-940f-4fb5-b9b1-21d0868fb09f, 17bba508-d92b-41ca-9eec-94022fbc63af
+- Empresa anteriores: 7f338163-e485-4344-9495-a37b47062934, 6af2a9cd-9ef2-4a95-8e3f-c8c680f190b2
