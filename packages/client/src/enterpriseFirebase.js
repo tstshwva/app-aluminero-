@@ -1,8 +1,8 @@
 import {
   collection,
   doc,
-  getDocFromServer,
-  getDocsFromServer,
+  getDocFromServer as readDocument,
+  getDocsFromServer as readDocuments,
   query,
   where,
   runTransaction,
@@ -12,6 +12,11 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { initializeApp, deleteApp } from "firebase/app";
+import { readWithDeadline } from "./readDeadline.js";
+const getDocFromServer = (reference) =>
+  readWithDeadline(() => readDocument(reference));
+const getDocsFromServer = (reference) =>
+  readWithDeadline(() => readDocuments(reference));
 import {
   initializeAuth,
   inMemoryPersistence,

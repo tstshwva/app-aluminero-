@@ -2,6 +2,7 @@ import { answerAssistant } from "./assistantEngine.js";
 import { enterpriseOperations } from "./enterpriseFirebase.js";
 import { decimal, text } from "./enterpriseDomain.js";
 import { readStaffOverHttps } from "./staffLookup.js";
+import { readWithDeadline } from "./readDeadline.js";
 import { CustomProvider, initializeAppCheck } from "firebase/app-check";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeApp, getApps } from "firebase/app";
@@ -17,8 +18,8 @@ import {
   initializeFirestore,
   collection,
   doc,
-  getDocFromServer as getDoc,
-  getDocsFromServer as getDocs,
+  getDocFromServer,
+  getDocsFromServer,
   orderBy,
   runTransaction,
   query,
@@ -31,6 +32,10 @@ import {
 import { profileFields } from "./profile.js";
 
 const instances = new Map();
+const getDoc = (reference) =>
+  readWithDeadline(() => getDocFromServer(reference));
+const getDocs = (reference) =>
+  readWithDeadline(() => getDocsFromServer(reference));
 
 export function createFirebaseClient({
   config,
