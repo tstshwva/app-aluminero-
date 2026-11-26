@@ -22,3 +22,10 @@ jobs:
           ALUFORMIX_CLIENTE_API_KEY: ${{ secrets.ALUFORMIX_CLIENTE_API_KEY }}
           ALUFORMIX_EMPRESA_API_KEY: ${{ secrets.ALUFORMIX_EMPRESA_API_KEY }}
         run: node scripts/probar-conexion-remota.mjs
+      - name: Seleccionar Java 21 del runner
+        run: |
+          test -n "$JAVA_HOME_21_X64"
+          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
+      - name: Probar roles, pedidos e inventario en Firestore aislado remoto
+        run: npx --yes firebase-tools@15.36.0 emulators:exec --only firestore --project demo-aluformix --non-interactive 'node --test tests/firebase/empresa.test.mjs'

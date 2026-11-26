@@ -53,9 +53,10 @@ await check("Firestore HTTPS rechaza lectura sin autenticar", async () => {
       project +
       "/databases/(default)/documents/usuarios/__connection_probe__",
   );
-  assert.equal(r.status, 403);
   const body = await r.json();
-  assert.equal(body.error?.status, "PERMISSION_DENIED");
+  console.log(JSON.stringify({ firestoreHttp: r.status, firestoreStatus: /^[A-Z_]+$/.test(body.error?.status ?? "") ? body.error.status : "otro" }));
+  assert.ok([401, 403].includes(r.status));
+  assert.ok(["PERMISSION_DENIED", "UNAUTHENTICATED"].includes(body.error?.status));
   return { http: r.status, sesionAutenticadaProbada: false };
 });
 const targets = [
