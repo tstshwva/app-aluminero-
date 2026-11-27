@@ -1,0 +1,76 @@
+name: Inicio de APK real de Cliente
+on:
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        required: true
+        type: string
+      sha256:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Preparar Java y herramientas
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_17_X64/bin" >> "$GITHUB_PATH"
+          sudo chmod 666 /dev/kvm
+          curl --fail --location --retry 3 --output /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+          curl --fail --location --retry 3 --output /tmp/gradle.sha256 https://services.gradle.org/distributions/gradle-8.11.1-bin.zip.sha256
+          printf '%s  /tmp/gradle.zip\n' "$(cat /tmp/gradle.sha256)" | sha256sum --check
+          unzip -q /tmp/gradle.zip -d /tmp/aluformix-gradle
+          echo "/tmp/aluformix-gradle/gradle-8.11.1/bin" >> "$GITHUB_PATH"
+      - name: Descargar únicamente el APK autorizado y verificar SHA
+        env:
+          APK_URL: ${{ inputs.apk_url }}
+          APK_SHA: ${{ inputs.sha256 }}
+        run: |
+          case "$APK_URL" in
+            https://github.com/tstshwva/app-aluminero-/releases/download/*/Aluformix-cliente-firebase.apk) ;;
+            *) echo 'URL de APK no autorizada'; exit 1;;
+          esac
+          [[ "$APK_SHA" =~ ^[a-fA-F0-9]{64}$ ]] || exit 1
+          curl --proto '=https' --fail --location --retry 3 "$APK_URL" --output /tmp/aluformix-cliente.apk
+          printf '%s  /tmp/aluformix-cliente.apk\n' "$APK_SHA" | sha256sum --check
+      - name: Compilar controlador de prueba
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          gradle -p tests/android-ocr :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
+      - name: Abrir APK real en Android de 2 GB
+        uses: ReactiveCircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 30
+          arch: x86_64
+          target: google_apis
+          ram-size: "2048"
+          heap-size: "512"
+          cores: 2
+          disable-animations: true
+          script: |
+            adb install --no-streaming /tmp/aluformix-cliente.apk
+            adb logcat -c
+            gradle -p tests/android-ocr :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.aluformix.ocrprobe.ProductionSmokeTest --no-daemon
+            adb shell cat /proc/meminfo > tests/android-ocr/smoke-memory.txt
+            adb shell getprop dalvik.vm.heapsize > tests/android-ocr/smoke-heap.txt
+            adb shell getconf _NPROCESSORS_ONLN > tests/android-ocr/smoke-cores.txt
+            adb shell dumpsys meminfo com.aluformix.cliente > tests/android-ocr/smoke-app-memory.txt
+            adb exec-out screencap -p > tests/android-ocr/smoke-screen.png
+            adb logcat -d > tests/android-ocr/smoke-logcat.txt
+            if grep -E 'AndroidRuntime.*Process: com\.aluformix\.cliente' tests/android-ocr/smoke-logcat.txt; then exit 1; fi
+      - name: Guardar evidencia de este instalador
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: apk-real-smoke
+          path: |
+            tests/android-ocr/app/build/reports/androidTests
+            tests/android-ocr/app/build/outputs/androidTest-results
+            tests/android-ocr/smoke-*.txt
+            tests/android-ocr/smoke-screen.png
+          retention-days: 7
