@@ -12,6 +12,44 @@ const products = catalogProducts.map((p) => ({
   active: 1,
 }));
 
+test("Texto real del Android remoto conserva candidatos y deja ilegible lo que no respalda", () => {
+  const rows = matchList(
+    "Alatudo Mqu.tro\nAdu lado Ox\nAduptudo Xx\nAle tu",
+    products,
+  );
+  for (const [i, name] of [
+    [0, /adaptador mosquitero/i],
+    [2, /adaptador xx/i],
+    [3, /aleta/i],
+  ]) {
+    assert.ok(
+      rows[i].options.some((p) => name.test(p.name)),
+      rows[i].line,
+    );
+    assert.equal(rows[i].review, true);
+    assert.equal(rows[i].quantity, null);
+  }
+  assert.equal(rows[1].options.length, 0);
+  for (const text of [
+    "Permanent Mark",
+    "Halaptado XX",
+    "Cabezal de 1759",
+    "Alatudo Mqu.tro 99999",
+  ])
+    assert.equal(matchList(text, products)[0].options.length, 0, text);
+});
+
+test("La muestra manuscrita tolera OXO por OXXO como candidato, nunca como código exacto", () => {
+  const [row] = matchList("Aduptudor Oxo", products);
+  assert.ok(row.options.length > 0);
+  assert.ok(row.options.every((p) => /adaptador oxxo/i.test(p.name)));
+  assert.equal(row.line, "Aduptudor Oxo");
+  assert.equal(row.review, true);
+  assert.equal(row.quantity, null);
+  assert.equal(matchList("Aduptudor Oxy", products)[0].options.length, 0);
+  assert.equal(matchList("99999", products)[0].options.length, 0);
+});
+
 test("Letra de alturas distintas conserva palabras y medidas del mismo renglón", () => {
   const box = (text, x, y, width, height) => ({ text, x, y, width, height });
   assert.equal(

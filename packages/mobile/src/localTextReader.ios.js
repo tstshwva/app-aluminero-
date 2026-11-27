@@ -4,6 +4,12 @@ import { joinRecognizedLines } from "./ocrLines.js";
 import { localOcrDeadline } from "./localOcrDeadline.js";
 const reader = requireOptionalNativeModule("ExpoTextExtractor");
 export const localTextAvailable = !!reader?.isSupported;
+export const handwritingAvailable = false;
+export async function readHandwrittenText() {
+  throw new Error(
+    "La relectura por renglones está disponible en el APK Android actualizado.",
+  );
+}
 export async function readLocalText(uri) {
   if (!localTextAvailable)
     throw new Error(

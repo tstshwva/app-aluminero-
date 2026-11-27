@@ -39,6 +39,22 @@ module.exports = (config) => {
         ),
         kotlin,
       );
+      for (const name of ["HandwrittenImage.java", "HandwrittenReader.java"]) {
+        await fs.copyFile(
+          path.join(__dirname, "native", name),
+          path.join(
+            packageRoot,
+            "android",
+            "src",
+            "main",
+            "java",
+            "expo",
+            "modules",
+            "textextractor",
+            name,
+          ),
+        );
+      }
       return config;
     },
   ]);

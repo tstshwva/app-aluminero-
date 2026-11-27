@@ -28,7 +28,7 @@ public final class HandwrittenImage {
         if (options.outWidth <= 0 || options.outHeight <= 0)
             throw new IOException("No se pudo abrir la foto.");
         options.inSampleSize = 1;
-        while (Math.max(options.outWidth, options.outHeight) / options.inSampleSize > 1600)
+        while (Math.max(options.outWidth, options.outHeight) / options.inSampleSize > 1280)
             options.inSampleSize *= 2;
         options.inJustDecodeBounds = false;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;

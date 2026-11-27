@@ -12,6 +12,7 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import expo.modules.textextractor.HandwrittenImage;
+import expo.modules.textextractor.HandwrittenReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.io.InputStream;
@@ -55,6 +56,9 @@ public class HandwritingTest {
                     } finally { enhanced.recycle(); }
                 }
                 assertFalse("La muestra debe contener texto", read(reader, original).isEmpty());
+                java.util.List<java.util.Map<String, Object>> result = HandwrittenReader.read(original);
+                System.out.println("MANUSCRITO PRODUCCION: " + result);
+                assertEquals("Recupera los cuatro renglones, no garantiza letras exactas", 4, result.size());
             } finally { reader.close(); original.recycle(); }
         }
     }

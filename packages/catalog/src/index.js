@@ -277,6 +277,23 @@ function suggestListProducts(term, index) {
   const cache = new Map();
   const cost = (token, words, loose = false) => {
     if (matchesWord(words, token)) return 0;
+    // En «OXXO» la escritura puede unir las dos equis. Solo se sugiere el
+    // nombre real con una letra repetida omitida; no se aproximan códigos.
+    if (
+      /^[a-z]{3}$/.test(token) &&
+      words.some(
+        (word) =>
+          /^[a-z]{4}$/.test(word) && word.replace(/([a-z])\1/g, "$1") === token,
+      )
+    )
+      return 0.25;
+    if (
+      /^[a-z]{2}$/.test(token) &&
+      words.some(
+        (word) => /^([a-z])([a-z])\2\1$/.test(word) && word.startsWith(token),
+      )
+    )
+      return 0.5;
     if (/\d/.test(token) || token.length < 4) return Infinity;
     let best = Infinity;
     for (const word of words) {
@@ -284,7 +301,9 @@ function suggestListProducts(term, index) {
       const limit = loose
         ? Math.floor(Math.max(token.length, word.length) * 0.55)
         : token.length >= 6
-          ? 2
+          ? token.length >= 7 && word.startsWith(token.slice(0, 2))
+            ? 3
+            : 2
           : 1;
       const key = token + "|" + word + "|" + limit;
       if (!cache.has(key)) cache.set(key, editDistance(token, word, limit));
@@ -346,6 +365,35 @@ function suggestListProducts(term, index) {
           score:
             weak + scores.filter(Number.isFinite).reduce((a, b) => a + b, 0),
         });
+    }
+  }
+  // Dos palabras largas deterioradas pueden respaldarse mutuamente. Nunca
+  // aplica a cantidades, códigos, variantes cortas ni una palabra aislada.
+  // Solo ofrece candidatos: no corrige el texto ni confirma el producto.
+  if (
+    !strict.length &&
+    !fallback.length &&
+    tokens.length >= 2 &&
+    tokens.length <= 4 &&
+    tokens.every((t) => /^[a-z]{5,}$/.test(t))
+  ) {
+    for (const item of index) {
+      const words = item.nameWords.filter((w) => !STOP.has(w));
+      if (
+        words.length !== tokens.length ||
+        words.some((w) => !/^[a-z]{5,}$/.test(w))
+      )
+        continue;
+      const scores = tokens.map(
+        (token, i) =>
+          editDistance(token, words[i], 4) /
+          Math.max(token.length, words[i].length),
+      );
+      if (
+        scores.every((n) => n <= 0.45) &&
+        scores.reduce((a, b) => a + b, 0) / scores.length <= 0.425
+      )
+        fallback.push({ p: item.p, score: scores.reduce((a, b) => a + b, 0) });
     }
   }
   return (strict.length ? strict : fallback)

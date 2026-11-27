@@ -4,6 +4,15 @@ import { joinRecognizedLines } from "./ocrLines.js";
 import { localOcrDeadline } from "./localOcrDeadline.js";
 const reader = requireOptionalNativeModule("ExpoTextExtractor");
 export const localTextAvailable = !!reader?.isSupported;
+export const handwritingAvailable =
+  typeof reader?.extractHandwrittenLinesFromImage === "function";
+export async function readHandwrittenText(uri) {
+  if (!handwritingAvailable)
+    throw new Error("Instala el APK nuevo para releer por renglones.");
+  return joinRecognizedLines(
+    await localOcrDeadline(() => reader.extractHandwrittenLinesFromImage(uri)),
+  );
+}
 export async function readLocalText(uri) {
   if (!localTextAvailable)
     throw new Error(

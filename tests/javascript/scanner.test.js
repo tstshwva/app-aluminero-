@@ -14,7 +14,7 @@ test("Lector valida códigos, evita lecturas duplicadas y ofrece búsqueda manua
   const source = (await readFile("packages/mobile/src/Scanner.js", "utf8"))
     .replace(
       /import\s*\{[^}]*\}\s*from "\.\/localTextReader";/,
-      "const localTextAvailable=false,readLocalText=async()=>'',readPhotoBase64=async photo=>photo.base64;",
+      "const localTextAvailable=false,handwritingAvailable=false,readHandwrittenText=async()=>'',readLocalText=async()=>'',readPhotoBase64=async photo=>photo.base64;",
     )
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(

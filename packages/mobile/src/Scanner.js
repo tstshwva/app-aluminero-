@@ -2,6 +2,8 @@ import {
   localTextAvailable,
   readLocalText,
   readPhotoBase64,
+  handwritingAvailable,
+  readHandwrittenText,
 } from "./localTextReader";
 import React, { useEffect, useRef, useState } from "react";
 import { Image, Linking, Pressable, View } from "react-native";
@@ -339,6 +341,46 @@ export default function Scanner({
           undefined,
           reading,
         )}
+      {!!photoForReview && handwritingAvailable && (
+        <View>
+          <Text style={{ color: note }}>
+            ¿Se mezclaron las palabras? Relee por renglones sin internet. Atenúa
+            la cuadrícula azul de hojas escritas con lápiz gris o negro. Revisa
+            la propuesta antes de usarla; para tinta azul conserva la lectura
+            original.
+          </Text>
+          {button(
+            "Leer por renglones (sin internet)",
+            async () => {
+              if (reading || readLock.current) return;
+              readLock.current = true;
+              setReading(true);
+              setProposedText(null);
+              setMessage("");
+              try {
+                const text = await readHandwrittenText(photoForReview.uri);
+                if (!text.trim())
+                  throw new Error(
+                    "No se pudo distinguir la letra. Tu lista anterior se conserva.",
+                  );
+                if (mounted.current) setProposedText(text);
+              } catch (error) {
+                if (mounted.current)
+                  setMessage(
+                    error.message || "No se pudo releer. Tu lista se conserva.",
+                  );
+              } finally {
+                readLock.current = false;
+                if (mounted.current) setReading(false);
+              }
+            },
+            true,
+            undefined,
+            undefined,
+            reading,
+          )}
+        </View>
+      )}
       {!!photoForReview && !!onReadList && (
         <>
           <Text style={{ color: note, marginTop: 8 }}>
@@ -408,8 +450,8 @@ export default function Scanner({
           require("../assets/icon-orders.png"),
         )}
       <Text style={{ color: ink, marginTop: 12 }}>
-        Revisa cada nombre, cantidad y medida antes de buscar. Si una palabra
-        no se leyó bien, corrígela aquí: un material por renglón.
+        Revisa cada nombre, cantidad y medida antes de buscar. Si una palabra no
+        se leyó bien, corrígela aquí: un material por renglón.
       </Text>
       <TextInput
         multiline

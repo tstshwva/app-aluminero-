@@ -9,14 +9,32 @@ import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ExpoTextExtractorModule : Module() {
+  private val improving = AtomicBoolean(false)
   override fun definition() = ModuleDefinition {
     Name("ExpoTextExtractor")
     Constants("isSupported" to true)
     // Conserva el contrato anterior para instalaciones que usan solo bloques.
     AsyncFunction("extractTextFromImage") { uri: String, promise: Promise -> recognize(uri, promise, false) }
     AsyncFunction("extractTextLinesFromImage") { uri: String, promise: Promise -> recognize(uri, promise, true) }
+    AsyncFunction("extractHandwrittenLinesFromImage") { uri: String, promise: Promise ->
+      if (!improving.compareAndSet(false, true)) {
+        promise.reject(CodedException("OCR_BUSY", "La lectura anterior sigue terminando. Espera un momento.", null))
+      } else Thread {
+        try {
+          val context = appContext.reactContext ?: throw IllegalStateException("Cámara no disponible")
+          val local = if (uri.startsWith("file://") || uri.startsWith("content://")) Uri.parse(uri) else Uri.fromFile(File(uri))
+          val image = HandwrittenImage.load(context, local)
+          try { promise.resolve(HandwrittenReader.read(image)) } finally { image.recycle() }
+        } catch (error: Exception) {
+          promise.reject(CodedException("OCR_ERROR", error.message ?: "No se pudo mejorar la lectura.", error))
+        } catch (error: OutOfMemoryError) {
+          promise.reject(CodedException("OCR_MEMORY", "Cierra otras aplicaciones y fotografía menos renglones. Tu lista se conserva.", error))
+        } finally { improving.set(false) }
+      }.start()
+    }
   }
 
   private fun recognize(uriString: String, promise: Promise, positioned: Boolean) {

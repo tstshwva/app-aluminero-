@@ -11,12 +11,14 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function mount(
   cloudResult = "Adaptador mosquitero\nCabezal de 1750",
   ready = true,
+  handwriting = false,
+  handwritingResult = "Adaptador mosquitero\nAleta",
 ) {
   let source = await readFile("packages/mobile/src/Scanner.js", "utf8");
   source = source
     .replace(
       /import\s*\{[^}]*\}\s*from "\.\/localTextReader";/,
-      `const localTextAvailable=true,readPhotoBase64=async()=>"photo-data",readLocalText=async uri=>{if(uri!=="file:///hoja.jpg")throw Error("URI incorrecta");return "2 rieles";};`,
+      `const localTextAvailable=true,handwritingAvailable=${handwriting},readHandwrittenText=uri=>globalThis.__handwritingRead(uri),readPhotoBase64=async()=>"photo-data",readLocalText=async uri=>{if(uri!=="file:///hoja.jpg")throw Error("URI incorrecta");return "2 rieles";};`,
     )
     .replace(
       'from "react";',
@@ -50,6 +52,11 @@ async function mount(
     cloud = 0,
     captures = 0,
     submitted = [];
+  globalThis.__handwritingRead = async (uri) => {
+    assert.equal(uri, "file:///hoja.jpg");
+    if (handwritingResult instanceof Error) throw handwritingResult;
+    return handwritingResult;
+  };
   await act(async () => {
     tree = Renderer.create(
       React.createElement(Scanner, {
@@ -100,6 +107,33 @@ async function mount(
     close: () => act(async () => tree.unmount()),
   };
 }
+
+test("Relectura local es opcional, no envía fotos y no sustituye la lista sin aceptar", async () => {
+  const s = await mount(undefined, true, true);
+  await s.press("Fotografiar hoja escrita");
+  await s.press("Leer por renglones (sin internet)");
+  assert.equal(s.cloud(), 0);
+  assert.equal(s.tree.root.findByType("TextInput").props.value, "2 rieles");
+  await s.press("Usar esta lectura");
+  assert.equal(
+    s.tree.root.findByType("TextInput").props.value,
+    "Adaptador mosquitero\nAleta",
+  );
+  assert.deepEqual(s.submitted, []);
+  await s.close();
+  for (const response of ["", new Error("Tiempo agotado")]) {
+    const failed = await mount(undefined, true, true, response);
+    await failed.press("Fotografiar hoja escrita");
+    await failed.press("Leer por renglones (sin internet)");
+    assert.equal(
+      failed.tree.root.findByType("TextInput").props.value,
+      "2 rieles",
+    );
+    assert.ok(failed.tree.root.findByType("Notice").props.issue.message);
+    assert.equal(failed.cloud(), 0);
+    await failed.close();
+  }
+});
 test("La foto local no se envía ni busca hasta la confirmación; relectura remota es explícita", async () => {
   const s = await mount();
   await s.press("Fotografiar hoja escrita");
