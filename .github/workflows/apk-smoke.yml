@@ -55,6 +55,8 @@ jobs:
           script: |
             adb install --no-streaming /tmp/aluformix-cliente.apk
             adb logcat -c
+            adb shell svc wifi disable
+            adb shell svc data disable
             gradle -p tests/android-ocr :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.aluformix.ocrprobe.ProductionSmokeTest --no-daemon
             adb shell cat /proc/meminfo > tests/android-ocr/smoke-memory.txt
             adb shell getprop dalvik.vm.heapsize > tests/android-ocr/smoke-heap.txt
