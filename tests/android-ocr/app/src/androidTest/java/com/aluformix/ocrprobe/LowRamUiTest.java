@@ -26,7 +26,7 @@ public class LowRamUiTest {
     Log.i("ALUFORMIX_PERF",name+"_ms="+(SystemClock.elapsedRealtime()-start));
   }
   @Test public void catalogSearchPagesAndTabsOnLimitedMemoryAndroid() throws Exception {
-    Context context=InstrumentationRegistry.getInstrumentation().getContext();
+    Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
     device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     Intent launch=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
       .setClassName("com.aluformix.cliente","com.aluformix.cliente.MainActivity");
