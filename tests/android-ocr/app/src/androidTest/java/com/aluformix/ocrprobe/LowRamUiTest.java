@@ -3,6 +3,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.KeyEvent;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
@@ -25,6 +26,10 @@ public class LowRamUiTest {
   private void metric(String name,long start) {
     Log.i("ALUFORMIX_PERF",name+"_ms="+(SystemClock.elapsedRealtime()-start));
   }
+  private void hideKeyboard() throws Exception {
+    String state=device.executeShellCommand("dumpsys input_method");
+    if(state.contains("mInputShown=true") || state.contains("mIsInputViewShown=true")) device.pressBack();
+  }
   @Test public void catalogSearchPagesAndTabsOnLimitedMemoryAndroid() throws Exception {
     Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
     device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -44,17 +49,23 @@ public class LowRamUiTest {
     requireDescription("Catálogo");
     start=SystemClock.elapsedRealtime();requireDescription("Catálogo").click();
     UiObject2 search=requireDescription("Buscar producto");metric("abrir_catalogo",start);
-    start=SystemClock.elapsedRealtime();search.setText("07333");
+    start=SystemClock.elapsedRealtime();search.click();
+    device.executeShellCommand("input text 07333");
+    hideKeyboard();
     requireDescription("Ver 07333");metric("buscar_codigo",start);
     start=SystemClock.elapsedRealtime();requireDescription("Ver 07333").click();
     assertTrue("Ficha del producto",device.wait(Until.hasObject(By.textContains("Código 07333")),15000));
     metric("abrir_ficha",start);
     requireDescription("Atrás").click();
-    search=requireDescription("Buscar producto");search.setText("");
+    search=requireDescription("Buscar producto");search.click();
+    device.pressKeyCode(KeyEvent.KEYCODE_MOVE_END);
+    for(int i=0;i<8;i++) device.pressKeyCode(KeyEvent.KEYCODE_DEL);
+    hideKeyboard();
     UiObject2 next=null;
     for(int i=0;i<12 && next==null;i++) {
       next=device.findObject(By.desc("Página siguiente"));
       if(next==null) next=device.findObject(By.text("Página siguiente"));
+      if(next!=null && next.getVisibleBounds().isEmpty()) next=null;
       if(next==null) device.swipe(device.getDisplayWidth()/2,device.getDisplayHeight()*3/4,device.getDisplayWidth()/2,device.getDisplayHeight()/3,16);
     }
     assertNotNull("Siguiente página accesible",next);

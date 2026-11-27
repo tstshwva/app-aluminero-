@@ -39,8 +39,8 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          ram-size: 1536M
-          heap-size: 256M
+          ram-size: "1536"
+          heap-size: "256"
           cores: 2
           script: |
             bash tests/android-ocr/run-lowram.sh
