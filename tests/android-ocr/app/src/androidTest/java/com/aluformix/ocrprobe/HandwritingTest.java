@@ -2,6 +2,8 @@ package com.aluformix.ocrprobe;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.gms.tasks.Tasks;
@@ -27,6 +29,9 @@ public class HandwritingTest {
             TextRecognizer reader = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
             try {
                 System.out.println("MANUSCRITO ORIGINAL: " + read(reader, original));
+                Bitmap enlarged = Bitmap.createScaledBitmap(original, original.getWidth() * 2, original.getHeight() * 2, true);
+                System.out.println("MANUSCRITO ORIGINAL AMPLIADO: " + read(reader, enlarged));
+                enlarged.recycle();
                 for (boolean binary : new boolean[] {false, true}) {
                     Bitmap enhanced = HandwrittenImage.enhance(original, binary);
                     try {
@@ -38,6 +43,14 @@ public class HandwritingTest {
                             Bitmap large = Bitmap.createScaledBitmap(strip, strip.getWidth() * 2, strip.getHeight() * 2, true);
                             System.out.println("MANUSCRITO FILA " + binary + " " + row + ": " + read(reader, large));
                             large.recycle(); if (strip != enhanced) strip.recycle();
+                            if (!binary) {
+                                Bitmap raw = Bitmap.createBitmap(original, 0, bounds[0], original.getWidth(), bounds[1] - bounds[0]);
+                                Bitmap scaled = Bitmap.createScaledBitmap(raw, raw.getWidth() * 2, raw.getHeight() * 2, true);
+                                Bitmap padded = Bitmap.createBitmap(scaled.getWidth() + 80, scaled.getHeight() + 80, Bitmap.Config.ARGB_8888);
+                                Canvas canvas = new Canvas(padded); canvas.drawColor(Color.WHITE); canvas.drawBitmap(scaled, 40, 40, null);
+                                System.out.println("MANUSCRITO FILA ORIGINAL " + row + ": " + read(reader, padded));
+                                padded.recycle(); scaled.recycle(); if (raw != original) raw.recycle();
+                            }
                         }
                     } finally { enhanced.recycle(); }
                 }

@@ -2,12 +2,60 @@ package expo.modules.textextractor;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Operaciones locales acotadas; no modifica el archivo original ni inventa texto. */
 public final class HandwrittenImage {
     private HandwrittenImage() {}
+
+    /** Decodifica con reducción previa: no carga una foto de 48 MP en memoria. */
+    public static Bitmap load(Context context, Uri uri) throws IOException {
+        if (!"file".equals(uri.getScheme()) && !"content".equals(uri.getScheme()))
+            throw new IOException("Se necesita una foto local.");
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        try (InputStream stream = context.getContentResolver().openInputStream(uri)) {
+            BitmapFactory.decodeStream(stream, null, options);
+        }
+        if (options.outWidth <= 0 || options.outHeight <= 0)
+            throw new IOException("No se pudo abrir la foto.");
+        options.inSampleSize = 1;
+        while (Math.max(options.outWidth, options.outHeight) / options.inSampleSize > 1600)
+            options.inSampleSize *= 2;
+        options.inJustDecodeBounds = false;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap image;
+        try (InputStream stream = context.getContentResolver().openInputStream(uri)) {
+            image = BitmapFactory.decodeStream(stream, null, options);
+        }
+        if (image == null) throw new IOException("No se pudo abrir la foto.");
+        int orientation = ExifInterface.ORIENTATION_NORMAL;
+        try (InputStream stream = context.getContentResolver().openInputStream(uri)) {
+            orientation = new ExifInterface(stream).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        } catch (IOException ignored) { /* PNG sin EXIF: orientación original. */ }
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case 2: matrix.setScale(-1, 1); break;
+            case 3: matrix.setRotate(180); break;
+            case 4: matrix.setScale(1, -1); break;
+            case 5: matrix.setRotate(90); matrix.postScale(-1, 1); break;
+            case 6: matrix.setRotate(90); break;
+            case 7: matrix.setRotate(270); matrix.postScale(-1, 1); break;
+            case 8: matrix.setRotate(270); break;
+        }
+        if (matrix.isIdentity()) return image;
+        Bitmap upright = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), matrix, true);
+        if (upright != image) image.recycle();
+        return upright;
+    }
 
     public static Bitmap enhance(Bitmap source, boolean binary) {
         int w = source.getWidth(), h = source.getHeight();
