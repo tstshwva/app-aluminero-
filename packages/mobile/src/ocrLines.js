@@ -29,6 +29,25 @@ const overlaps = (a, b) =>
   Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) >
   Math.min(a.width, b.width) * 0.35;
 
+// Una mayúscula o un número alto desplaza el centro del recuadro. Para letra
+// irregular también comparamos la línea inferior, sin unir filas vecinas.
+function sameHandwrittenRow(a, b) {
+  const small = Math.min(a.height, b.height);
+  const large = Math.max(a.height, b.height);
+  const intersection =
+    Math.min(a.center + a.height / 2, b.center + b.height / 2) -
+    Math.max(a.center - a.height / 2, b.center - b.height / 2);
+  const baseline = Math.abs(
+    a.center + a.height / 2 - (b.center + b.height / 2),
+  );
+  return (
+    Math.abs(a.center - b.center) <= small * 0.65 ||
+    (large <= small * 3 &&
+      intersection >= small * 0.75 &&
+      baseline <= small * 0.3)
+  );
+}
+
 function groupRows(fragments) {
   const rows = [];
   for (const fragment of [...fragments].sort(
@@ -37,8 +56,8 @@ function groupRows(fragments) {
     const row = rows
       .filter(
         (row) =>
-          Math.abs(row.center - fragment.center) <=
-            Math.min(row.height, fragment.height) * 0.65 &&
+          // Todos deben ser compatibles: evita encadenar tres renglones.
+          row.parts.every((part) => sameHandwrittenRow(part, fragment)) &&
           !row.parts.some((part) => overlaps(part, fragment)),
       )
       .sort(

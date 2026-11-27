@@ -261,8 +261,8 @@ export default function Scanner({
       {permission?.granted && !cameraFailed && !photoForReview && (
         <>
           <Text style={{ color: note }}>
-            Para leer mejor: llena el cuadro con la hoja, sosténla de frente,
-            con buena luz y sin sombras.
+            Fotografía 3 a 5 renglones de cerca, con buena luz y sin sombras.
+            Espera a que las letras se vean nítidas antes de tomar la foto.
           </Text>
           {button(
             torch ? "Apagar luz" : "Encender luz",
@@ -408,7 +408,8 @@ export default function Scanner({
           require("../assets/icon-orders.png"),
         )}
       <Text style={{ color: ink, marginTop: 12 }}>
-        Revisa o escribe tu lista, un material por renglón
+        Revisa cada nombre, cantidad y medida antes de buscar. Si una palabra
+        no se leyó bien, corrígela aquí: un material por renglón.
       </Text>
       <TextInput
         multiline

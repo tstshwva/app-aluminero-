@@ -12,6 +12,32 @@ const products = catalogProducts.map((p) => ({
   active: 1,
 }));
 
+test("Letra de alturas distintas conserva palabras y medidas del mismo renglón", () => {
+  const box = (text, x, y, width, height) => ({ text, x, y, width, height });
+  assert.equal(
+    joinRecognizedLines([
+      box("Cabezal", 0, 0, 130, 60),
+      box("de", 145, 40, 25, 20),
+      box("1750", 185, 5, 80, 55),
+      box("Adaptador", 0, 100, 140, 55),
+      box("mosquitero", 155, 130, 150, 25),
+    ]),
+    "Cabezal de 1750\nAdaptador mosquitero",
+  );
+});
+
+test("No encadena renglones vecinos por una letra alta o un fragmento intermedio", () => {
+  const box = (text, x, y, height) => ({ text, x, y, width: 80, height });
+  assert.equal(
+    joinRecognizedLines([
+      box("Riel", 0, 0, 50),
+      box("doble", 100, 45, 20),
+      box("Tubo", 200, 90, 30),
+    ]),
+    "Riel\ndoble\nTubo",
+  );
+});
+
 test("Evita duplicados del lector sin borrar dos renglones iguales y limita hojas excesivas", () => {
   const box = { text: "Riel", x: 0, y: 0, width: 100, height: 20 };
   assert.equal(
