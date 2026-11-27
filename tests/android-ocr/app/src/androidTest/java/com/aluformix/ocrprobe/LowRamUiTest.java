@@ -28,8 +28,8 @@ public class LowRamUiTest {
   @Test public void catalogSearchPagesAndTabsOnLimitedMemoryAndroid() throws Exception {
     Context context=InstrumentationRegistry.getInstrumentation().getContext();
     device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    Intent launch=context.getPackageManager().getLaunchIntentForPackage("com.aluformix.cliente");
-    assertNotNull("APK de demostración instalado",launch);
+    Intent launch=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+      .setClassName("com.aluformix.cliente","com.aluformix.cliente.MainActivity");
     launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
     long start=SystemClock.elapsedRealtime();
     context.startActivity(launch);

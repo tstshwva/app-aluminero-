@@ -43,10 +43,7 @@ jobs:
           heap-size: 256M
           cores: 2
           script: |
-            adb install -r /tmp/aluformix-perf/Aluformix-cliente-demo.apk
-            gradle -p tests/android-ocr :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.aluformix.ocrprobe.LowRamUiTest --no-daemon
-            adb shell dumpsys meminfo com.aluformix.cliente > tests/android-ocr/perf-meminfo.txt
-            adb shell dumpsys gfxinfo com.aluformix.cliente > tests/android-ocr/perf-gfxinfo.txt
+            bash tests/android-ocr/run-lowram.sh
       - name: Guardar informes de rendimiento
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -56,4 +53,5 @@ jobs:
             tests/android-ocr/app/build/reports/androidTests
             tests/android-ocr/app/build/outputs/androidTest-results
             tests/android-ocr/perf-*.txt
+            tests/android-ocr/perf-screen.png
           retention-days: 7
