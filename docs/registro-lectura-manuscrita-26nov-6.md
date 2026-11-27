@@ -18,4 +18,4 @@ No garantiza leer cualquier letra, fotos desenfocadas o caracteres ilegibles. La
 
 ## Distribución
 
-Revisión visible: `26 nov · 6`. Publicación OTA y verificación del manifiesto se registran al finalizar. Los APK descargados de la revisión 5 siguen requiriendo aplicar la actualización; no se recompila un APK en esta tarea.
+Revisión visible: `26 nov · 6`. Publicación OTA completada para los 7 runtimes Android conocidos. Los canales actuales de Cliente y Empresa entregan manifiesto y código con HTTP 200, hash SHA-256 correcto y revisión 6 incorporada. IDs de actualización actuales: Cliente `01a21abf-1cae-71ae-ad28-b4cf96fed208`; Empresa `01a21abf-aeb3-784e-b016-b6f79b341e13`. Los APK descargados de la revisión 5 siguen requiriendo aplicar la actualización; no se recompila un APK en esta tarea.
