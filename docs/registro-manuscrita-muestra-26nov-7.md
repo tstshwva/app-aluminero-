@@ -26,7 +26,7 @@ La hoja recortada de prueba contiene únicamente materiales, cuadrícula y un en
 
 ## Comprobaciones
 
-140 pruebas JavaScript pasan. También pasan las seis pruebas de interfaz y catálogo con heap Node limitado a 128 MB. Comprueban que relectura local no envía fotos, necesita aceptación y conserva el texto ante resultados vacíos o errores. Esto no mide la velocidad de un teléfono físico. La prueba del mismo lector Java de producción y los controles del APK se registran al terminar.
+140 pruebas JavaScript pasan. También pasan las seis pruebas de interfaz y catálogo con heap Node limitado a 128 MB. Comprueban que relectura local no envía fotos, necesita aceptación y conserva el texto ante resultados vacíos o errores. Esto no mide la velocidad de un teléfono físico. La prueba del mismo lector Java de producción pasa con los cuatro renglones y sus posiciones en https://github.com/tstshwva/app-aluminero-/actions/runs/45928378540 (cinco pruebas Android en total). El ensayo incluye lectura impresa, inclinación y página vacía. Los controles del APK se registran al terminar.
 
 ## Límite y distribución
 

@@ -13,10 +13,15 @@ const products = catalogProducts.map((p) => ({
 }));
 
 test("Texto real del Android remoto propone cuatro materiales solo para revisión", () => {
-  const rows = matchList(
-    "Alatudo Mqu.tro\nAdu lado Ox\nAduptudo Xx\nAle tu",
-    products,
-  );
+  // Salida de HandwrittenReader sobre los píxeles reales de la muestra,
+  // ejecución 45928378540; verifica agrupación + candidatos juntos.
+  const text = joinRecognizedLines([
+    { text: "Alatudo Mqu.tro", x: 0, y: 172, width: 650, height: 59 },
+    { text: "Adu lado Ox", x: 0, y: 271, width: 650, height: 66 },
+    { text: "Aduptudo Xx", x: 0, y: 366, width: 650, height: 72 },
+    { text: "Ale tu", x: 0, y: 481, width: 650, height: 62 },
+  ]);
+  const rows = matchList(text, products);
   for (const [i, name] of [
     [0, /adaptador mosquitero/i],
     [1, /adaptador oxxo/i],
