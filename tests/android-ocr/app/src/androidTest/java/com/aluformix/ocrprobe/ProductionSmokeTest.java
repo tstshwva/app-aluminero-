@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.Until;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,11 @@ public class ProductionSmokeTest {
         assertNotNull("El acceso al registro debe estar disponible", register);
         register.click();
         assertTrue("El botón debe abrir el formulario, sin enviar datos", device.wait(Until.hasObject(By.text("Crea tu cuenta")), 15000));
-        assertTrue(device.hasObject(By.text("Crear cuenta")));
+        if (!device.hasObject(By.text("Crear cuenta"))) {
+            UiObject2 scroll = device.findObject(By.scrollable(true));
+            if (scroll != null) scroll.scroll(Direction.DOWN, 0.8f);
+        }
+        assertTrue("El formulario permite llegar al botón de crear cuenta", device.wait(Until.hasObject(By.text("Crear cuenta")), 5000));
         System.out.println("APK real: abrió login y registro; no se crearon cuentas ni pedidos.");
     }
 }
