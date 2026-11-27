@@ -396,6 +396,33 @@ function suggestListProducts(term, index) {
         fallback.push({ p: item.p, score: scores.reduce((a, b) => a + b, 0) });
     }
   }
+  // Una palabra partida en dos puede acompañar a una variante corta. Exige
+  // inicio coincidente, distancia acotada y variante respaldada por el nombre.
+  if (
+    !strict.length &&
+    !fallback.length &&
+    tokens.length === 3 &&
+    tokens.slice(0, 2).every((t) => /^[a-z]{2,4}$/.test(t)) &&
+    /^[a-z]{2,3}$/.test(tokens[2])
+  ) {
+    const joinedWord = tokens[0] + tokens[1];
+    if (joinedWord.length >= 7)
+      for (const item of index) {
+        const words = item.nameWords.filter((w) => !STOP.has(w));
+        if (
+          words.length !== 2 ||
+          !/^[a-z]{7,}$/.test(words[0]) ||
+          !words[0].startsWith(joinedWord.slice(0, 2))
+        )
+          continue;
+        const first =
+          editDistance(joinedWord, words[0], 4) /
+          Math.max(joinedWord.length, words[0].length);
+        const variant = cost(tokens[2], [words[1]]);
+        if (first <= 0.45 && variant <= 0.5)
+          fallback.push({ p: item.p, score: first + variant });
+      }
+  }
   return (strict.length ? strict : fallback)
     .sort((a, b) => a.score - b.score)
     .map((item) => item.p);

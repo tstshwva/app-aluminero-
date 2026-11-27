@@ -12,13 +12,14 @@ const products = catalogProducts.map((p) => ({
   active: 1,
 }));
 
-test("Texto real del Android remoto conserva candidatos y deja ilegible lo que no respalda", () => {
+test("Texto real del Android remoto propone cuatro materiales solo para revisión", () => {
   const rows = matchList(
     "Alatudo Mqu.tro\nAdu lado Ox\nAduptudo Xx\nAle tu",
     products,
   );
   for (const [i, name] of [
     [0, /adaptador mosquitero/i],
+    [1, /adaptador oxxo/i],
     [2, /adaptador xx/i],
     [3, /aleta/i],
   ]) {
@@ -29,12 +30,13 @@ test("Texto real del Android remoto conserva candidatos y deja ilegible lo que n
     assert.equal(rows[i].review, true);
     assert.equal(rows[i].quantity, null);
   }
-  assert.equal(rows[1].options.length, 0);
   for (const text of [
     "Permanent Mark",
     "Halaptado XX",
     "Cabezal de 1759",
     "Alatudo Mqu.tro 99999",
+    "Nada lado ox",
+    "Adu lado 1759",
   ])
     assert.equal(matchList(text, products)[0].options.length, 0, text);
 });
