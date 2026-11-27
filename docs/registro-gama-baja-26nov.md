@@ -16,4 +16,17 @@ No se alteran precios, cuentas, permisos, datos de producción ni separación en
 
 El APK de prueba se aloja temporalmente en una publicación borrador y no se entrega como app real. Las compilaciones de distribución se hacen después con Firebase y actualizaciones habilitados. Los resultados se registran cuando se verifican.
 
+## Resultados verificados
+
+https://github.com/tstshwva/app-aluminero-/actions/runs/45921021519: 135 pruebas JavaScript aprobadas, prueba de catálogo/compra con heap Node de 128 MB aprobada, 8 pruebas de Firestore aislado y 5 sondas HTTPS reales aprobadas.
+
+Se compilaron y firmaron los dos APK Firebase con la misma identidad de distribución. Verificación: paquetes com.aluformix.cliente y com.aluformix.empresa, appId Firebase correcto por app, modelo ML Kit incluido, revisión 26 nov · 5 en el bytecode y 145 miniaturas verificadas contra sus SHA-256 originales.
+
+- Cliente: 81402161 bytes, SHA-256 FA9DAB70085B179373866BFE9359940F805764ACF7365467C04E5B8654CA2D00.
+- Empresa: 81402161 bytes, SHA-256 6C8865276DCC2222B686CA622F8FE4BE6D38F35158487A2CF40494FE1A0E40FD.
+
+Las mediciones Android se ejecutan sobre el APK de demostración BC49E3B547CAB1CCE784D41BBB73A34B66DEE741DF85CC9D930C0FE1E9C92C3D (81393969 bytes), compilado del mismo código de UI de la revisión 5 y con actualizaciones remotas deshabilitadas para no cambiar de código durante la prueba. No se utiliza para probar autenticación o backend. El runner recibe un enlace temporal protegido a ese archivo en el borrador, sin permisos de escritura de repositorio. El enlace no se imprime ni se guarda en el código.
+
+Los primeros intentos se detuvieron en el controlador: acceso al borrador, visibilidad de paquetes y uso de un contexto Android de otro UID. Se corrigieron sin relajar los requisitos ni atribuir esos fallos al rendimiento de la app. El resultado de navegación se añade al terminar.
+
 Referencias: https://reactnative.dev/docs/optimizing-flatlist-configuration y https://reactnative.dev/docs/image.html
