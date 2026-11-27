@@ -31,3 +31,13 @@ La hoja recortada de prueba contiene únicamente materiales, cuadrícula y un en
 ## Límite y distribución
 
 No se garantiza «la peor letra» ni fotografías desenfocadas. La confirmación sigue siendo necesaria. No se activa un servicio de pago, un modelo remoto ni dependencias de la laptop. Este cambio nativo requiere instalar un APK nuevo de Cliente; una actualización OTA en un APK antiguo solo aporta la búsqueda mejorada, no la función nativa nueva. Empresa conserva sus funciones de administración.
+
+## Entrega verificada
+
+APK Cliente, 89336060 bytes, SHA-256 `2D278CB02BD5275256771E26ECBDB4F5F4B258115CA19A5CB6BE5D0BFC168E72`. Verificados paquete `com.aluformix.cliente`, identidad Firebase propia, modelo OCR incluido, función nativa nueva en DEX, revisión 7 en Hermes, actualizaciones habilitadas, alineación y firma de distribución existente. Los dos intentos locales con R8 se interrumpieron por saturación de memoria; el instalador final es variante release firmada con Hermes, sin minificación nativa R8 ni reducción de recursos. No contiene una clave privada ni es una demostración.
+
+Este mismo APK fue descargado y comprobado por SHA en https://github.com/tstshwva/app-aluminero-/actions/runs/45931947959 . Pasa apertura de Inicio de sesión y navegación a Crear cuenta en Android 11 x86_64, con Wi-Fi y datos deshabilitados para probar el código incorporado. No se inició sesión real ni se crearon cuentas/pedidos. Hardware observado: MemTotal 2028632 kB, dos núcleos. PSS final 95835 kB y RSS 203376 kB en el formulario; no son consumo máximo, comparación de rendimiento ni prueba de la cámara física. No hubo cierre fatal de Cliente en esa prueba.
+
+OTA revisión 7 publicada para los siete runtimes conocidos. Manifiestos y código de ambos canales actuales respondieron HTTP 200 y coincidieron con su hash: Cliente `01a21af4-59a7-7ce3-bcef-628c518b59e1`, Empresa `01a21af5-50f6-7976-9424-04a26358fe9a`. Se conserva detección de capacidad para no llamar al módulo ausente en APK anteriores.
+
+Entrega: https://github.com/tstshwva/app-aluminero-/releases/tag/android-lectura-2026-11-26 . Copia local verificada en `C:/Users/Reyca/Downloads/Aluformix-APK/Aluformix-Cliente.apk`. Instalar encima, abrir Cámara, fotografiar la hoja y elegir «Leer por renglones (sin internet)». Revisar la propuesta, aceptarla si sirve y buscar los materiales; cada coincidencia aproximada necesita confirmación.
