@@ -12,6 +12,16 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 async function component() {
   let source = await readFile("packages/mobile/src/BusinessApp.js", "utf8");
   source = source
+    .replace(
+      'import { catalogThumbnails, genericThumbnails } from "./catalogThumbnails";',
+      "const catalogThumbnails=globalThis.__catalogImages??{},genericThumbnails={};",
+    )
+    .replace(
+      '"./catalogPage.js"',
+      JSON.stringify(
+        pathToFileURL(path.resolve("packages/mobile/src/catalogPage.js")).href,
+      ),
+    )
     .replace(/import \{[^}]*\} from "\.\/Typography";/, "")
     .replace(
       'import AssistantChat from "./AssistantChat";',
@@ -514,9 +524,16 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
   const idOf = (code) => products.find((p) => p.code === code).id;
   const total = products.length;
   await press("Catálogo");
-  assert.equal(cards().length, Math.min(20, total));
-  while (cards().length < total) await press("Mostrar más materiales");
-  assert.equal(cards().length, total);
+  assert.equal(cards().length, Math.min(12, total));
+  const seen = new Set(cards());
+  while (texts().includes("Página siguiente")) {
+    await press("Página siguiente");
+    assert.ok(cards().length <= 12, "Nunca acumula más de 12 tarjetas");
+    cards().forEach((code) => seen.add(code));
+  }
+  assert.equal(seen.size, total, "Todos los productos siguen accesibles");
+  await press("Página anterior");
+  assert.ok(cards().length <= 12);
   assert.ok(texts().includes(total + " productos"));
   assert.ok(!texts().some((t) => /$0.00/.test(t)), "Nunca muestra $0.00");
   assert.ok(texts().includes("Consultar precio"));
@@ -525,10 +542,13 @@ test("Catálogo: filtros, búsqueda, favoritos, ficha y encargo con acabado", as
     "Sin 6 m por defecto",
   );
   await press("Filtrar Perfiles");
-  while (texts().includes("Mostrar más materiales"))
-    await press("Mostrar más materiales");
+  const profileCodes = new Set(cards());
+  while (texts().includes("Página siguiente")) {
+    await press("Página siguiente");
+    cards().forEach((code) => profileCodes.add(code));
+  }
   assert.equal(
-    cards().length,
+    profileCodes.size,
     data.productos.filter((p) => p.codigo && p.grupo === "Perfiles").length,
   );
   await press("Cancel de baño");

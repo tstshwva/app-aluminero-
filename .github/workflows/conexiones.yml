@@ -17,6 +17,8 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Simular desconexión, reconexión, plazos y permisos
         run: npm test
+      - name: Catálogo y compra con presupuesto de memoria JavaScript limitado
+        run: node --max-old-space-size=128 --test tests/javascript/business-ui.test.js tests/javascript/catalog-page.test.js
       - name: Comprobar Firebase y actualizaciones reales desde GitHub
         env:
           ALUFORMIX_CLIENTE_API_KEY: ${{ secrets.ALUFORMIX_CLIENTE_API_KEY }}

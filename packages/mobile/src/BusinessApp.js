@@ -5,13 +5,13 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  useDeferredValue,
 } from "react";
 import {
   Alert,
   ActivityIndicator,
   Animated,
   AppState,
-  Easing,
   Image,
   ScrollView,
   Pressable,
@@ -35,6 +35,8 @@ import {
   savePushEnabled,
 } from "./preferences";
 import { catalogImages, genericImages, systemImages } from "./catalogImages";
+import { catalogThumbnails, genericThumbnails } from "./catalogThumbnails";
+import { catalogPage } from "./catalogPage.js";
 import {
   GROUPS,
   catalogInfo,
@@ -123,9 +125,13 @@ function displayCents(value) {
 
 // Imagen del producto: primero la URL HTTPS registrada, después la imagen
 // ilustrativa incluida en la app y, si ninguna carga, un marcador neutro.
-function ProductImage({ product, style, large = false }) {
+const ProductImage = React.memo(function ProductImage({
+  product,
+  style,
+  large = false,
+}) {
   const [failed, setFailed] = useState(false);
-  const bundled = bundledImageOf(product);
+  const bundled = bundledImageOf(product, !large);
   const source =
     product.image_url && !failed
       ? { uri: product.image_url }
@@ -139,6 +145,7 @@ function ProductImage({ product, style, large = false }) {
           accessibilityLabel={"Imagen de " + product.name}
           source={source}
           resizeMode="contain"
+          resizeMethod="resize"
           onError={() => product.image_url && setFailed(true)}
           style={s.imageFill}
         />
@@ -160,15 +167,18 @@ function ProductImage({ product, style, large = false }) {
       </Text>
     </View>
   );
-}
+});
 const usesIllustration = (p) => !p.image_url && Boolean(bundledImageOf(p));
 // Render propio del producto o, si no existe, imagen genérica según su tipo.
-function bundledImageOf(p) {
-  const own = catalogImages[String(p.code ?? "")];
+function bundledImageOf(p, thumbnail = false) {
+  const own = (thumbnail ? catalogThumbnails : catalogImages)[
+    String(p.code ?? "")
+  ];
   if (own) return own;
   // Un producto del catálogo maestro nunca recibe una imagen genérica.
   if (catalogInfo(p.code)) return null;
-  return genericImages[genericTypeOf(p.name)] ?? genericImages.material ?? null;
+  const generic = thumbnail ? genericThumbnails : genericImages;
+  return generic[genericTypeOf(p.name)] ?? generic.material ?? null;
 }
 const emptyFilter = {
   group: "",
@@ -200,9 +210,7 @@ const help = [
     "Orienta sobre materiales del catálogo. No modifica encargos ni confirma medidas o precios. Revisa su sugerencia con la empresa.",
   ],
 ];
-// Transición al cambiar de apartado: cada pantalla es un ScrollView animado
-// que entra con un desvanecido, un ligero deslizamiento hacia arriba y una
-// escala sutil. Se monta de nuevo en cada cambio (key={screen}).
+// El contenido aparece inmediatamente al cambiar de apartado.
 // Tasa guardada ("0.1600") a porcentaje para el formulario ("16").
 const toPercent = (rate) =>
   rate === null || rate === undefined || rate === ""
@@ -215,44 +223,8 @@ const qtyText = (value) => {
     ? String(Math.round(n * 1000) / 1000)
     : String(value ?? "");
 };
-function SectionScroll({ style, ref, ...props }) {
-  const progress = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const animation = Animated.timing(progress, {
-      toValue: 1,
-      duration: 120,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: Platform.OS !== "web",
-    });
-    animation.start();
-    return () => animation.stop?.();
-  }, [progress]);
-  return (
-    <Animated.ScrollView
-      {...props}
-      ref={ref}
-      style={[
-        style,
-        {
-          opacity: progress,
-          transform: [
-            {
-              translateY: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [18, 0],
-              }),
-            },
-            {
-              scale: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.985, 1],
-              }),
-            },
-          ],
-        },
-      ]}
-    />
-  );
+function SectionScroll(props) {
+  return <Animated.ScrollView {...props} />;
 }
 export default function BusinessApp({
   client,
@@ -274,7 +246,7 @@ export default function BusinessApp({
     admin = user.role === "Administrador";
   const localOrders = client.cloud && !company && Platform.OS !== "web";
   const outbox = useOrderOutbox(client, user.id, localOrders);
-  const [catalogLimit, setCatalogLimit] = useState(20);
+  const [catalogPageIndex, setCatalogPageIndex] = useState(0);
   // Estado de los avisos de este teléfono: decide qué botón se muestra.
   const [pushOn, setPushOn] = useState(false);
   useEffect(() => {
@@ -291,6 +263,7 @@ export default function BusinessApp({
     [search, setSearch] = useState(""),
     [catalogFilter, setCatalogFilter] = useState(emptyFilter),
     [favoriteIds, setFavoriteIds] = useState(() => new Set());
+  const catalogSearch = useDeferredValue(search);
   // Desplazamiento de Inicio: el fondo de la foto sube junto con el contenido,
   // así la zona de materiales siempre queda sobre el color del tema.
   const homeScroll = useRef(new Animated.Value(0)).current;
@@ -1323,54 +1296,82 @@ export default function BusinessApp({
     </Pressable>
   );
   const allProducts = useMemo(() => data.products ?? [], [data.products]);
-  const groupTabs = [
-    ...GROUPS,
-    "Sistemas",
-    ...(allProducts.some(
-      (p) => classify(p, categoryNameOf(p)).group === "Otros",
-    )
-      ? ["Otros"]
-      : []),
-  ];
+  const groupTabs = useMemo(
+    () => [
+      ...GROUPS,
+      "Sistemas",
+      ...(allProducts.some(
+        (p) => classify(p, categoryNameOf(p)).group === "Otros",
+      )
+        ? ["Otros"]
+        : []),
+    ],
+    [allProducts, categoryNameOf],
+  );
   const showingSystems = catalogFilter.group === "Sistemas";
-  const subcategories =
-    catalogFilter.group && !showingSystems
-      ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
-      : [];
-  useEffect(() => setCatalogLimit(20), [search, catalogFilter, screen]);
+  const subcategories = useMemo(
+    () =>
+      catalogFilter.group && !showingSystems
+        ? subcategoriesFor(catalogFilter.group, allProducts, categoryNameOf)
+        : [],
+    [catalogFilter.group, showingSystems, allProducts, categoryNameOf],
+  );
+  useEffect(
+    () => setCatalogPageIndex(0),
+    [catalogSearch, catalogFilter, screen],
+  );
   const catalogList = useMemo(
     () =>
       screen === "catalogo"
         ? filterCatalog(allProducts, {
             ...catalogFilter,
             favorites: favoriteIds,
-            query: search.includes("\n") ? "" : search,
+            query: catalogSearch.includes("\n") ? "" : catalogSearch,
             categoryNameOf,
           })
         : allProducts,
-    [screen, allProducts, catalogFilter, favoriteIds, search, categoryNameOf],
+    [
+      screen,
+      allProducts,
+      catalogFilter,
+      favoriteIds,
+      catalogSearch,
+      categoryNameOf,
+    ],
   );
-  const listTerms = search
-    .split(/\n/)
-    .map((term) =>
-      term
-        .trim()
-        .toLowerCase()
-        .replace(/^\d+\s+(?:(?:x|piezas? de|piezas?)\s+)?/i, ""),
-    )
-    .filter(Boolean);
-  const matchedCatalog =
-    listTerms.length > 1
-      ? catalogList.filter((product) =>
-          listTerms.some((term) =>
-            [product.name, product.code].some((value) =>
-              String(value ?? "")
-                .toLowerCase()
-                .includes(term),
-            ),
-          ),
+  const listTerms = useMemo(
+    () =>
+      catalogSearch
+        .split(/\n/)
+        .map((term) =>
+          term
+            .trim()
+            .toLowerCase()
+            .replace(/^\d+\s+(?:(?:x|piezas? de|piezas?)\s+)?/i, ""),
         )
-      : catalogList;
+        .filter(Boolean),
+    [catalogSearch],
+  );
+  const matchedCatalog = useMemo(
+    () =>
+      listTerms.length > 1
+        ? catalogList.filter((product) =>
+            listTerms.some((term) =>
+              [product.name, product.code].some((value) =>
+                String(value ?? "")
+                  .toLowerCase()
+                  .includes(term),
+              ),
+            ),
+          )
+        : catalogList,
+    [catalogList, listTerms],
+  );
+  const page = catalogPage(matchedCatalog, catalogPageIndex);
+  const changeCatalogPage = (next) => {
+    setCatalogPageIndex(next);
+    sectionScroll.current?.scrollTo?.({ y: 0, animated: false });
+  };
   const productByCode = (codigo, alternos = []) =>
     allProducts.find((p) =>
       [codigo, ...alternos].filter(Boolean).includes(String(p.code)),
@@ -1543,7 +1544,7 @@ export default function BusinessApp({
             ].includes(screen) && { maxWidth: columns === 3 ? 1120 : 900 },
         ]}
         keyboardShouldPersistTaps="handled"
-        scrollEventThrottle={16}
+        scrollEventThrottle={64}
         ref={sectionScroll}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: homeScroll } } }],
@@ -1875,9 +1876,9 @@ export default function BusinessApp({
                     {matchedCatalog.length === 1
                       ? "1 producto"
                       : matchedCatalog.length + " productos"}
-                    {search.trim()
+                    {catalogSearch.trim()
                       ? " para «" +
-                        search
+                        catalogSearch
                           .split(/\n/)
                           .map((term) => term.trim())
                           .filter(Boolean)
@@ -1900,12 +1901,29 @@ export default function BusinessApp({
               </View>
             )}
             {!(showingSystems && screen === "catalogo") && (
+              <Text style={s.resultCount} accessibilityLiveRegion="polite">
+                {page.pages > 1
+                  ? `Página ${page.page + 1} de ${page.pages} · ${page.start + 1}–${page.end} de ${matchedCatalog.length}`
+                  : ""}
+              </Text>
+            )}
+            {!(showingSystems && screen === "catalogo") && (
               <View style={wide ? s.grid : null}>
-                {matchedCatalog.slice(0, catalogLimit).map(productRow)}
-                {matchedCatalog.length > catalogLimit &&
+                {page.items.map(productRow)}
+              </View>
+            )}
+            {!(showingSystems && screen === "catalogo") && page.pages > 1 && (
+              <View>
+                {page.page > 0 &&
                   button(
-                    "Mostrar más materiales",
-                    () => setCatalogLimit((limit) => limit + 20),
+                    "Página anterior",
+                    () => changeCatalogPage(page.page - 1),
+                    true,
+                  )}
+                {page.page < page.pages - 1 &&
+                  button(
+                    "Página siguiente",
+                    () => changeCatalogPage(page.page + 1),
                     true,
                   )}
               </View>

@@ -1,0 +1,56 @@
+name: App completa en Android de memoria limitada
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Preparar Java y aceleración del emulador
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_17_X64/bin" >> "$GITHUB_PATH"
+          sudo chmod 666 /dev/kvm
+      - name: Descargar Gradle verificado
+        run: |
+          curl --fail --location --retry 3 --output /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+          curl --fail --location --retry 3 --output /tmp/gradle.sha256 https://services.gradle.org/distributions/gradle-8.11.1-bin.zip.sha256
+          printf '%s  /tmp/gradle.zip\n' "$(cat /tmp/gradle.sha256)" | sha256sum --check
+          unzip -q /tmp/gradle.zip -d /tmp/aluformix-gradle
+          echo "/tmp/aluformix-gradle/gradle-8.11.1/bin" >> "$GITHUB_PATH"
+      - name: Compilar proyecto aislado sin credenciales
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          gradle -p tests/android-ocr :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
+      - name: Descargar APK de demostracion para la prueba, no distribucion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download android-gama-baja-2026-11-26 --repo tstshwva/app-aluminero- --pattern Aluformix-cliente-demo.apk --dir /tmp/aluformix-perf
+      - name: Ejecutar UI de la app con memoria limitada
+        uses: ReactiveCircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 30
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          ram-size: 1536M
+          heap-size: 256M
+          cores: 2
+          script: |
+            adb install -r /tmp/aluformix-perf/Aluformix-cliente-demo.apk
+            gradle -p tests/android-ocr :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.aluformix.ocrprobe.LowRamUiTest --no-daemon
+            adb shell dumpsys meminfo com.aluformix.cliente > tests/android-ocr/perf-meminfo.txt
+            adb shell dumpsys gfxinfo com.aluformix.cliente > tests/android-ocr/perf-gfxinfo.txt
+      - name: Guardar informes de rendimiento
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: app-android-memoria-limitada
+          path: |
+            tests/android-ocr/app/build/reports/androidTests
+            tests/android-ocr/app/build/outputs/androidTest-results
+            tests/android-ocr/perf-*.txt
+          retention-days: 7
